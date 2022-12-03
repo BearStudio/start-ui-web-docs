@@ -1,18 +1,19 @@
-import React from 'react'
-import { DocsThemeConfig } from 'nextra-theme-docs'
+import React from "react";
+import { DocsThemeConfig } from "nextra-theme-docs";
 
 const config: DocsThemeConfig = {
-  logo: <span>My Project</span>,
+  logo: <span>🚀 Start UI</span>,
   project: {
-    link: 'https://github.com/shuding/nextra-docs-template',
+    link: "https://github.com/bearstudio/start-ui-web",
   },
   chat: {
-    link: 'https://discord.com',
+    link: "https://go.bearstudio.fr/discord",
   },
-  docsRepositoryBase: 'https://github.com/shuding/nextra-docs-template',
+  docsRepositoryBase: "https://github.com/bearstudio/start-ui-web",
   footer: {
-    text: 'Nextra Docs Template',
+    text: "Nextra Docs Template",
   },
-}
+  primaryHue: { dark: 60, light: 250 },
+};
 
-export default config
+export default config;

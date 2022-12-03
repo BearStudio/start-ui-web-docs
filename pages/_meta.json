@@ -1,15 +1,22 @@
 {
   "index": "Introduction",
-  "another": "Another Page",
-  "advanced": "Advanced (A Folder)",
-  "about": {
-    "title": "About",
-    "type": "page"
+  "": { "type": "separator" },
+  "technologies": "Technologies",
+  "guides": "Guides",
+  "demo": {
+    "title": "Demo ↗",
+    "type": "page",
+    "href": "https://start-ui.vercel.app",
+    "newWindow": true
   },
   "contact": {
     "title": "Contact ↗",
     "type": "page",
-    "href": "https://twitter.com/shuding_",
+    "href": "https://twitter.com/startui_",
     "newWindow": true
+  },
+  "about": {
+    "title": "About",
+    "type": "page"
   }
 }

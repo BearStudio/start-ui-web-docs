@@ -1,0 +1,12 @@
+{
+  "typescript": "Typescript",
+  "react": "React",
+  "nextjs": "NextJS",
+  "react-router": "React Router",
+  "chakra-ui": "Chakra UI",
+  "tanstack-query": "TanStack Query",
+  "formiz": "Formiz",
+  "storybook": "Storybook",
+  "tooling": "Tooling",
+  "others": "Others"
+}
