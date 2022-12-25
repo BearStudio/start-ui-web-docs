@@ -23,6 +23,8 @@ It contains a form with four fields:
 
 Once the user registered, a success message is displayed asking him to check his emails.
 
+<img src="/images/screenshots/sign-up-success.png"  alt="Sign-up success message screenshot"/>
+
 ## Login
 
 The login page can be found on the `app/account/login` route.  
@@ -40,16 +42,33 @@ The reset password flow is a standard flow that contains two steps.
 ### Ask for a reset password link
 
 The first step consists in asking to get a reset password link which will be sent by email. This is done on the 
-`account/reset` route.
+`app/account/reset` route.
 To do it, there's a page, accessible from the login page, which contains an email field. Starting to that point, there
 are two scenario :
 Either the email is known by your backend, then a success message with the next step's instructions is ready to be shown,
 or the email isn't known and an error message is already implemented for you to use it.
 
+<img src="/images/screenshots/ask-reset-password-desktop.png"  alt="Password reset link ask form screenshot on desktop"/>
+<img src="/images/screenshots/ask-reset-password-mobile.png"  alt="Password reset link ask form screenshot on mobile"/>
+
+
+
 ### Reset the password
 
+The second step consists in resetting the password, once the email's link clicked, which leads to the 
+`app/account/reset/finish` route.  
+This page contains one password and one password confirm fields which are both validated to match.
 
+<img src="/images/screenshots/reset-password-desktop.png"  alt="Reset password form screenshot on desktop"/>
+<img src="/images/screenshots/reset-password-mobile.png"  alt="Reset password form screenshot on mobile"/>
 
-[//]: # (TODO disconnection and modal)
+## Session expiration
 
-[//]: # (TODO faire une doc pour "comment connecter l'authentification à mon système d'authentification" ? avec différentes technos)
+Since it's part of any app requirements, we also handle the session expiration in Start UI.  
+To do so, we created an **interceptor** that will allow to trigger some code when an Unauthorized error (401) will be
+answered from the API. The triggered code will then open a modal asking the user to log in again, which leads to a better
+UX than redirecting the user to the login page, or just printing an error.
+
+This piece of code is handled in the `src/spa/auth/LoginModalInterceptor.tsx` component.
+
+<img src="/images/screenshots/auth-modal-desktop.png"  alt="Authentication modal"/>
