@@ -18,35 +18,35 @@ to respect a pattern and length.
  - **Email** which is also validated using the Formiz email's validation pattern
  - **Password** which is validated to be not too short and not too long
 
-import { ImageStack } from '../../components/ImageStack';
+import { ImageTabs } from '../../components/ImageTabs';
+import signUpDesktopImage from '../../public/images/screenshots/sign-up-desktop.png';
+import signUpMobileImage from '../../public/images/screenshots/sign-up-mobile.png';
 
-<ImageStack
-  images={[
-    {
-      alt: "Sign-up page screenshot on desktop",
-      src: "/images/screenshots/sign-up-desktop.png",
-      width: 2390,
-      height: 1667,
-    }, {
-      alt: "Sign-up page screenshot on mobile",
-      src: "/images/screenshots/sign-up-mobile.png",
-      width: 688,
-      height: 1488,
-    },
-  ]}
+<ImageTabs
+  desktopImage={{
+    alt: "Sign-up page screenshot on desktop",
+    src: signUpDesktopImage,
+  }}
+  mobileImage={{
+    alt: "Sign-up page screenshot on mobile",
+    src: signUpMobileImage,
+  }}
 />
 
 Once the user registered, a success message is displayed asking him to check his emails.
 
-<ImageStack
-  images={[
-    {
-      alt: "Sign-up success message screenshot",
-      src: "/images/screenshots/sign-up-success.png",
-      width: 2400,
-      height: 1670,
-    },
-  ]}
+import signUpSuccessDesktopImage from '../../public/images/screenshots/sign-up-success-desktop.png';
+import signUpSuccessMobileImage from '../../public/images/screenshots/sign-up-success-mobile.png';
+
+<ImageTabs
+  desktopImage={{
+    alt: "Sign-up success message screenshot on desktop",
+    src: signUpSuccessDesktopImage,
+  }}
+  mobileImage={{
+    alt: "Sign-up success message screenshot on mobile",
+    src: signUpSuccessMobileImage,
+  }}
 />
 
 ## Login
@@ -56,20 +56,18 @@ Like every other page, it's translated.
 It contains a form with an email and a password field, which are both required. Error messages are already managed for you
 when login succeeds or fails.
 
-<ImageStack
-  images={[
-    {
-      alt: "Login page screenshot on desktop",
-      src: "/images/screenshots/login-desktop.png",
-      width: 2391,
-      height: 1666,
-    }, {
-      alt: "Login page screenshot on mobile",
-      src: "/images/screenshots/login-mobile.png",
-      width: 688,
-      height: 1478,
-    },
-  ]}
+import loginDesktopImage from '../../public/images/screenshots/login-desktop.png';
+import loginMobileImage from '../../public/images/screenshots/login-mobile.png';
+
+<ImageTabs
+  desktopImage={{
+    alt: "Login page screenshot on desktop",
+    src: loginDesktopImage,
+  }}
+  mobileImage={{
+    alt: "Login page screenshot on mobile",
+    src: loginMobileImage,
+  }}
 />
 
 ## Reset password flow
@@ -85,20 +83,18 @@ are two scenario :
 Either the email is known by your backend, then a success message with the next step's instructions is ready to be shown,
 or the email isn't known and an error message is already implemented for you to use it.
 
-<ImageStack
-  images={[
-    {
-      alt: "Password reset link ask form screenshot on desktop",
-      src: "/images/screenshots/ask-reset-password-desktop.png",
-      width: 2698,
-      height: 1674,
-    }, {
-      alt: "Password reset link ask form screenshot on mobile",
-      src: "/images/screenshots/ask-reset-password-mobile.png",
-      width: 684,
-      height: 1498,
-    },
-  ]}
+import askResetPasswordDesktopImage from '../../public/images/screenshots/ask-reset-password-desktop.png';
+import askResetPasswordMobileImage from '../../public/images/screenshots/ask-reset-password-mobile.png';
+
+<ImageTabs
+  desktopImage={{
+    alt: "Password reset link ask form screenshot on desktop",
+    src: askResetPasswordDesktopImage,
+  }}
+  mobileImage={{
+    alt: "Password reset link ask form screenshot on mobile",
+    src: askResetPasswordMobileImage,
+  }}
 />
 
 
@@ -108,20 +104,18 @@ The second step consists in resetting the password, once the email's link has be
 `app/account/reset/finish` route.  
 This page contains one password and one password confirm fields which are both validated to match each other.
 
-<ImageStack
-  images={[
-    {
-      alt: "Reset password form screenshot on desktop",
-      src: "/images/screenshots/reset-password-desktop.png",
-      width: 2398,
-      height: 1674,
-    }, {
-      alt: "Reset password form screenshot on mobile",
-      src: "/images/screenshots/reset-password-mobile.png",
-      width: 692,
-      height: 1490,
-    },
-  ]}
+import resetPasswordDesktopImage from '../../public/images/screenshots/reset-password-desktop.png';
+import resetPasswordMobileImage from '../../public/images/screenshots/reset-password-mobile.png';
+
+<ImageTabs
+  desktopImage={{
+    alt: "Reset password form screenshot on desktop",
+    src: resetPasswordDesktopImage,
+  }}
+  mobileImage={{
+    alt: "Reset password form screenshot on mobile",
+    src: resetPasswordMobileImage,
+  }}
 />
 
 ## Session's expiration
@@ -134,13 +128,16 @@ UX than redirecting the user to the login page, or just prompting an error.
 This piece of code is handled in the `src/spa/auth/LoginModalInterceptor.tsx` component.
 
 
-<ImageStack
-  images={[
-    {
-      alt: "Authentication modal",
-      src: "/images/screenshots/auth-modal-desktop.png",
-      width: 2398,
-      height: 1494,
-    },
-  ]}
+import authModalDesktopImage from '../../public/images/screenshots/auth-modal-desktop.png';
+import authModalMobileImage from '../../public/images/screenshots/auth-modal-mobile.png';
+
+<ImageTabs
+  desktopImage={{
+    alt: "Authentication modal on desktop",
+    src: authModalDesktopImage,
+  }}
+  mobileImage={{
+    alt: "Authentication modal on mobile",
+    src: authModalMobileImage,
+  }}
 />
