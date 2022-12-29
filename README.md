@@ -1,23 +1,39 @@
-# Nextra Docs Template 
+<h1 align="center"><img src="assets/start-ui-web.svg" alt="Start UI Web" width="300" /></h1>
 
-This is a template for creating documentation with [Nextra](https://nextra.site).
+🚀 Start UI <small>[web]</small> is an opinionated frontend starter repository created & maintained by the [BearStudio Team](https://www.bearstudio.fr/team) and other contributors.
+It represents our team's up-to-date stack that we use when creating web apps for our clients.
 
-[**Live Demo →**](https://nextra-docs-template.vercel.app)
+# This is Start UI [web] documentation repository
 
-[![](.github/screenshot.png)](https://nextra-docs-template.vercel.app)
+🚧 Is still in progress
 
-## Quick Start
+# Contribution
 
-Click the button to clone this repository and deploy it on Vercel:
+## Getting Started
 
-[![](https://vercel.com/button)](https://vercel.com/new/clone?s=https%3A%2F%2Fgithub.com%2Fshuding%2Fnextra-docs-template&showOptionalTeamCreation=false)
+```bash
+yarn
+yarn dev
+```
 
-## Local Development
+The documentation uses Nextra from Vercel, so it's based on NextJS. You can check the [documentation](https://nextra.site) for more information.
 
-First, run `pnpm i` to install the dependencies.
+## Components
 
-Then, run `pnpm dev` to start the development server and visit localhost:3000.
+Some components have been developed and could be used in documentation pages.
 
-## License
+### `ImageTabs`
 
-This project is licensed under the MIT License.
+A component to display images as content of Nextra Tabs component. It is used to display screenshots as desktop or mobile version.
+
+### `Stack`
+
+Flex container that allows to define direction and gap.
+
+### `ResponsiveStack`
+
+Horizontal Stack which will become vertical when the device width is lower than breakpoint prop (default is to 768px)
+
+### `WorkInProgress`
+
+Component based on Nextra Callout, to warn user that a page is not yet written.
