@@ -1,7 +1,0 @@
-# Tooling
-
-## ESLint
-
-## Prettier
-
-## Husky
