@@ -127,7 +127,8 @@ const config: DocsThemeConfig = {
     "https://github.com/bearstudio/start-ui-web-doc/blob/main",
   useNextSeoProps: () => {
     const { route } = useRouter();
-    const titleTemplate = `${route === "/" ? "" : "%s - "}Start UI [web]`;
+    const titleTemplate =
+      route === "/" ? "Start UI [web] documentation" : "%s - Start UI [web]";
     return {
       titleTemplate,
     };
