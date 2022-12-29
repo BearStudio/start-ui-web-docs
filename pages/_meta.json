@@ -2,6 +2,7 @@
   "index": "Introduction",
   "": { "type": "separator" },
   "technologies": "Technologies",
+  "features": "Features",
   "guides": "Guides",
   "demo": {
     "title": "Demo ↗",
