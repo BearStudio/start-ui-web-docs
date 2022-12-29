@@ -1,0 +1,143 @@
+# Authentication
+
+Authentication features are needed on almost every project, and developing them right takes time.
+StartUI contains all the necessary screens to manage a complete authentication flow.
+If you're using a JHipster backend, you don't have anything to do to have it work with your authentication system,
+however if you're using another system, don't forget to connect the UI to it.
+
+## Sign-up
+
+The sign-up page can be found on the `app/account/register` route.  
+Like every other page, it's translated.  
+It contains a form with four fields:
+ - **Language** which is a Select component that will help the user choosing his preferred language, so that you can later display an
+adapted UI. You can check the (translation)[TODO] feature page to know more about this.
+The available values come from a constant containing the list of available languages along with their configuration (ltr, specific font size and so on).
+ - **Username** which could be a unique user identifier (it's up to you and your authentication system). This field is validated
+to respect a pattern and length.
+ - **Email** which is also validated using the Formiz email's validation pattern
+ - **Password** which is validated to be not too short and not too long
+
+import { ImageTabs } from '../../components/ImageTabs';
+import signUpDesktopImage from '../../public/images/screenshots/sign-up-desktop.png';
+import signUpMobileImage from '../../public/images/screenshots/sign-up-mobile.png';
+
+<ImageTabs
+  desktopImage={{
+    alt: "Sign-up page screenshot on desktop",
+    src: signUpDesktopImage,
+  }}
+  mobileImage={{
+    alt: "Sign-up page screenshot on mobile",
+    src: signUpMobileImage,
+  }}
+/>
+
+Once the user registered, a success message is displayed asking them to check their emails.
+
+import signUpSuccessDesktopImage from '../../public/images/screenshots/sign-up-success-desktop.png';
+import signUpSuccessMobileImage from '../../public/images/screenshots/sign-up-success-mobile.png';
+
+<ImageTabs
+  desktopImage={{
+    alt: "Sign-up success message screenshot on desktop",
+    src: signUpSuccessDesktopImage,
+  }}
+  mobileImage={{
+    alt: "Sign-up success message screenshot on mobile",
+    src: signUpSuccessMobileImage,
+  }}
+/>
+
+## Login
+
+The login page can be found on the `app/account/login` route.  
+Like every other page, it's translated.  
+It contains a form with an email and a password field, which are both required. Error messages are already managed for you
+when login succeeds or fails.
+
+import loginDesktopImage from '../../public/images/screenshots/login-desktop.png';
+import loginMobileImage from '../../public/images/screenshots/login-mobile.png';
+
+<ImageTabs
+  desktopImage={{
+    alt: "Login page screenshot on desktop",
+    src: loginDesktopImage,
+  }}
+  mobileImage={{
+    alt: "Login page screenshot on mobile",
+    src: loginMobileImage,
+  }}
+/>
+
+## Reset password flow
+
+The reset password flow is a standard flow that contains two steps.
+
+### Ask for a reset password link
+
+The first step consists in asking to get a reset password link which will be sent by email. This is done on the
+`app/account/reset` route.
+To do it, there's a page, accessible from the login page, which contains an email field. Starting to that point, there
+are two scenario :
+Either the email is known by your backend, then a success message with the next step's instructions is ready to be shown,
+or the email isn't known and an error message is already implemented for you to use it.
+
+import askResetPasswordDesktopImage from '../../public/images/screenshots/ask-reset-password-desktop.png';
+import askResetPasswordMobileImage from '../../public/images/screenshots/ask-reset-password-mobile.png';
+
+<ImageTabs
+  desktopImage={{
+    alt: "Password reset link ask form screenshot on desktop",
+    src: askResetPasswordDesktopImage,
+  }}
+  mobileImage={{
+    alt: "Password reset link ask form screenshot on mobile",
+    src: askResetPasswordMobileImage,
+  }}
+/>
+
+
+### Reset the password
+
+The second step consists in resetting the password, once the email's link has been clicked, which leads to the
+`app/account/reset/finish` route.  
+This page contains one password and one password confirm fields which are both validated to match each other.
+
+import resetPasswordDesktopImage from '../../public/images/screenshots/reset-password-desktop.png';
+import resetPasswordMobileImage from '../../public/images/screenshots/reset-password-mobile.png';
+
+<ImageTabs
+  desktopImage={{
+    alt: "Reset password form screenshot on desktop",
+    src: resetPasswordDesktopImage,
+  }}
+  mobileImage={{
+    alt: "Reset password form screenshot on mobile",
+    src: resetPasswordMobileImage,
+  }}
+/>
+
+## Session's expiration
+
+Since it's part of any app requirements, we also handle the session's expiration in Start UI.  
+To do so, we created an **interceptor** that will allow to trigger some code when an Unauthorized error (401) is
+answered by the API. The triggered code will then open a modal asking the user to log in again, which leads to a better
+UX than redirecting the user to the login page, or just prompting an error.
+
+This piece of code is handled in the `src/spa/auth/LoginModalInterceptor.tsx` component.
+
+
+import authModalDesktopImage from '../../public/images/screenshots/auth-modal-desktop.png';
+import authModalMobileImage from '../../public/images/screenshots/auth-modal-mobile.png';
+
+<ImageTabs
+  desktopImage={{
+    alt: "Authentication modal on desktop",
+    src: authModalDesktopImage,
+  }}
+  mobileImage={{
+    alt: "Authentication modal on mobile",
+    src: authModalMobileImage,
+  }}
+/>
