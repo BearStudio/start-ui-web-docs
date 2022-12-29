@@ -1,3 +1,13 @@
 {
-  "authentication": "Authentication"
+  "authentication": "Authentication",
+  "internationalization": "Internationalization",
+  "account-management": "Account management 🚧",
+  "admin-user-management": "Admin user management 🚧",
+  "components": "Custom components",
+  "responsive": "Responsive 🚧",
+  "custom-theme": "Custom theme 🚧",
+  "dark-mode": "Dark mode 🚧",
+  "api-documentation": "API documentation (Swagger UI) 🚧",
+  "api-mocking": "API mocking (Mirage JS) 🚧",
+  "app-version-environment": "Environment info 🚧"
 }
