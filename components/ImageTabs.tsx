@@ -1,7 +1,6 @@
 import React from "react";
 import { Tab, Tabs } from "nextra-theme-docs";
 import Image, { ImageProps as NextImageProps } from "next/image";
-import { isMobile } from "react-device-detect";
 
 import { createContext, useContext, useState } from "react";
 
@@ -63,7 +62,11 @@ export const ImageTabs: React.FC<ImageTabsProps> = ({ desktop, mobile }) => {
           {/* We add a max height only on desktop */}
           <Image
             {...mobile}
-            height={!isMobile ? 500 : undefined}
+            style={{
+              maxHeight: 500,
+              objectFit: "contain",
+              objectPosition: "0 0",
+            }}
             placeholder="blur"
           />
         </Tab>
