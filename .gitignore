@@ -1,3 +1,5 @@
 .next
 node_modules
 .idea
+public/robots.txt
+public/sitemap*
