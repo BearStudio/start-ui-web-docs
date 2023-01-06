@@ -1,6 +1,6 @@
 import React from "react";
 import { Tab, Tabs } from "nextra-theme-docs";
-import Image from "next/image";
+import Image, { ImageProps as NextImageProps } from "next/image";
 import { isMobile } from "react-device-detect";
 
 export const ImageTabs: React.FC<ImageTabsProps> = ({
@@ -33,12 +33,7 @@ export const ImageTabs: React.FC<ImageTabsProps> = ({
   );
 };
 
-type ImageProps = {
-  src: string;
-  alt: string;
-  width?: number;
-  height?: number;
-};
+type ImageProps = Pick<NextImageProps, "src" | "alt" | "width" | "height">;
 
 type ImageTabsProps = {
   desktopImage?: ImageProps;
