@@ -15,8 +15,8 @@
 <path fill-rule="evenodd" clip-rule="evenodd" d="M710 67H596C593.239 67 591 69.2386 591 72V124C591 126.761 593.239 129 596 129H710C712.761 129 715 126.761 715 124V72C715 69.2386 712.761 67 710 67ZM596 62C590.477 62 586 66.4772 586 72V124C586 129.523 590.477 134 596 134H710C715.523 134 720 129.523 720 124V72C720 66.4772 715.523 62 710 62H596Z" fill="white"/>
 <defs>
 <linearGradient id="paint0_linear" x1="106.499" y1="40.0005" x2="106.499" y2="156" gradientUnits="userSpaceOnUse">
-<stop stop-color="#FCD34D"/>
-<stop offset="1" stop-color="#F59E0B"/>
+<stop stopColor="#FCD34D"/>
+<stop offset="1" stopColor="#F59E0B"/>
 </linearGradient>
 </defs>
 </svg>
