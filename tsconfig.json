@@ -16,9 +16,8 @@
     "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["pages/*"],
-      "@screenshots/*": ["public/images/screenshots/*"],
-      "@components/*": ["components/*"]
+      "@/screenshots/*": ["public/images/screenshots/*"],
+      "@/components/*": ["components/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
