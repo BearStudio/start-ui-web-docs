@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://docs.web.start-ui.com
+
+# Sitemaps
+Sitemap: https://docs.web.start-ui.com/sitemap.xml
