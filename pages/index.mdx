@@ -1,128 +1,15 @@
 # Introduction
 
-**🚀 Start UI [web]** is an opinionated frontend starter created & maintained by the [BearStudio](https://bearstudio.fr) Team and other contributors.
-[Start UI [web]](https://start-ui.com) will help you generate React web app for _SEO_, _PWA_, _SPA_, _SSR_.
-Built on top of NextJS and Chakra UI, it represents our team's up-to-date stack that we use when creating web apps for our clients.
+🚀 Start UI <small>[web]</small> is an opinionated frontend starter repository created & maintained by the [BearStudio Team](https://www.bearstudio.fr/team) and other contributors.
+It represents our team's up-to-date stack that we use when creating web apps for our clients.
 
-This documentation has been written to help developer using Start UI and getting to know the technologies used, the list of features
-available and how to use them thanks to the guides.
+## Demo
 
-import { Callout } from 'nextra-theme-docs'
+A live read-only demonstration of what you will have when starting a project with 🚀 Start UI <small>[web]</small> is available on [demo.start-ui.com](https://demo.start-ui.com).
 
-<Callout type="info" emoji="ℹ️">
-  Please note that the documentation only relates to the [[web]](https://github.com/bearstudio/start-ui-web) starter, and not the [[native]](https://github.com/BearStudio/start-ui-native) one
-  neither the [[figma]](https://www.figma.com/community/file/1025698982013308087) one.
-</Callout>
+## Technologies
 
-## Getting Started
+<div><img src="/images/tech-logos.png" alt="Technologies logos of the starter" /></div>
 
-```bash
-npx create-start-ui@latest --web myApp
-```
-
-That will scaffold a new folder with the latest version of 🚀 Start UI <small>[web]</small> 🎉
-
-Then just go to the created folder:
-
-```bash
-cd myApp
-```
-
-```bash
-# Duplicate the .env.example file to a new .env file (update variables)
-cp .env.example .env
-
-# Init the local mocks database and seed users
-yarn db:push && yarn db:seed
-
-# Run the development server
-yarn dev
-```
-
-## Installation
-
-1. Duplicate the `.env.example` file to a new `.env` file, and update the environment variables
-
-```bash
-cp .env.example .env
-```
-
-2. Install dependencies
-```bash
-yarn install
-```
-
-3. Init the local mocks database and seed users
-```bash
-yarn db:push && yarn db:seed
-```
-
-## Development
-
-```bash
-# Run the development server
-yarn dev
-```
-
-### Storybook
-
-```bash
-yarn storybook
-```
-
-### NodeJS (recommended)
-
-```bash
-yarn install
-yarn storybook:build # Optional: Will expose the Storybook at `/storybook`
-yarn build
-yarn start
-```
-
-### Docker
-
-1. Build the Docker image (replace `start-ui-web` with your project name)
-```
-docker build -t start-ui-web .
-```
-
-2. Run the Docker image (replace `start-ui-web` with your project name)
-```
-docker run -p 80:3000 start-ui-web
-```
-Application will be exposed on port 80 ([http://localhost](http://localhost))
-
-### Static files
-
-Update the `next.config.js` file with `output: 'export'` (and remove `redirects` and `rewrites`)
-
-```js
-{
-  output: 'export',
-}
-```
-
-```bash
-yarn storybook:build # Optional: Will expose the Storybook at `/storybook/`
-yarn build
-```
-
-Then expose the `/out` folder.
-
-> You can use `yarn build && npx serve out -c ../static.serve.json` to build and run the static build locally.
-
-> 💡 You will need to setup your server to rewrite all `/app/*` urls to serve the `app.html` file.
-
-#### Using Apache as your web server
-
-If you are using [apache](https://httpd.apache.org/) to statically deploy your app, you can use the following configuration for `public/.htaccess` :
-
-```bash
-# public/.htaccess
-Options -MultiViews
-RewriteEngine On
-
-# Rewrite /app/* to app.html
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule "^app/" "app.html" [QSA,L]
-```
+[🟦 TypeScript](https://www.typescriptlang.org/), [⚛️ React](https://react.dev/), [⚫️ NextJS](https://nextjs.org/), [⚡️ Chakra UI](https://chakra-ui.com/),  [🟦 tRPC](https://trpc.io/), [▲ Prisma](https://www.prisma.io/), [🏖️ TanStack Query](https://react-query.tanstack.com/), [📕 Storybook](https://storybook.js.org/), [🎭 Playwright](https://playwright.dev/), [🐜 Formiz](https://formiz-react.com/)
+, [🌍 React i18next](https://react.i18next.com/)

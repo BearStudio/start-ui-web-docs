@@ -12,8 +12,8 @@ It represents our team's up-to-date stack that we use when creating web apps for
 ## Getting Started
 
 ```bash
-yarn
-yarn dev
+pnpm install
+pnpm dev
 ```
 
 The documentation uses Nextra from Vercel, so it's based on NextJS. You can check the [documentation](https://nextra.site) for more information.

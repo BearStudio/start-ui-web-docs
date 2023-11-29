@@ -1,0 +1,113 @@
+# Create your first entity
+
+Let's dive into creating a full new entity with database, backend and ui.
+
+We will create a **"Project"** entity with the full CRUD (Create Read Update Delete) screens.
+
+## Step 1: Create the Project database schema
+
+### Update the Prisma Database Schema
+
+** Work in progress **
+- Prisma Schema
+- DB push
+
+### Create some seeds
+
+** Work in progress **
+- Use `pnpm db:ui`
+- Create seed for projects
+
+---
+
+## Step 2: Create the backend router
+
+### Create the tRPC router
+
+** Work in progress **
+- Create an empty `projects` router
+
+### Add the first query
+
+** Work in progress **
+- protectedProcedure
+- meta
+- input
+- output
+- context
+- prisma query
+
+---
+
+## Step 3: Create the feature folder
+
+** Work in progress **
+- projects folder
+- extract zProject in schema.ts
+
+---
+
+## Step 4: List all the projects in the UI
+
+** Work in progress **
+- create PageAdminProjects in feature
+- create page.tsx in /src/app for routing with 'use client'
+- create "shell" page with AppLayoutPage
+- useQuery with tRPC
+- display data with Datalist
+- empty / error
+- search
+
+---
+
+## Step 5: Allows to create a project
+
+** Work in progress **
+- create tRPC mutation
+- create PageAdminProjectCreate in feature
+- create page.tsx in /src/app for routing with 'use client'
+- create "shell" page with AppLayoutPage
+- link page in PageAdminProjects on Create Project button
+- create ProjectForm in feature
+- use tRPC mutation to send data
+- redirect to "view" url (404 for now)
+
+---
+
+## Step 6: Allows to view a project
+
+** Work in progress **
+- create tRPC query
+- create PageAdminProject in feature
+- create page.tsx in /src/app for routing with 'use client'
+- create "shell" page with AppLayoutPage
+- Display data
+
+---
+
+## Step 7: Allows to update a project
+
+** Work in progress **
+- create tRPC mutation
+- create PageAdminProjectUpdate in feature
+- create page.tsx in /src/app for routing with 'use client'
+- create "shell" page with AppLayoutPage
+- use the ProjectForm component
+- use tRPC mutation
+- redirect to "view" url
+
+---
+
+## Step 8: Allows to delete a project
+
+** Work in progress **
+- create tRPC mutation
+- Add tRPC mutation on delete buttons
+- Add confirm modal
+
+
+---
+
+## Step 9: Add translations
+
+** Work in progress **
