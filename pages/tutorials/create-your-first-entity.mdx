@@ -1,3 +1,5 @@
+import { Callout, Steps } from 'nextra/components'
+
 # Create your first entity
 
 Let's dive into creating a full new entity with database, backend and ui.
@@ -6,108 +8,693 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
 
 ## Step 1: Create the Project database schema
 
+<Steps>
 ### Update the Prisma Database Schema
 
-** Work in progress **
-- Prisma Schema
-- DB push
+We will use [Prisma](https://www.prisma.io/docs/concepts/components/prisma-schema/data-model) to add the project entity to our database schema.<br />
+Open the `prisma/schema.prisma` file and add a new model called `Project` with the following fields.
+```prisma filename="prisma/schema.prisma"
+model Project {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  name        String   @unique
+  description String?
+}
+```
 
-### Create some seeds
+Then, run the `pnpm db:push{:bash}` command to update your database.
 
-** Work in progress **
-- Use `pnpm db:ui`
-- Create seed for projects
+### Create you first project
+
+
+We can see what is inside of our database with the `pnpm db:ui{:bash}` command.<br />
+You should see your `Project` model and be able to create a new project like the following.
+
+![Step 01](/images/tutorials/create-your-first-entity/db-ui-01.png)<br />
+![Step 02](/images/tutorials/create-your-first-entity/db-ui-02.png)<br />
+![Step 03](/images/tutorials/create-your-first-entity/db-ui-03.png)<br />
+
+### Create database seeds
+
+For easy development and better Developer eXperience (DX), we will create a new seed for our new `Project` model.<br />
+This will allows every new developer to start with some projects instead of an empty database.
+
+Create an new file `project.ts` in the `prisma/seed/models` folder with a `createProjects` function.
+```ts filename="prisma/seed/models/project.ts" showLineNumbers
+export async function createProjects() {
+  // ...
+}
+```
+
+Add a console.log for better DX.
+```ts {2} filename="prisma/seed/models/project.ts" showLineNumbers
+export async function createProjects() {
+  console.log(`⏳ Seeding projects`);
+  // ...
+}
+```
+
+Check if the project exist to make the seed idempotent.
+```ts {1, 6-8} filename="prisma/seed/models/project.ts" showLineNumbers
+import { prisma } from 'prisma/seed/utils';
+
+export async function createProjects() {
+  console.log(`⏳ Seeding projects`);
+
+  if (!(await prisma.project.findUnique({ where: { name: 'My Project' } }))) {
+    // ...
+  }
+}
+```
+
+Create the project with prisma.
+```ts {7-12} filename="prisma/seed/models/project.ts" showLineNumbers
+import { prisma } from 'prisma/seed/utils';
+
+export async function createProjects() {
+  console.log(`⏳ Seeding projects`);
+
+  if (!(await prisma.project.findUnique({ where: { name: 'My Project' } }))) {
+    await prisma.project.create({
+      data: {
+        name: 'My Project',
+        description: 'This is a project created with the seed command',
+      },
+    });
+  }
+}
+```
+
+Now, import the function into the `prisma/seed/index.ts` file.
+```ts {3,9} filename="prisma/seed/index.ts"
+import { createRepositories } from 'prisma/seed/models/repository';
+import { createUsers } from 'prisma/seed/models/user';
+import { createProjects } from 'prisma/seed/models/project';
+import { prisma } from 'prisma/seed/utils';
+
+async function main() {
+  await createRepositories();
+  await createUsers();
+  await createProjects();
+}
+
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(() => {
+    prisma.$disconnect();
+  });
+```
+
+Finally, run the seed command.
+```bash
+pnpm db:seed
+```
+
+You can check that the project is created by running the `pnpm db:ui{:bash}` command again.
+
+![Seed result](/images/tutorials/create-your-first-entity/db-seed-result.png)<br />
+
+</Steps>
 
 ---
 
 ## Step 2: Create the backend router
 
-### Create the tRPC router
+<Steps>
+### Create the tRPC routers
 
-** Work in progress **
-- Create an empty `projects` router
+Create a `projects.ts` file in the `src/server/routers` folder and create an empty tRPC router with the following code.
 
-### Add the first query
+```ts filename="src/server/routers/projects.ts" showLineNumbers
+import { createTRPCRouter } from '@/server/config/trpc';
 
-** Work in progress **
-- protectedProcedure
-- meta
-- input
-- output
-- context
-- prisma query
+export const projectsRouter = createTRPCRouter({
+  //...
+});
+```
+
+Then, import this router in the `src/server/router.ts` file.
+
+```ts {4,12} filename="src/server/router.ts"
+// ...
+import { accountRouter } from '@/server/routers/account';
+import { authRouter } from '@/server/routers/auth';
+import { projectsRouter } from '@/server/routers/projects';
+import { repositoriesRouter } from '@/server/routers/repositories';
+import { usersRouter } from '@/server/routers/users';
+
+// ...
+export const appRouter = createTRPCRouter({
+  account: accountRouter,
+  auth: authRouter,
+  projects: projectsRouter,
+  repositories: repositoriesRouter,
+  users: usersRouter,
+});
+
+// ...
+```
+
+### Add the first query to list the projects
+
+We will create a query to get all the projects from the database.<br />
+In the projects router file (`src/server/routers/projects.ts`), create a `getAll` key for our query.
+
+```ts {4} filename="src/server/routers/projects.ts" showLineNumbers
+import { createTRPCRouter } from '@/server/config/trpc';
+
+export const projectsRouter = createTRPCRouter({
+  getAll: //...
+});
+```
+
+We need this query to be protected and be accessible only by the admin users. So we will use the `protectedProcedure`.
+```ts {1,4} filename="src/server/routers/projects.ts" showLineNumbers
+import { createTRPCRouter, protectedProcedure } from '@/server/config/trpc';
+
+export const projectsRouter = createTRPCRouter({
+  getAll: protectedProcedure({ authorizations: ['ADMIN'] }) //...
+});
+```
+
+Then we need to create the `input` and the `output` of our query. For now, the input will be void and the output will only return an array of projects with `id` and `name` properties.
+
+```ts {1,7-15} filename="src/server/routers/projects.ts" showLineNumbers
+import { z } from 'zod';
+
+import { createTRPCRouter, protectedProcedure } from '@/server/config/trpc';
+
+export const projectsRouter = createTRPCRouter({
+  getAll: protectedProcedure({ authorizations: ['ADMIN'] })
+    .input(z.void())
+    .output(
+      z.array(
+        z.object({
+          id: z.string().cuid(),
+          name: z.string(),
+        })
+      )
+    ) //...
+});
+```
+
+Will will add some `meta` to auto generate the REST api based on the tRPC api.
+
+<Callout type="info">
+This step is optional, if you don't plan to support and maintain the REST api, you can skip this step.
+</Callout>
+
+```ts {7-14} filename="src/server/routers/projects.ts" showLineNumbers
+import { z } from 'zod';
+
+import { createTRPCRouter, protectedProcedure } from '@/server/config/trpc';
+
+export const projectsRouter = createTRPCRouter({
+  getAll: protectedProcedure({ authorizations: ['ADMIN'] })
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/projects',
+        protect: true,
+        tags: ['projects'],
+      },
+    })
+    .input(z.void())
+    .output(
+      z.array(
+        z.object({
+          id: z.string().cuid(),
+          name: z.string(),
+        })
+      )
+    ) //...
+});
+```
+
+And now, let create the query with the projects.
+
+```ts {24-27} filename="src/server/routers/projects.ts" showLineNumbers
+import { z } from 'zod';
+
+import { createTRPCRouter, protectedProcedure } from '@/server/config/trpc';
+
+export const projectsRouter = createTRPCRouter({
+  getAll: protectedProcedure({ authorizations: ['ADMIN'] })
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/projects',
+        protect: true,
+        tags: ['projects'],
+      },
+    })
+    .input(z.void())
+    .output(
+      z.array(
+        z.object({
+          id: z.string().cuid(),
+          name: z.string(),
+        })
+      )
+    )
+    .query(async ({ ctx }) => {
+      const projects = await ctx.db.project.findMany();
+      return projects;
+    }),
+});
+```
+
+### Add load more capability
+
+We will allows the query to be paginated with a load more strategy.
+
+First, let's update our input to accept a `limit` and a `cursor` params.
+
+```ts {16-19} filename="src/server/routers/projects.ts" showLineNumbers
+import { z } from 'zod';
+
+import { createTRPCRouter, protectedProcedure } from '@/server/config/trpc';
+
+export const projectsRouter = createTRPCRouter({
+  getAll: protectedProcedure({ authorizations: ['ADMIN'] })
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/projects',
+        protect: true,
+        tags: ['projects'],
+      },
+    })
+    .input(
+      z.object({
+        cursor: z.string().cuid().optional(),
+        limit: z.number().min(1).max(100).default(20),
+      })
+    )
+    .output(
+      z.array(
+        z.object({
+          id: z.string().cuid(),
+          name: z.string(),
+        })
+      )
+    )
+    .query(async ({ ctx }) => {
+      const projects = await ctx.db.project.findMany();
+      return projects;
+    }),
+});
+```
+
+Then we will need to update our prisma query.
+
+```ts {30-34} filename="src/server/routers/projects.ts" showLineNumbers
+import { z } from 'zod';
+
+import { createTRPCRouter, protectedProcedure } from '@/server/config/trpc';
+
+export const projectsRouter = createTRPCRouter({
+  getAll: protectedProcedure({ authorizations: ['ADMIN'] })
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/projects',
+        protect: true,
+        tags: ['projects'],
+      },
+    })
+    .input(
+      z.object({
+        cursor: z.string().cuid().optional(),
+        limit: z.number().min(1).max(100).default(20),
+      })
+    )
+    .output(
+      z.array(
+        z.object({
+          id: z.string().cuid(),
+          name: z.string(),
+        })
+      )
+    )
+    .query(async ({ ctx, input }) => {
+      const projects = await ctx.db.project.findMany({
+        // Get an extra item at the end which we'll use as next cursor
+        take: input.limit + 1,
+        cursor: input.cursor ? { id: input.cursor } : undefined,
+      });
+      return projects;
+    }),
+});
+```
+
+Now, we need to update our output to send not only the projects but also the `nextCursor`.
+
+```ts {21-31,39-45} filename="src/server/routers/projects.ts" showLineNumbers
+import { z } from 'zod';
+
+import { createTRPCRouter, protectedProcedure } from '@/server/config/trpc';
+
+export const projectsRouter = createTRPCRouter({
+  getAll: protectedProcedure({ authorizations: ['ADMIN'] })
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/projects',
+        protect: true,
+        tags: ['projects'],
+      },
+    })
+    .input(
+      z.object({
+        cursor: z.string().cuid().optional(),
+        limit: z.number().min(1).max(100).default(20),
+      })
+    )
+    .output(
+      z.object({
+        items: z.array(
+          z.object({
+            id: z.string().cuid(),
+            name: z.string(),
+          }),
+        ),
+        nextCursor: z.string().cuid().optional(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const projects = await ctx.db.project.findMany({
+        // Get an extra item at the end which we'll use as next cursor
+        take: input.limit + 1,
+        cursor: input.cursor ? { id: input.cursor } : undefined,
+      });
+
+      let nextCursor: typeof input.cursor | undefined = undefined;
+      if (projects.length > input.limit) {
+        const nextProject = projects.pop();
+        nextCursor = nextProject?.id;
+      }
+
+      return { items: projects, nextCursor };
+    }),
+});
+```
+
+We will now add the total of projects in the data in the output to let the UI now how many projects are available even if now the UI will not request all projects at once.
+
+```ts {19,34,40-41,49} filename="src/server/routers/projects.ts" showLineNumbers
+import { z } from 'zod';
+
+import { createTRPCRouter, protectedProcedure } from '@/server/config/trpc';
+
+export const projectsRouter = createTRPCRouter({
+  getAll: protectedProcedure({ authorizations: ['ADMIN'] })
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/projects',
+        protect: true,
+        tags: ['projects'],
+      },
+    })
+    .input(
+      z.object({
+        cursor: z.string().cuid().optional(),
+        limit: z.number().min(1).max(100).default(20),
+        total: z.number(),
+      })
+    )
+    .output(
+      z.object({
+        items: z.array(
+          z.object({
+            id: z.string().cuid(),
+            name: z.string(),
+          }),
+        ),
+        nextCursor: z.string().cuid().optional(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const [total, projects] = await ctx.db.$transaction([
+        ctx.db.project.count(),
+        ctx.db.project.findMany({
+          // Get an extra item at the end which we'll use as next cursor
+          take: input.limit + 1,
+          cursor: input.cursor ? { id: input.cursor } : undefined,
+        }),
+      ]);
+
+      let nextCursor: typeof input.cursor | undefined = undefined;
+      if (projects.length > input.limit) {
+        const nextProject = projects.pop();
+        nextCursor = nextProject?.id;
+      }
+
+      return { items: projects, nextCursor, total };
+    }),
+});
+```
+
+### Add search capability
+
+Let's add the possibility to search a project by name. We are adding a `searchTerm` in the input and add a `where` clause.
+We need to put this `where` on both prisma requests, so we can create a constant with the help of the `Prisma.ProjectWhereInput` generated types.
+
+```ts {1, 21, 36-41, 44, 49} filename="src/server/routers/projects.ts" showLineNumbers
+import { Prisma } from '@prisma/client';
+import { z } from 'zod';
+
+import { createTRPCRouter, protectedProcedure } from '@/server/config/trpc';
+
+export const projectsRouter = createTRPCRouter({
+  getAll: protectedProcedure({ authorizations: ['ADMIN'] })
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/projects',
+        protect: true,
+        tags: ['projects'],
+      },
+    })
+    .input(
+      z.object({
+        cursor: z.string().cuid().optional(),
+        limit: z.number().min(1).max(100).default(20),
+        total: z.number(),
+        searchTerm: z.string().optional(),
+      })
+    )
+    .output(
+      z.object({
+        items: z.array(
+          z.object({
+            id: z.string().cuid(),
+            name: z.string(),
+          }),
+        ),
+        nextCursor: z.string().cuid().optional(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const where = {
+        name: {
+          contains: input.searchTerm,
+          mode: 'insensitive',
+        },
+      } satisfies Prisma.ProjectWhereInput;
+
+      const [total, projects] = await ctx.db.$transaction([
+        ctx.db.project.count({ where }),
+        ctx.db.project.findMany({
+          // Get an extra item at the end which we'll use as next cursor
+          take: input.limit + 1,
+          cursor: input.cursor ? { id: input.cursor } : undefined,
+          where,
+        }),
+      ]);
+
+      let nextCursor: typeof input.cursor | undefined = undefined;
+      if (projects.length > input.limit) {
+        const nextProject = projects.pop();
+        nextCursor = nextProject?.id;
+      }
+
+      return { items: projects, nextCursor, total };
+    }),
+});
+```
+
+</Steps>
 
 ---
 
 ## Step 3: Create the feature folder
 
-** Work in progress **
-- projects folder
-- extract zProject in schema.ts
+<Steps>
+### Create the feature folder
 
+To put the UI and shared code, let's create a `projects` folder in the `src/features` folder.
+It's in this folder that we will put all the UI of the projects feature and also the shared code between server and UI.
+
+### Extract project zod schema
+
+First to we will extract the zod schema for the project from the tRPC router and put it into a `schema.ts` file in the `src/features/projects` folder.
+
+Let's create the `src/features/projects/schema.ts` file with the zod schema for one project.
+
+```ts filename="src/features/projects/schema.ts" showLineNumbers
+import { z } from 'zod';
+
+export const zProject = () =>
+  z.object({
+    id: z.string(),
+    //...
+  });
+```
+
+Let's create the type from this schema.
+
+
+</Steps>
 ---
 
 ## Step 4: List all the projects in the UI
 
+<Steps>
+### Create the page
 ** Work in progress **
 - create PageAdminProjects in feature
-- create page.tsx in /src/app for routing with 'use client'
 - create "shell" page with AppLayoutPage
+
+### Create the NextJS route
+** Work in progress **
+- create page.tsx in /src/app for routing with 'use client'
+
+### Display the data
+** Work in progress **
 - useQuery with tRPC
 - display data with Datalist
-- empty / error
-- search
+
+### Hanlde empty and error state
+** Work in progress **
+
+### Add load more
+** Work in progress **
+
+### Add search
+** Work in progress **
+
+</Steps>
 
 ---
 
 ## Step 5: Allows to create a project
 
+<Steps>
+### Create the tRPC mutation
 ** Work in progress **
 - create tRPC mutation
+
+### Create the page
+** Work in progress **
 - create PageAdminProjectCreate in feature
-- create page.tsx in /src/app for routing with 'use client'
 - create "shell" page with AppLayoutPage
-- link page in PageAdminProjects on Create Project button
+
+### Create the NextJS route
+** Work in progress **
+- create page.tsx in /src/app for routing with 'use client'
+
+### Create the form
+** Work in progress **
 - create ProjectForm in feature
+
+### Submit the form
+** Work in progress **
 - use tRPC mutation to send data
 - redirect to "view" url (404 for now)
+
+</Steps>
 
 ---
 
 ## Step 6: Allows to view a project
 
+<Steps>
+### Create the tRPC query
 ** Work in progress **
 - create tRPC query
+
+### Create the page
+** Work in progress **
 - create PageAdminProject in feature
-- create page.tsx in /src/app for routing with 'use client'
 - create "shell" page with AppLayoutPage
-- Display data
+
+### Create the NextJS route
+** Work in progress **
+- create page.tsx in /src/app for routing with 'use client'
+
+### Display the data
+** Work in progress **
+
+### Hanlde error state
+** Work in progress **
+
+</Steps>
 
 ---
 
 ## Step 7: Allows to update a project
 
+<Steps>
+### Create the tRPC mutation
 ** Work in progress **
-- create tRPC mutation
+
+### Create the page
+** Work in progress **
 - create PageAdminProjectUpdate in feature
-- create page.tsx in /src/app for routing with 'use client'
 - create "shell" page with AppLayoutPage
+
+### Create the NextJS route
+** Work in progress **
+- create page.tsx in /src/app for routing with 'use client'
+
+### Display the form
+** Work in progress **
 - use the ProjectForm component
+- use getById query to fill the form
+
+### Submit the form
 - use tRPC mutation
 - redirect to "view" url
+
+### Hanlde errors
+** Work in progress **
+
+</Steps>
 
 ---
 
 ## Step 8: Allows to delete a project
 
+<Steps>
+### Create the tRPC mutation
 ** Work in progress **
-- create tRPC mutation
-- Add tRPC mutation on delete buttons
-- Add confirm modal
 
+### Use the tRPC mutation
+** Work in progress **
+
+### Add confirm modals
+** Work in progress **
+
+</Steps>
 
 ---
 
-## Step 9: Add translations
+## Step 9: Add the translations
 
 ** Work in progress **

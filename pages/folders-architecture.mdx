@@ -1,0 +1,25 @@
+import { FileTree } from 'nextra/components'
+
+# Folders architecture
+
+** Work in progress **
+
+<FileTree>
+  <FileTree.Folder name="e2e">
+    <div style={{ padding: 8, paddingLeft: 20, fontSize: 12  }}>👉 Explaination of folder</div>
+  </FileTree.Folder>
+  <FileTree.Folder name="prisma" defaultOpen>
+    <FileTree.Folder name="seed" />
+    <FileTree.File name="schema.prisma" />
+  </FileTree.Folder>
+  <FileTree.Folder name="scripts" />
+
+  <FileTree.Folder name="src" defaultOpen>
+    <FileTree.Folder name="app" />
+    <FileTree.Folder name="components" />
+    <FileTree.Folder name="..." />
+  </FileTree.Folder>
+
+  <FileTree.File name="package.json" />
+  <FileTree.File name="..." />
+</FileTree>
