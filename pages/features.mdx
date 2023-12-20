@@ -1,3 +1,128 @@
-# Features
+import {ImageTabs} from "../components/ImageTabs";
 
-** Work in progress **
+This page presents the features included in StartUI that can assist you in your development,
+right from the project setup.
+
+## User facing app
+
+StartUI includes a "user facing" part, which aims to provide an interface usable by the end-users
+of your application.
+
+### Sign Up
+
+The user sign-up functionality is already developed, using a password-less method.
+The user enters their email and receives a validation code via email, which they can enter
+in the provided field.
+
+import accountCreationDesktopImage from "@/screenshots/account-management/account-creation-desktop.png";
+import accountCreationMobileImage from "@/screenshots/account-management/account-creation-mobile.png";
+
+<ImageTabs desktop={accountCreationDesktopImage} mobile={accountCreationMobileImage} />
+
+### Sign In
+
+Just like for account creation, the screens and mechanisms for signing in are natively developed in StartUI.
+Thus, users can enter their email address and receive a code that allows them to log in, avoiding
+the frustration of forgotten passwords.
+
+### Account management
+
+Allowing users to manage their account, being a common feature in any application, the screens
+are also present, allowing the update of their name, default language, email, and more.
+
+import accountManagementDesktopImage from "@/screenshots/account-management/account-management-desktop.png";
+import accountManagementMobileImage from "@/screenshots/account-management/account-management-mobile.png";
+
+<ImageTabs desktop={accountManagementDesktopImage} mobile={accountManagementMobileImage} />
+
+
+## Admin app
+
+The starter also includes an Administration part, which aims at providing a kind of backoffice to the platform admin.
+### User management
+
+From the project's creation, the administrator can manage the user list through a paginated interface, with the
+ability to activate/deactivate a user, edit their information, view their details, and change their permissions.
+
+import userManagementDesktopImage from "@/screenshots/admin-users-management/user-management-desktop.png";
+import userManagementMobileImage from "@/screenshots/admin-users-management/user-management-mobile.png";
+
+<ImageTabs desktop={userManagementDesktopImage} mobile={userManagementMobileImage} />
+
+
+### CRUD sample
+
+With the aim of accelerating development, an example of managing a basic entity has been implemented
+in the "Repository" section. This example demonstrates how to perform a complete CRUD (Create, Read, Update, Delete)
+process, from front-end to back-end (including the database).
+
+## Developer tools
+
+We believe the core value of StartUI lies in its foundation and the technologies integrated into the starter kit.
+Repeatedly setting up these technologies in every new project is a waste of time, so StartUI incorporates these
+technologies and tools in their latest versions.
+
+### Database management
+
+With Prisma as one of the integrated technologies in the starter, it's possible to manage data using the ORM, and
+benefit from developer tools like [Prisma Studio](https://www.prisma.io/studio), the data browsing interface.
+
+### Custom components
+
+StartUI integrates default components, such as DataList, ConfirmMenuItem, or DayPicker. These components
+once again accelerate development. They can be viewed in the [Storybook](https://demo.start-ui.com/storybook/),
+which helps document and demonstrate their usage.
+
+### Responsive
+
+The user interfaces of StartUI are responsive by default.
+
+import Image from "next/image";
+import accountLogoutMobile from "@/screenshots/account-management/account-management-logout-mobile.png";
+import repositoriesMobile from "@/screenshots/repositories-mobile.png";
+import {ResponsiveStack} from "../components/ResponsiveStack";
+
+<ResponsiveStack gap={10}>
+    <Image
+        src={accountLogoutMobile}
+        style={{
+            maxHeight: 500,
+            objectFit: "contain",
+            objectPosition: "0 0",
+        }}
+        placeholder="blur"
+    />
+    <Image
+        src={repositoriesMobile}
+        style={{
+            maxHeight: 500,
+            objectFit: "contain",
+            objectPosition: "0 0",
+        }}
+        placeholder="blur"
+    />
+</ResponsiveStack>
+
+### Theming
+
+With ChakraUI integrated into the starter, customizing the application's theme is straightforward,
+including changing colors, spacing, font sizes, etc.
+
+### Dark Mode
+
+Dark Mode functionality is available by default, with the project's foundation designed to easily
+implement this feature.
+
+### API documentation
+
+An [API documentation](https://demo.start-ui.com/admin/docs/api) is available in the admin interface
+through OpenAPI and Stoplight, allowing you to view all API routes and test endpoint calls.
+
+### Email templating
+
+React Email enables StartUI to offer tools for developing email templates in real-time.
+
+### Layout
+
+StartUI by default integrates two layouts, allowing developers to start without having to work on
+page arrangement, headers, etc.
