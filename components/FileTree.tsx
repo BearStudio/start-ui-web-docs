@@ -1,9 +1,20 @@
 import { Link } from "nextra-theme-docs";
 import { ReactNode } from "react";
-import { LuFolderOpen, LuFile } from "react-icons/lu";
+import { LuFolderOpen, LuFileText } from "react-icons/lu";
 
 export const FileTree = ({ children }: { children: ReactNode }) => {
-  return <div>{children}</div>;
+  return (
+    <div
+      style={{
+        fontSize: 14,
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
+      }}
+    >
+      {children}
+    </div>
+  );
 };
 
 export const FileTreeFolderIcon = () => (
@@ -11,7 +22,7 @@ export const FileTreeFolderIcon = () => (
 );
 
 export const FileTreeFileIcon = () => (
-  <LuFile style={{ display: "inline", opacity: 0.6 }} />
+  <LuFileText style={{ display: "inline", opacity: 0.6 }} />
 );
 
 export const FileTreeFolder = (props: {
