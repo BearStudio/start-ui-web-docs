@@ -1,25 +1,68 @@
-import { FileTree } from 'nextra/components'
+import {
+  FileTree,
+  FileTreeFolder,
+  FileTreeFolderIcon,
+  FileTreeFile,
+  FileTreeFileIcon,
+} from "@/components/FileTree";
 
 # Folders architecture
 
 ** Work in progress **
 
 <FileTree>
-  <FileTree.Folder name="e2e">
-    <div style={{ padding: 8, paddingLeft: 20, fontSize: 12  }}>👉 Explaination of folder</div>
-  </FileTree.Folder>
-  <FileTree.Folder name="prisma" defaultOpen>
-    <FileTree.Folder name="seed" />
-    <FileTree.File name="schema.prisma" />
-  </FileTree.Folder>
-  <FileTree.Folder name="scripts" />
+  <FileTreeFolder name=".github" />
+  <FileTreeFolder name=".husky" />
+  <FileTreeFolder name=".storybook" />
+  <FileTreeFolder name=".vscode" />
+  <FileTreeFolder name="e2e" href="#-e2e" />
+  <FileTreeFolder name="node_modules" />
+  <FileTreeFolder name="prisma" href="#-prisma" />
+  <FileTreeFolder name="public" />
+  <FileTreeFolder name="scripts" href="#-scripts">
+    <FileTreeFile name="build-info.ts" href="#-scriptsbuild-infots" />
+  </FileTreeFolder>
+  <FileTreeFolder name="src" href="#-src">
+    <FileTreeFolder name="app" href="#-srcapp" />
+    <FileTreeFolder name="components" />
+    <FileTreeFolder name="emails" />
+    <FileTreeFolder name="hooks" />
+    <FileTreeFolder name="lib" />
+    <FileTreeFolder name="locales" />
+    <FileTreeFolder name="server" />
+    <FileTreeFolder name="theme" />
+    <FileTreeFolder name="types" />
+    <FileTreeFile name="env.mjs" />
+  </FileTreeFolder>
 
-  <FileTree.Folder name="src" defaultOpen>
-    <FileTree.Folder name="app" />
-    <FileTree.Folder name="components" />
-    <FileTree.Folder name="..." />
-  </FileTree.Folder>
-
-  <FileTree.File name="package.json" />
-  <FileTree.File name="..." />
+  <FileTreeFile name=".env.example" />
+  <FileTreeFile name="next.config.mjs" />
+  <FileTreeFile name="package.json" />
+  <FileTreeFile name="README.md" />
 </FileTree>
+
+---
+
+#### <FileTreeFolderIcon /> `/e2e`
+
+End-to-end tests folder for [Playwright](https://playwright.dev/) tests.
+
+#### <FileTreeFolderIcon /> `/prisma`
+
+[Prisma](https://www.prisma.io/) folder for database schema `schema.prisma` and seed scripts.
+
+#### <FileTreeFolderIcon /> `/scripts`
+
+Folder for scripts that will be auto executed on build or setup step.
+
+#### <FileTreeFileIcon /> `/scripts/build-info.ts`
+
+This scripts will be run on `postinstall` and will auto generate a `build-info.json` file with commit and date info that can be display in the application.
+
+#### <FileTreeFolderIcon /> `/src`
+
+Root folder of all the source code of the application. When importing files, you can use `@/` to reference this folder.
+
+#### <FileTreeFolderIcon /> `/src/app`
+
+Next router folder, all routes of the application are in this folder. See the [Next App Router documentation](https://nextjs.org/docs/app/building-your-application/routing) for more details.
