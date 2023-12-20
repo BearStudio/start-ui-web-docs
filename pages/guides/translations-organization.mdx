@@ -1,12 +1,18 @@
-# Translations
+import { Callout } from "nextra-theme-docs";
 
-## Setup the i18n Ally extension
+# Translations organization
+
+## Why?
+
+Organizing translations using i18n and following opinionated convention for easy maintainability and good readability
+
+## How?
+
+### Setup the i18n Ally extension
 
 We recommended using the [i18n Ally](https://marketplace.visualstudio.com/items?itemName=lokalise.i18n-ally) plugin for VS Code for translations management.
 
-Create or edit the `.vscode/settings.json` file with the following settings:
-
-```json
+```json filename=".vscode/settings.json"
 {
   "i18n-ally.localesPaths": ["src/locales"],
   "i18n-ally.keystyle": "nested",
@@ -18,19 +24,20 @@ Create or edit the `.vscode/settings.json` file with the following settings:
 }
 ```
 
-## Guidelines for translations
+### Guidelines for translations
 
 - Use namespaces `t('namespace:translationKey')` and nesting `t('namespace:this.is.nested')`.
 
 ```js
+const { t } = useTranslation(["account"]);
+
 // Example for translations available in account.json
 t("account:data.firstname.label");
 ```
 
 - For fields and data translations use a `data` object.
 
-```json
-// account.json
+```json filename="account.json"
 {
   "data": {
     "firstname": {
@@ -41,16 +48,16 @@ t("account:data.firstname.label");
 }
 ```
 
-```js
-// React
+```js filename="React integration"
+const { t } = useTranslation(["account"]);
+
 t("account:data.firstname.label");
 t("account:data.firstname.required");
 ```
 
 - For user feedbacks, use a `feedbacks` object with `actionSuccess` & `actionError` keys containing each `title` and `description` (optional).
 
-```json
-// account.json
+```json filename="account.json"
 {
   "resetPassword": {
     "feedbacks": {
@@ -66,8 +73,9 @@ t("account:data.firstname.required");
 }
 ```
 
-```js
-// React
+```js filename="React integration"
+const { t } = useTranslation(["account"]);
+
 t("account:resetPassword.feedbacks.updateSuccess.title");
 t("account:resetPassword.feedbacks.updateSuccess.description");
 t("account:resetPassword.feedbacks.updateError.title");
@@ -75,8 +83,7 @@ t("account:resetPassword.feedbacks.updateError.title");
 
 - For user actions, use an `actions` object.
 
-```json
-// account.json
+```json filename="account.json"
 {
   "resetPassword": {
     "actions": {
@@ -87,10 +94,17 @@ t("account:resetPassword.feedbacks.updateError.title");
 }
 ```
 
-```js
-// React
+```js filename="React integration"
+const { t } = useTranslation(["account"]);
+
 t("account:resetPassword.actions.send");
 t("account:resetPassword.actions.reset");
 ```
 
-- Use the common workspace only for VERY generic translations. By default, use specific namespaces to allow easy update on large code base without unwanted side-effects.
+#### Common
+
+<Callout type="warning">
+  Use the common workspace only for **VERY** generic translations. By default,
+  use specific namespaces to allow easy update on large code base without
+  unwanted side-effects.
+</Callout>

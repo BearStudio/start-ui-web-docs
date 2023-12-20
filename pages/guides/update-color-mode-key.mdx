@@ -1,7 +1,13 @@
 # Update color mode storage key
 
-You can update the storage key used to detect the color mode by updating this constant in the `src/theme/config.ts` file:
+## Why?
 
-```tsx
-export const COLOR_MODE_STORAGE_KEY = 'start-ui-color-mode'; // Update the key according to your needs
+If you work on several projects, that allows avoid to share same color mode key, and in some case to run a project on a not manage color mode.
+
+## How?
+
+You can update the storage key used to detect the project color mode by updating this constant:
+
+```tsx filename="src/theme/config.ts"
+export const COLOR_MODE_STORAGE_KEY = "start-ui-color-mode"; // Update the key according to your needs
 ```

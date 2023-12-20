@@ -1,0 +1,15 @@
+{
+  "translations-organization": "Translations organization",
+  "email-development": "Email development",
+  "hint-development-env": "Hint development env",
+  "generate-icons": "Generate icons",
+  "create-new-field": "Create new form field",
+  "add-e2e-test": "Add end-to-end test",
+  "create-new-page": "Create new page",
+  "add-new-language": "Add new language",
+  "document-component-on-storybook": "Document component on Storybook",
+  "update-color-mode-key": "Update color mode key",
+  "update-env-variables": "Update env variables",
+  "update-theme-typing": "Update theme typing",
+  "deployment": "Deployment"
+}
