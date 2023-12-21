@@ -599,7 +599,7 @@ export const zProject = () =>
   });
 ```
 
-Use this schema in the tRPC router.
+Use this schema in the tRPC router in the `src/server/routers/projects.ts` file.
 
 ```ts {4, 13} filename="src/server/routers/projects.ts" showLineNumbers
 import { Prisma } from "@prisma/client";
@@ -674,7 +674,7 @@ You can run the `pnpm dev` and visit the [localhost:3000/admin/projects](http://
 
 ### Display the data
 
-First, let's get the data with tRPC and the `@tanstack/react-query` integration.
+First, let's get the data with tRPC and the `@tanstack/react-query` integration in the `PageAdminProjects.tsx` file.
 
 ```tsx {7,10} filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
 import { Heading } from "@chakra-ui/react";
@@ -1138,8 +1138,80 @@ export default function PageAdminProjects() {
 ## Step 5: Allows to create a project
 
 <Steps>
+
 ### Create the tRPC mutation
+
+In the tRPC router we will add the mutation, add the `create` key in the `src/server/routers/projects.ts` file with `meta`, `input` and `output` like we did with the `getAll` query.
+
+```ts {6-21} filename="src/server/routers/projects.ts" showLineNumbers
+/* ... */
+
+export const projectsRouter = createTRPCRouter({
+  getAll: /* ... */
+
+  create: protectedProcedure({ authorizations: ['ADMIN'] })
+    .meta({
+      openapi: {
+        method: 'POST',
+        path: '/projects',
+        protect: true,
+        tags: ['projects'],
+      },
+    })
+    .input(
+      zProject().pick({
+        name: true,
+        description: true,
+      })
+    )
+    .output(zProject()),
+});
+```
+
+Then, let's add the logic for the mutation.
+
+```ts {1, 23-34} filename="src/server/routers/projects.ts" showLineNumbers
+import { ExtendedTRPCError } from '@/server/config/errors';
+/* ... */
+
+export const projectsRouter = createTRPCRouter({
+  getAll: /* ... */
+
+  create: protectedProcedure({ authorizations: ['ADMIN'] })
+    .meta({
+      openapi: {
+        method: 'POST',
+        path: '/projects',
+        protect: true,
+        tags: ['projects'],
+      },
+    })
+    .input(
+      zProject().pick({
+        name: true,
+        description: true,
+      })
+    )
+    .output(zProject()),
+    .mutation(async ({ ctx, input }) => {
+      try {
+        ctx.logger.info('Creating project');
+        return await ctx.db.project.create({
+          data: input,
+        });
+      } catch (e) {
+        throw new ExtendedTRPCError({
+          cause: e,
+        });
+      }
+    }),
+});
+```
+
+-- WORK IN PROGRESS BELOW THIS --
+
 ** Work in progress **
+
 - create tRPC mutation
 
 ### Create the page
