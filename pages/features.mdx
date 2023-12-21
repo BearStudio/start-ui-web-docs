@@ -101,6 +101,15 @@ import {ResponsiveStack} from "../components/ResponsiveStack";
         }}
         placeholder="blur"
     />
+    <Image
+        src={accountCreationMobileImage}
+        style={{
+            maxHeight: 500,
+            objectFit: "contain",
+            objectPosition: "0 0",
+        }}
+        placeholder="blur"
+    />
 </ResponsiveStack>
 
 ### Theming
@@ -112,6 +121,11 @@ including changing colors, spacing, font sizes, etc.
 
 Dark Mode functionality is available by default, with the project's foundation designed to easily
 implement this feature.
+
+import userManagementMobileDarkmode from "@/screenshots/admin-users-management/user-management-mobile-darkmode.png";
+import userManagementDesktopDarkmode from "@/screenshots/admin-users-management/user-management-desktop-darkmode.png";
+
+<ImageTabs desktop={userManagementDesktopDarkmode} mobile={userManagementMobileDarkmode} />
 
 ### API documentation
 
