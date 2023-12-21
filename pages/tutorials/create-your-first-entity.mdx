@@ -746,17 +746,198 @@ You should have this result on [localhost:3000/admin/projects](http://localhost:
 
 ![Step 01](/images/tutorials/create-your-first-entity/display-datalist.png)
 
-### Hanlde empty and error state
+### Handle loading, empty and error state
 
--- WORK IN PROGRESS HERE --
+```tsx {6-8, 29-35} filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
+import { Heading, Stack } from "@chakra-ui/react";
 
-** Work in progress **
+import {
+  DataList,
+  DataListCell,
+  DataListEmptyState,
+  DataListErrorState,
+  DataListLoadingState,
+  DataListRow,
+  DataListText,
+} from "@/components/DataList";
+import {
+  AdminLayoutPage,
+  AdminLayoutPageContent,
+} from "@/features/admin/AdminLayoutPage";
+import { trpc } from "@/lib/trpc/client";
+
+export default function PageAdminProjects() {
+  const projects = trpc.projects.getAll.useQuery();
+
+  return (
+    <AdminLayoutPage>
+      <AdminLayoutPageContent>
+        <Stack spacing={4}>
+          <Heading flex="none" size="md">
+            Projects
+          </Heading>
+          <DataList>
+            {projects.isLoading && <DataListLoadingState />}
+            {projects.isError && (
+              <DataListErrorState retry={() => projects.refetch()} />
+            )}
+            {projects.isSuccess && !projects.data.items.length && (
+              <DataListEmptyState />
+            )}
+            {projects.data?.items.map((project) => (
+              <DataListRow key={project.id}>
+                <DataListCell>
+                  <DataListText fontWeight="bold">{project.name}</DataListText>
+                </DataListCell>
+                <DataListCell>
+                  <DataListText color="text-dimmed">
+                    {project.description}
+                  </DataListText>
+                </DataListCell>
+              </DataListRow>
+            ))}
+          </DataList>
+        </Stack>
+      </AdminLayoutPageContent>
+    </AdminLayoutPage>
+  );
+}
+```
 
 ### Add load more
 
-** Work in progress **
+First, we need to use `useInfiniteQuery` instead of `useQuery` and implement the getNextPageParam logic.
+
+```tsx {4-9} filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
+/* ... */
+
+export default function PageAdminProjects() {
+  const projects = trpc.projects.getAll.useInfiniteQuery(
+    {},
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    }
+  );
+
+  return (
+    /* ... */
+  );
+}
+```
+
+Now, we need to update how we display the data.
+
+```tsx {19, 22-24} filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
+/* ... */
+
+export default function PageAdminProjects() {
+  /* ... */
+
+  return (
+    <AdminLayoutPage>
+      <AdminLayoutPageContent>
+        <Stack spacing={4}>
+          <Heading flex="none" size="md">
+            Projects
+          </Heading>
+          <DataList>
+            {projects.isLoading && <DataListLoadingState />}
+            {projects.isError && (
+              <DataListErrorState retry={() => projects.refetch()} />
+            )}
+            {projects.isSuccess &&
+              !projects.data.pages.flatMap((p) => p.items).length && (
+                <DataListEmptyState />
+              )}
+            {projects.data?.pages
+              .flatMap((p) => p.items)
+              .map((project) => (
+                <DataListRow key={project.id}>
+                  <DataListCell>
+                    <DataListText fontWeight="bold">
+                      {project.name}
+                    </DataListText>
+                  </DataListCell>
+                  <DataListCell>
+                    <DataListText color="text-dimmed">
+                      {project.description}
+                    </DataListText>
+                  </DataListCell>
+                </DataListRow>
+              ))}
+          </DataList>
+        </Stack>
+      </AdminLayoutPageContent>
+    </AdminLayoutPage>
+  );
+}
+```
+
+And now, let's add the load more button.
+
+```tsx {38-51} filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
+/* ... */
+
+export default function PageAdminProjects() {
+  /* ... */
+
+  return (
+    <AdminLayoutPage>
+      <AdminLayoutPageContent>
+        <Stack spacing={4}>
+          <Heading flex="none" size="md">
+            Projects
+          </Heading>
+          <DataList>
+            {projects.isLoading && <DataListLoadingState />}
+            {projects.isError && (
+              <DataListErrorState retry={() => projects.refetch()} />
+            )}
+            {projects.isSuccess &&
+              !projects.data.pages.flatMap((p) => p.items).length && (
+                <DataListEmptyState />
+              )}
+            {projects.data?.pages
+              .flatMap((p) => p.items)
+              .map((project) => (
+                <DataListRow key={project.id}>
+                  <DataListCell>
+                    <DataListText fontWeight="bold">
+                      {project.name}
+                    </DataListText>
+                  </DataListCell>
+                  <DataListCell>
+                    <DataListText color="text-dimmed">
+                      {project.description}
+                    </DataListText>
+                  </DataListCell>
+                </DataListRow>
+              ))}
+            {projects.isSuccess && (
+              <DataListRow mt="auto">
+                <DataListCell>
+                  <Button
+                    size="sm"
+                    onClick={() => projects.fetchNextPage()}
+                    isLoading={projects.isFetchingNextPage}
+                    isDisabled={!projects.hasNextPage}
+                  >
+                    Load more
+                  </Button>
+                </DataListCell>
+              </DataListRow>
+            )}
+          </DataList>
+        </Stack>
+      </AdminLayoutPageContent>
+    </AdminLayoutPage>
+  );
+}
+```
 
 ### Add search
+
+-- WORK IN PROGRESS HERE --
 
 ** Work in progress **
 
