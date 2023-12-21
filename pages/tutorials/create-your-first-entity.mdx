@@ -2091,6 +2091,10 @@ export const projectsRouter = createTRPCRouter({
 
 Now, let's implement the delete button with a confirm modal in the `PageAdminProject.tsx` file.
 
+<Callout type="warning">
+  **`useRouter` is imported from `next/navigation`** and not `next/router`
+</Callout>
+
 ```tsx {3, 6-9, 13-15, 20-31, 38, 46-65} filename="src/features/projects/PageAdminProject.tsx" showLineNumbers
 import {
   /* ... */
@@ -2111,9 +2115,9 @@ export default function PageAdminProject() {
   const params = /* ... */;
   const project = /* ... */;
 
-  const projectRemove = trpc.repositories.removeById.useMutation({
+  const projectRemove = trpc.projects.removeById.useMutation({
     onSuccess: async () => {
-      await trpcUtils.projects.invalidate();
+      await trpcUtils.projects.getAll.invalidate();
       router.replace(`${ADMIN_PATH}/projects`);
     },
     onError: () => {
