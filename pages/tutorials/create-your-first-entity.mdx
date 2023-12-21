@@ -2,8 +2,9 @@ import { Callout, Steps } from "nextra/components";
 
 # Create your first entity
 
-Let's dive into creating a full new entity with database, backend and ui.
+Make sure you followed the [Getting Started](/getting-started) before starting this tutorial.
 
+Let's dive into creating a full new entity with database, backend and ui.<br />
 We will create a **"Project"** entity with the full CRUD (Create Read Update Delete) screens.
 
 ## Step 1: Create the Project database schema
@@ -203,7 +204,7 @@ export const projectsRouter = createTRPCRouter({
         z.object({
           id: z.string().cuid(),
           name: z.string(),
-          description: z.string().optional(),
+          description: z.string().nullish(),
         })
       )
     ), //...
@@ -238,7 +239,7 @@ export const projectsRouter = createTRPCRouter({
         z.object({
           id: z.string().cuid(),
           name: z.string(),
-          description: z.string().optional(),
+          description: z.string().nullish(),
         })
       )
     ), //...
@@ -268,7 +269,7 @@ export const projectsRouter = createTRPCRouter({
         z.object({
           id: z.string().cuid(),
           name: z.string(),
-          description: z.string().optional(),
+          description: z.string().nullish(),
         })
       )
     )
@@ -285,7 +286,7 @@ We will allows the query to be paginated with a load more strategy.
 
 First, let's update our input to accept a `limit` and a `cursor` params.
 
-```ts {16-19} filename="src/server/routers/projects.ts" showLineNumbers
+```ts {16-21} filename="src/server/routers/projects.ts" showLineNumbers
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/config/trpc";
@@ -301,17 +302,19 @@ export const projectsRouter = createTRPCRouter({
       },
     })
     .input(
-      z.object({
-        cursor: z.string().cuid().optional(),
-        limit: z.number().min(1).max(100).default(20),
-      })
+      z
+        .object({
+          cursor: z.string().cuid().nullish(),
+          limit: z.number().min(1).max(100).default(20),
+        })
+        .default({})
     )
     .output(
       z.array(
         z.object({
           id: z.string().cuid(),
           name: z.string(),
-          description: z.string().optional(),
+          description: z.string().nullish(),
         })
       )
     )
@@ -324,7 +327,7 @@ export const projectsRouter = createTRPCRouter({
 
 Then we will need to update our prisma query.
 
-```ts {30-36} filename="src/server/routers/projects.ts" showLineNumbers
+```ts {32-39} filename="src/server/routers/projects.ts" showLineNumbers
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/config/trpc";
@@ -340,17 +343,19 @@ export const projectsRouter = createTRPCRouter({
       },
     })
     .input(
-      z.object({
-        cursor: z.string().cuid().optional(),
-        limit: z.number().min(1).max(100).default(20),
-      })
+      z
+        .object({
+          cursor: z.string().cuid().nullish(),
+          limit: z.number().min(1).max(100).default(20),
+        })
+        .default({})
     )
     .output(
       z.array(
         z.object({
           id: z.string().cuid(),
           name: z.string(),
-          description: z.string().optional(),
+          description: z.string().nullish(),
         })
       )
     )
@@ -367,7 +372,7 @@ export const projectsRouter = createTRPCRouter({
 
 Now, we need to update our output to send not only the projects but also the `nextCursor`.
 
-```ts {21-32,40-46} filename="src/server/routers/projects.ts" showLineNumbers
+```ts {23-34,42-48} filename="src/server/routers/projects.ts" showLineNumbers
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/config/trpc";
@@ -383,10 +388,12 @@ export const projectsRouter = createTRPCRouter({
       },
     })
     .input(
-      z.object({
-        cursor: z.string().cuid().optional(),
-        limit: z.number().min(1).max(100).default(20),
-      })
+      z
+        .object({
+          cursor: z.string().cuid().nullish(),
+          limit: z.number().min(1).max(100).default(20),
+        })
+        .default({})
     )
     .output(
       z.object({
@@ -394,10 +401,10 @@ export const projectsRouter = createTRPCRouter({
           z.object({
             id: z.string().cuid(),
             name: z.string(),
-            description: z.string().optional(),
+            description: z.string().nullish(),
           })
         ),
-        nextCursor: z.string().cuid().optional(),
+        nextCursor: z.string().cuid().nullish(),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -420,7 +427,7 @@ export const projectsRouter = createTRPCRouter({
 
 We will now add the total of projects in the data in the output to let the UI now how many projects are available even if now the UI will not request all projects at once.
 
-```ts {19,35-36,41-42,50} filename="src/server/routers/projects.ts" showLineNumbers
+```ts {33,37-38,43-44,52} filename="src/server/routers/projects.ts" showLineNumbers
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/config/trpc";
@@ -436,11 +443,12 @@ export const projectsRouter = createTRPCRouter({
       },
     })
     .input(
-      z.object({
-        cursor: z.string().cuid().optional(),
-        limit: z.number().min(1).max(100).default(20),
-        total: z.number(),
-      })
+      z
+        .object({
+          cursor: z.string().cuid().nullish(),
+          limit: z.number().min(1).max(100).default(20),
+        })
+        .default({})
     )
     .output(
       z.object({
@@ -448,10 +456,11 @@ export const projectsRouter = createTRPCRouter({
           z.object({
             id: z.string().cuid(),
             name: z.string(),
-            description: z.string().optional(),
+            description: z.string().nullish(),
           })
         ),
-        nextCursor: z.string().cuid().optional(),
+        nextCursor: z.string().cuid().nullish(),
+        total: z.number(),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -480,7 +489,7 @@ export const projectsRouter = createTRPCRouter({
 Let's add the possibility to search a project by name. We are adding a `searchTerm` in the input and add a `where` clause.
 We need to put this `where` on both prisma requests, so we can create a constant with the help of the `Prisma.ProjectWhereInput` generated types.
 
-```ts {1, 21, 37-42, 45, 50} filename="src/server/routers/projects.ts" showLineNumbers
+```ts {1, 21, 39-44, 47, 52} filename="src/server/routers/projects.ts" showLineNumbers
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
@@ -497,12 +506,13 @@ export const projectsRouter = createTRPCRouter({
       },
     })
     .input(
-      z.object({
-        cursor: z.string().cuid().optional(),
-        limit: z.number().min(1).max(100).default(20),
-        total: z.number(),
-        searchTerm: z.string().optional(),
-      })
+      z
+        .object({
+          cursor: z.string().cuid().nullish(),
+          limit: z.number().min(1).max(100).default(20),
+          searchTerm: z.string().nullish(),
+        })
+        .default({})
     )
     .output(
       z.object({
@@ -510,10 +520,11 @@ export const projectsRouter = createTRPCRouter({
           z.object({
             id: z.string().cuid(),
             name: z.string(),
-            description: z.string().optional(),
+            description: z.string().nullish(),
           })
         ),
-        nextCursor: z.string().cuid().optional(),
+        nextCursor: z.string().cuid().nullish(),
+        total: z.number(),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -570,7 +581,7 @@ export const zProject = () =>
   z.object({
     id: z.string().cuid(),
     name: z.string(),
-    description: z.string().optional(),
+    description: z.string().nullish(),
   });
 ```
 
@@ -584,11 +595,32 @@ export const zProject = () =>
   z.object({
     id: z.string().cuid(),
     name: z.string(),
-    description: z.string().optional(),
+    description: z.string().nullish(),
   });
 ```
 
--- WORK IN PROGRESS HERE --
+Use this schema in the tRPC router.
+
+```ts {4, 13} filename="src/server/routers/projects.ts" showLineNumbers
+import { Prisma } from "@prisma/client";
+import { z } from "zod";
+
+import { zProject } from "@/features/projects/schemas";
+import { createTRPCRouter, protectedProcedure } from "@/server/config/trpc";
+
+export const projectsRouter = createTRPCRouter({
+  getAll: protectedProcedure({ authorizations: ["ADMIN"] })
+    .meta(/* ... */)
+    .input(/* ... */)
+    .output(
+      z.object({
+        items: z.array(zProject()),
+        nextCursor: z.string().cuid().nullish(),
+      })
+    )
+    .query(/* ... */),
+});
+```
 
 </Steps>
 
@@ -598,24 +630,125 @@ export const zProject = () =>
 
 <Steps>
 ### Create the page
-** Work in progress **
-- create PageAdminProjects in feature
-- create "shell" page with AppLayoutPage
+
+Create the file `PageAdminProjects.tsx` in the `src/features/projects` folder with the following content.
+
+```tsx filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
+import { Heading } from "@chakra-ui/react";
+
+import {
+  AdminLayoutPage,
+  AdminLayoutPageContent,
+} from "@/features/admin/AdminLayoutPage";
+
+export default function PageAdminProjects() {
+  return (
+    <AdminLayoutPage>
+      <AdminLayoutPageContent>
+        <Heading flex="none" size="md">
+          Projects
+        </Heading>
+        ...
+      </AdminLayoutPageContent>
+    </AdminLayoutPage>
+  );
+}
+```
 
 ### Create the NextJS route
 
-** Work in progress **
+To expose the page component, we need to create the route in the NextJS app router.<br />
+Create a `page.tsx` file in the a new `projects` folder in `src/app/admin/(authenticated)` folder.
 
-- create page.tsx in /src/app for routing with 'use client'
+```tsx filename="src/app/admin/(authenticated)/projects/page.tsx" showLineNumbers
+"use client";
+
+import PageAdminProjects from "@/features/projects/PageAdminProjects";
+
+export default function Page() {
+  return <PageAdminProjects />;
+}
+```
+
+You can run the `pnpm dev` and visit the [localhost:3000/admin/projects](http://localhost:3000/admin/projects) url to see the result. (You might need to login first).
 
 ### Display the data
 
-** Work in progress **
+First, let's get the data with tRPC and the `@tanstack/react-query` integration.
 
-- useQuery with tRPC
-- display data with Datalist
+```tsx {7,10} filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
+import { Heading } from "@chakra-ui/react";
+
+import {
+  AdminLayoutPage,
+  AdminLayoutPageContent,
+} from "@/features/admin/AdminLayoutPage";
+import { trpc } from '@/lib/trpc/client';
+
+export default function PageAdminProjects() {
+  const project = trpc.projects.getAll.useQuery();
+
+  return (
+    /* ... */
+  );
+}
+```
+
+Then, use the DataList component to display the data.
+
+```tsx {1, 3-8, 21, 25-39} filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
+import { Heading, Stack } from "@chakra-ui/react";
+
+import {
+  DataList,
+  DataListCell,
+  DataListRow,
+  DataListText,
+} from "@/components/DataList";
+import {
+  AdminLayoutPage,
+  AdminLayoutPageContent,
+} from "@/features/admin/AdminLayoutPage";
+import { trpc } from "@/lib/trpc/client";
+
+export default function PageAdminProjects() {
+  const projects = trpc.projects.getAll.useQuery();
+
+  return (
+    <AdminLayoutPage>
+      <AdminLayoutPageContent>
+        <Stack spacing={4}>
+          <Heading flex="none" size="md">
+            Projects
+          </Heading>
+          <DataList>
+            {projects.data?.items.map((project) => (
+              <DataListRow key={project.id}>
+                <DataListCell>
+                  <DataListText fontWeight="bold">{project.name}</DataListText>
+                </DataListCell>
+                <DataListCell>
+                  <DataListText color="text-dimmed">
+                    {project.description}
+                  </DataListText>
+                </DataListCell>
+              </DataListRow>
+            ))}
+          </DataList>
+        </Stack>
+      </AdminLayoutPageContent>
+    </AdminLayoutPage>
+  );
+}
+```
+
+You should have this result on [localhost:3000/admin/projects](http://localhost:3000/admin/projects) 👇
+
+![Step 01](/images/tutorials/create-your-first-entity/display-datalist.png)
 
 ### Hanlde empty and error state
+
+-- WORK IN PROGRESS HERE --
 
 ** Work in progress **
 
@@ -760,3 +893,7 @@ export const zProject = () =>
 ## Step 9: Add the translations
 
 ** Work in progress **
+
+```
+
+```
