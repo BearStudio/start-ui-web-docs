@@ -2047,25 +2047,132 @@ The update page of a project should looks like this.
 ## Step 8: Allows to delete a project
 
 <Steps>
+
 ### Create the tRPC mutation
-** Work in progress **
+
+In the tRPC router we can add the `removeById` mutation in the `src/server/routers/projects.ts` file.
+
+```ts {9-31} filename="src/server/routers/projects.ts" showLineNumbers
+/* ... */
+
+export const projectsRouter = createTRPCRouter({
+  getAll: /* ... */,
+  create: /* ... */,
+  getById: /* ... */,
+  updateById: /* ... */,
+
+  removeById: protectedProcedure({ authorizations: ['ADMIN'] })
+    .meta({
+      openapi: {
+        method: 'DELETE',
+        path: '/projects/{id}',
+        protect: true,
+        tags: ['projects'],
+      },
+    })
+    .input(zProject().pick({ id: true }))
+    .output(zProject())
+    .mutation(async ({ ctx, input }) => {
+      ctx.logger.info({ input }, 'Removing project');
+      try {
+        return await ctx.db.project.delete({
+          where: { id: input.id },
+        });
+      } catch (e) {
+        throw new ExtendedTRPCError({
+          cause: e,
+        });
+      }
+    }),
+});
+```
 
 ### Use the tRPC mutation
 
-** Work in progress **
+Now, let's implement the delete button with a confirm modal in the `PageAdminProject.tsx` file.
 
-### Add confirm modals
+```tsx {3, 6-9, 13-15, 20-31, 38, 46-65} filename="src/features/projects/PageAdminProject.tsx" showLineNumbers
+import {
+  /* ... */
+  IconButton,
+  /* ... */
+} from "@chakra-ui/react";
+import { /* ... */, useRouter } from "next/navigation";
+import { /* ... */, LuTrash2 } from "react-icons/lu";
+import { ConfirmModal } from "@/components/ConfirmModal";
+import { useToastError } from "@/components/Toast";
+/* ... */
 
-** Work in progress **
+export default function PageAdminProject() {
+  const router = useRouter();
+  const trpcUtils = trpc.useUtils();
+  const toastError = useToastError();
+
+  const params = /* ... */;
+  const project = /* ... */;
+
+  const projectRemove = trpc.repositories.removeById.useMutation({
+    onSuccess: async () => {
+      await trpcUtils.projects.invalidate();
+      router.replace(`${ADMIN_PATH}/projects`);
+    },
+    onError: () => {
+      toastError({
+        title: "Deletion failed",
+        description: "Failed to removed the project",
+      });
+    },
+  });
+
+  return (
+    <AdminLayoutPage showNavBar="desktop" containerMaxWidth="container.md">
+      <AdminLayoutPageTopBar
+        leftActions={<AdminBackButton />}
+        rightActions={
+          <>
+            <ResponsiveIconButton
+              as={Link}
+              href={`${ADMIN_PATH}/projects/${params?.id}/update`}
+              icon={<LuPenLine />}
+            >
+              Edit
+            </ResponsiveIconButton>
+            <ConfirmModal
+              title="Confirm deleting the project"
+              message={`Would you like to delete "${project.data?.name}"? Delete will be permanent.`}
+              onConfirm={() =>
+                project.data &&
+                projectRemove.mutate({
+                  id: project.data.id,
+                })
+              }
+              confirmText="Delete"
+              confirmVariant="@danger"
+            >
+              <IconButton
+                aria-label="Delete"
+                icon={<LuTrash2 />}
+                isDisabled={!project.data}
+                isLoading={projectRemove.isLoading}
+              />
+            </ConfirmModal>
+          </>
+        }
+      >
+        {/* ... */}
+      </AdminLayoutPageTopBar>
+      <AdminLayoutPageContent>
+        {/* ... */}
+      </AdminLayoutPageContent>
+    </AdminLayoutPage>
+  );
+}
+```
+
+### Result
+
+The delete action of a project should looks like this.
+
+![Project update](/images/tutorials/create-your-first-entity/project-delete.png)
 
 </Steps>
-
----
-
-## Step 9: Add the translations
-
-** Work in progress **
-
-```
-
-```
