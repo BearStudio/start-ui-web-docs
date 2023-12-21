@@ -1,0 +1,94 @@
+import { Steps, FileTree } from 'nextra/components'
+
+# Create a new page
+
+## Why?
+
+Allows you to add an empty accessible page to your application.
+
+## How?
+
+<Steps>
+### Create your Page component file
+ 
+Create a new file, `PageXXX`, in the appropriate module within the `features` folder.
+   * **If it's the first page of a new module,** place it in a new folder named after the module.
+   * **If you're adding a page to an existing module,** place it in that module's folder.
+
+<FileTree>
+  <FileTree.Folder name="features" open>
+    <FileTree.Folder name="module-a" open />
+    <FileTree.Folder name="module-b" open>
+      <FileTree.File name="PageXXX" />
+    </FileTree.Folder>
+  </FileTree.Folder>
+</FileTree>
+ 
+### Define PageXXX
+ 
+Define your `PageXXX` component with minimal content.
+
+
+#### For a new app page
+
+```jsx filename="/src/features/module-b/PageXXX"
+import { AppLayoutPage } from '@/features/app/AppLayoutPage';
+
+export default function PageXXX() {
+
+  return (
+    <AppLayoutPage>
+    </AppLayoutPage>
+  );
+}
+```
+
+#### For a new admin page
+
+```jsx filename="/src/features/module-b/PageAdminXXX"
+import { AppLayoutPage } from '@/features/app/AppLayoutPage';
+
+export default function PageAdminXXX() {
+
+  return (
+    <AdminLayoutPage>
+      <AdminLayoutPageContent>
+      </AdminLayoutPageContent>
+    </AdminLayoutPage>
+  );
+}
+```
+
+### Add this page to application routing
+
+Following [NextJS App Router](https://nextjs.org/docs/app/building-your-application/routing) routing, 
+create a new file, `page.tsx`, where you want to access the defined page
+
+<FileTree>
+  <FileTree.Folder name="app" open>
+    <FileTree.Folder name="app" open>
+      <FileTree.Folder name="(authenticated)" open>
+        <FileTree.Folder name="module-a" open />
+        <FileTree.Folder name="module-b" open>
+          <FileTree.File name="page.tsx" />
+        </FileTree.Folder>
+      </FileTree.Folder>
+    </FileTree.Folder>
+  </FileTree.Folder>
+</FileTree>
+
+### Use your PageXXX component in the new routing file
+
+```jsx filename="/src/app/app/(authenticated)/module-b/page.tsx"
+'use client';
+
+import PageXXX from '@/features/module-b/PageXXX';
+
+export default function Page() {
+  return <PageXXX />;
+}
+
+```
+
+</Steps>
+
