@@ -1,11 +1,12 @@
-<h1 align="center"><img src="assets/thumbnail.png" alt="Start UI Web" /></h1>
+# This is Start UI [web] documentation repository
+
+<h1 align="center"><img src=".github/assets/thumbnail.png" alt="Start UI Web" /></h1>
+
+[![Discord](https://img.shields.io/discord/452798408491663361)](https://go.bearstudio.fr/discord)
 
 🚀 Start UI <small>[web]</small> is an opinionated frontend starter repository created & maintained by the [BearStudio Team](https://www.bearstudio.fr/team) and other contributors.
 It represents our team's up-to-date stack that we use when creating web apps for our clients.
 
-# This is Start UI [web] documentation repository
-
-🚧 Is still in progress
 
 # Contribution
 
