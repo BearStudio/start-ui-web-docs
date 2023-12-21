@@ -1677,8 +1677,6 @@ export const projectsRouter = createTRPCRouter({
 Create the file `PageAdminProject.tsx` in the `src/features/projects` folder with the following content.
 
 ```tsx filename="src/features/projects/PageAdminProject.tsx" showLineNumbers
-import React from "react";
-
 import {
   Box,
   Card,
@@ -1812,7 +1810,7 @@ export default function PageAdminProjects() {
 
 ### Result
 
-The page of a project, should looks like this.
+The view page of a project should looks like this.
 
 ![Project view](/images/tutorials/create-your-first-entity/project-view.png)
 
@@ -1823,37 +1821,224 @@ The page of a project, should looks like this.
 ## Step 7: Allows to update a project
 
 <Steps>
+
 ### Create the tRPC mutation
-** Work in progress **
+
+In the tRPC router we can add the `updateById` mutation in the `src/server/routers/projects.ts` file.
+
+```ts {8-37} filename="src/server/routers/projects.ts" showLineNumbers
+/* ... */
+
+export const projectsRouter = createTRPCRouter({
+  getAll: /* ... */,
+  create: /* ... */,
+  getById: /* ... */,
+
+  updateById: protectedProcedure({ authorizations: ['ADMIN'] })
+    .meta({
+      openapi: {
+        method: 'PUT',
+        path: '/projects/{id}',
+        protect: true,
+        tags: ['projects'],
+      },
+    })
+    .input(
+      zProject().pick({
+        id: true,
+        name: true,
+        description: true,
+      })
+    )
+    .output(zProject())
+    .mutation(async ({ ctx, input }) => {
+      try {
+        ctx.logger.info('Updating project');
+        return await ctx.db.project.update({
+          where: { id: input.id },
+          data: input,
+        });
+      } catch (e) {
+        throw new ExtendedTRPCError({
+          cause: e,
+        });
+      }
+    }),
+});
+```
 
 ### Create the page
 
-** Work in progress **
+Create the file `PageAdminProjectUpdate.tsx` in the `src/features/projects` folder with the following content.
 
-- create PageAdminProjectUpdate in feature
-- create "shell" page with AppLayoutPage
+```tsx filename="src/features/projects/PageAdminProjectUpdate.tsx" showLineNumbers
+import { Button, Heading, SkeletonText, Stack } from "@chakra-ui/react";
+import { Formiz, useForm } from "@formiz/core";
+import { useParams, useRouter } from "next/navigation";
+
+import { ErrorPage } from "@/components/ErrorPage";
+import { LoaderFull } from "@/components/LoaderFull";
+import { useToastError, useToastSuccess } from "@/components/Toast";
+import { AdminBackButton } from "@/features/admin/AdminBackButton";
+import { AdminCancelButton } from "@/features/admin/AdminCancelButton";
+import {
+  AdminLayoutPage,
+  AdminLayoutPageContent,
+  AdminLayoutPageTopBar,
+} from "@/features/admin/AdminLayoutPage";
+import {
+  ProjectForm,
+  ProjectFormFields,
+} from "@/features/projects/ProjectForm";
+import { trpc } from "@/lib/trpc/client";
+import { isErrorDatabaseConflict } from "@/lib/trpc/errors";
+
+export default function PageAdminProjectUpdate() {
+  const trpcUtils = trpc.useUtils();
+
+  const params = useParams();
+  const router = useRouter();
+  const repository = trpc.projects.getById.useQuery(
+    {
+      id: params?.id?.toString() ?? "",
+    },
+    {
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+    }
+  );
+
+  const isReady = !repository.isFetching;
+
+  const toastSuccess = useToastSuccess();
+  const toastError = useToastError();
+
+  const updateProject = trpc.projects.updateById.useMutation({
+    onSuccess: async () => {
+      await trpcUtils.projects.invalidate();
+      toastSuccess({
+        title: "Updated with success",
+      });
+      router.back();
+    },
+    onError: (error) => {
+      if (isErrorDatabaseConflict(error, "name")) {
+        form.setErrors({ name: "Name already used" });
+        return;
+      }
+      toastError({
+        title: "Update failed",
+      });
+    },
+  });
+
+  const form = useForm<ProjectFormFields>({
+    ready: isReady,
+    initialValues: repository.data,
+    onValidSubmit: (values) => {
+      if (!repository.data?.id) return;
+      updateProject.mutate({
+        ...repository.data,
+        ...values,
+      });
+    },
+  });
+
+  return (
+    <Formiz connect={form} autoForm>
+      <AdminLayoutPage containerMaxWidth="container.md" showNavBar={false}>
+        <AdminLayoutPageTopBar
+          leftActions={<AdminBackButton withConfrim={!form.isPristine} />}
+          rightActions={
+            <>
+              <AdminCancelButton withConfrim={!form.isPristine} />
+              <Button
+                type="submit"
+                variant="@primary"
+                isLoading={updateProject.isLoading || updateProject.isSuccess}
+                isDisabled={!form.isValid && form.isSubmitted}
+              >
+                Save
+              </Button>
+            </>
+          }
+        >
+          <Stack flex={1} spacing={0}>
+            {repository.isLoading && <SkeletonText maxW="6rem" noOfLines={2} />}
+            {repository.isSuccess && (
+              <Heading size="sm">{repository.data?.name}</Heading>
+            )}
+          </Stack>
+        </AdminLayoutPageTopBar>
+        {!isReady && <LoaderFull />}
+        {isReady && repository.isError && <ErrorPage />}
+        {isReady && repository.isSuccess && (
+          <AdminLayoutPageContent>
+            <ProjectForm />
+          </AdminLayoutPageContent>
+        )}
+      </AdminLayoutPage>
+    </Formiz>
+  );
+}
+```
 
 ### Create the NextJS route
 
-** Work in progress **
+To expose the page component, we need to create the route in the NextJS app router.<br />
+Create a `page.tsx` file in the a new `update` folder in `src/app/admin/(authenticated)/[id]` folder.
 
-- create page.tsx in /src/app for routing with 'use client'
+```tsx filename="src/app/admin/(authenticated)/projects/[id]/update/page.tsx" showLineNumbers
+"use client";
 
-### Display the form
+import PageAdminProjectUpdate from "@/features/projects/PageAdminProjectUpdate";
 
-** Work in progress **
+export default function Page() {
+  return <PageAdminProjectUpdate />;
+}
+```
 
-- use the ProjectForm component
-- use getById query to fill the form
+### Add the edit button in the view
 
-### Submit the form
+Now, in the `PageAdminProject.tsx` we can add edit button with the link to the update page.
 
-- use tRPC mutation
-- redirect to "view" url
+```tsx {1-4, 14-22} filename="src/features/projects/PageAdminProject.tsx" showLineNumbers
+import Link from "next/link";
+import { LuPenLine } from "react-icons/lu";
+import { ResponsiveIconButton } from "@/components/ResponsiveIconButton";
+import { ADMIN_PATH } from "@/features/admin/constants";
+/* ... */
 
-### Hanlde errors
+export default function PageAdminProject() {
+  /* ... */
 
-** Work in progress **
+  return (
+    <AdminLayoutPage showNavBar="desktop" containerMaxWidth="container.md">
+      <AdminLayoutPageTopBar
+        leftActions={<AdminBackButton />}
+        rightActions={
+          <ResponsiveIconButton
+            as={Link}
+            href={`${ADMIN_PATH}/projects/${params?.id}/update`}
+            icon={<LuPenLine />}
+          >
+            Edit
+          </ResponsiveIconButton>
+        }
+      >
+        {/* ... */}
+      </AdminLayoutPageTopBar>
+      <AdminLayoutPageContent>{/* ... */}</AdminLayoutPageContent>
+    </AdminLayoutPage>
+  );
+}
+```
+
+### Result
+
+The update page of a project should looks like this.
+
+![Project update](/images/tutorials/create-your-first-entity/project-update.png)
 
 </Steps>
 
