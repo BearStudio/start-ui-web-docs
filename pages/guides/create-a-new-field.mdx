@@ -1,16 +1,34 @@
+import { Steps, FileTree } from 'nextra/components'
+
 # Create new field
 
 ## Why?
 
-Allows to integrate any controlled component in a Formiz form
+Allows to integrate any controlled component into a Formiz form.
 
 ## How?
 
-1. Create a new folder on `src/components` folder, named like the controlled component, prefixed by Field.
+<Steps>
+### Create your component File
 
-`MyComponent` -> `src/components/FieldMyComponent`
+In the `src/components` directory, create an `index.tsx` file in a new folder named after the controlled component, prefixed by Field.
 
-2. Create `index.tsx` file in this new folder, with the `FieldMyComponent` definition, following this template
+<FileTree>
+  <FileTree.Folder name="src" open>
+    <FileTree.Folder name="components" open>
+      <FileTree.Folder name="MyComponent" open>
+        <FileTree.File name="index.tsx" />
+      </FileTree.Folder>
+      <FileTree.Folder name="FieldMyComponent" open>
+        <FileTree.File name="index.tsx" />
+      </FileTree.Folder>
+    </FileTree.Folder>
+  </FileTree.Folder>
+</FileTree>
+
+### Define your Field
+
+We recommend using this structure to define a Field. This file can include some other stuff if your component has some specificity.
 
 ```tsx filename="src/components/FieldMyComponent/index.tsx"
 import { MyComponent, MyComponentProps } from "@/components/MyComponent";
@@ -66,7 +84,7 @@ export const FieldMyComponent = <FormattedValue = Value>(
 };
 ```
 
-3. Use your new Field in a form
+### Use your new Field in a form
 
 ```tsx
 <Formiz connect={form}>
@@ -78,3 +96,6 @@ export const FieldMyComponent = <FormattedValue = Value>(
   />
 </Formiz>
 ```
+
+
+</Steps>
