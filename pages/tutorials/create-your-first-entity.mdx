@@ -875,7 +875,9 @@ export default function PageAdminProjects() {
 
 And now, let's add the load more button.
 
-```tsx {38-51} filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
+```tsx {1, 40-53} filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
+import { Button, Heading, Stack } from "@chakra-ui/react";
+
 /* ... */
 
 export default function PageAdminProjects() {
@@ -937,9 +939,94 @@ export default function PageAdminProjects() {
 
 ### Add search
 
--- WORK IN PROGRESS HERE --
+First, let's add the `SearchInput` component in the UI.
 
-** Work in progress **
+```tsx {1, 12-16, 20-21} filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
+import { SearchInput } from "@/components/SearchInput";
+
+/* ... */
+
+export default function PageAdminProjects() {
+  /* ... */
+
+  return (
+    <AdminLayoutPage>
+      <AdminLayoutPageContent>
+        <Stack spacing={4}>
+          <Flex
+            flexDirection={{ base: "column", md: "row" }}
+            alignItems={{ base: "start", md: "center" }}
+            gap={4}
+          >
+            <Heading flex="none" size="md">
+              Projects
+            </Heading>
+            <SearchInput size="sm" maxW={{ base: "none", md: "20rem" }} />
+          </Flex>
+          <DataList>{/* ... */}</DataList>
+        </Stack>
+      </AdminLayoutPageContent>
+    </AdminLayoutPage>
+  );
+}
+```
+
+Then connect the `SearchInput` value to the `useInfiniteQuery` via a search param (`s`) in the url.
+
+```tsx {1-2, 7-9, 12-14, 33-34} filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
+import { useSearchParams } from "next/navigation";
+import { useSearchParamsUpdater } from "@/hooks/useSearchParamsUpdater";
+
+/* ... */
+
+export default function PageAdminProjects() {
+  const searchParams = useSearchParams();
+  const searchParamsUpdater = useSearchParamsUpdater();
+  const searchTerm = searchParams.get("s") ?? "";
+
+  const projects = trpc.projects.getAll.useInfiniteQuery(
+    {
+      searchTerm,
+    },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    }
+  );
+
+  return (
+    <AdminLayoutPage>
+      <AdminLayoutPageContent>
+        <Stack spacing={4}>
+          <Flex
+            flexDirection={{ base: "column", md: "row" }}
+            alignItems={{ base: "start", md: "center" }}
+            gap={4}
+          >
+            <Heading flex="none" size="md">
+              Projects
+            </Heading>
+            <SearchInput
+              value={searchTerm}
+              onChange={(value) => searchParamsUpdater({ s: value || null })}
+              size="sm"
+              maxW={{ base: "none", md: "20rem" }}
+            />
+          </Flex>
+          <DataList>{/* ... */}</DataList>
+        </Stack>
+      </AdminLayoutPageContent>
+    </AdminLayoutPage>
+  );
+}
+```
+
+Let's just add the search term to the existing `<DataListEmptyState />` for a better UX.
+
+```tsx {2} filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
+/* ... */
+<DataListEmptyState searchTerm={searchTerm} />
+/* ... */
+```
 
 </Steps>
 
