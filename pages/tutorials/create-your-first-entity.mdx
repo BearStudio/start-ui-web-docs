@@ -324,7 +324,7 @@ export const projectsRouter = createTRPCRouter({
 
 Then we will need to update our prisma query.
 
-```ts {31-36} filename="src/server/routers/projects.ts" showLineNumbers
+```ts {30-36} filename="src/server/routers/projects.ts" showLineNumbers
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/config/trpc";
@@ -559,11 +559,11 @@ It's in this folder that we will put all the UI of the projects feature and also
 
 ### Extract project zod schema
 
-First to we will extract the zod schema for the project from the tRPC router and put it into a `schema.ts` file in the `src/features/projects` folder.
+First to we will extract the zod schema for the project from the tRPC router and put it into a `schemas.ts` file in the `src/features/projects` folder.
 
-Let's create the `src/features/projects/schema.ts` file with the zod schema for one project.
+Let's create the `src/features/projects/schemas.ts` file with the zod schema for one project.
 
-```ts filename="src/features/projects/schema.ts" showLineNumbers
+```ts filename="src/features/projects/schemas.ts" showLineNumbers
 import { z } from "zod";
 
 export const zProject = () =>
@@ -575,6 +575,18 @@ export const zProject = () =>
 ```
 
 Let's create the type from this schema.
+
+```ts {3} filename="src/features/projects/schemas.ts" showLineNumbers
+import { z } from "zod";
+
+export type Project = z.infer<ReturnType<typeof zProject>>;
+export const zProject = () =>
+  z.object({
+    id: z.string().cuid(),
+    name: z.string(),
+    description: z.string().optional(),
+  });
+```
 
 -- WORK IN PROGRESS HERE --
 
