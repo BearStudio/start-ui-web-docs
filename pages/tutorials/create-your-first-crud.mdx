@@ -1,6 +1,6 @@
 import { Callout, Steps } from "nextra/components";
 
-# Create your first entity
+# Create your first CRUD
 
 Make sure you followed the [Getting Started](/getting-started) before starting this tutorial.
 
@@ -2178,5 +2178,51 @@ export default function PageAdminProject() {
 The delete action of a project should looks like this.
 
 ![Project update](/images/tutorials/create-your-first-entity/project-delete.png)
+
+</Steps>
+
+## That's a wrap
+
+<Steps>
+
+### Update the main menu
+
+Udpate the `AdminNavBarMainMenu` component in the `src/features/admin/AdminNavBar.tsx` file.
+
+```tsx {13-15} filename="src/features/admin/AdminNavBar.tsx" showLineNumbers
+/* ... */
+
+const AdminNavBarMainMenu = ({ ...rest }: StackProps) => {
+  const { t } = useTranslation(["admin"]);
+  return (
+    <Stack direction="row" spacing="1" {...rest}>
+      <AdminNavBarMainMenuItem href={`${ADMIN_PATH}/dashboard`}>
+        {t("admin:layout.mainMenu.dashboard")}
+      </AdminNavBarMainMenuItem>
+      <AdminNavBarMainMenuItem href={`${ADMIN_PATH}/repositories`}>
+        {t("admin:layout.mainMenu.repositories")}
+      </AdminNavBarMainMenuItem>
+      <AdminNavBarMainMenuItem href={`${ADMIN_PATH}/projects`}>
+        Projects
+      </AdminNavBarMainMenuItem>
+      <AdminNavBarMainMenuItem href={`${ADMIN_PATH}/management`}>
+        {t("admin:layout.mainMenu.management")}
+      </AdminNavBarMainMenuItem>
+    </Stack>
+  );
+};
+
+/* ... */
+```
+
+### Congrats
+
+If you made it until this end, CONGRATS!
+
+![Congrats](/images/tutorials/create-your-first-entity/congrats.gif)
+
+<small style={{ opacity: 0.5 }}>
+  Now have fun by adding all the translations 😅
+</small>
 
 </Steps>
