@@ -132,7 +132,7 @@ You can check that the project is created by running the `pnpm db:ui{:bash}` com
 ## Step 2: Create the backend router
 
 <Steps>
-### Create the tRPC routers
+### Create the tRPC router
 
 Create a `projects.ts` file in the `src/server/routers` folder and create an empty tRPC router with the following code.
 
@@ -1166,7 +1166,7 @@ In the tRPC router we will add the mutation, add the `create` key in the `src/se
 /* ... */
 
 export const projectsRouter = createTRPCRouter({
-  getAll: /* ... */
+  getAll: /* ... */,
 
   create: protectedProcedure({ authorizations: ['ADMIN'] })
     .meta({
@@ -1194,7 +1194,7 @@ import { ExtendedTRPCError } from '@/server/config/errors';
 /* ... */
 
 export const projectsRouter = createTRPCRouter({
-  getAll: /* ... */
+  getAll: /* ... */,
 
   create: protectedProcedure({ authorizations: ['ADMIN'] })
     .meta({
@@ -1630,30 +1630,191 @@ export default function PageAdminProjectCreate() {
 ## Step 6: Allows to view a project
 
 <Steps>
+
 ### Create the tRPC query
-** Work in progress **
-- create tRPC query
+
+In the tRPC router we can add the `getById` query in the `src/server/routers/projects.ts` file.
+
+```ts {1, 8-33} filename="src/server/routers/projects.ts" showLineNumbers
+import { TRPCError } from '@trpc/server';
+/* ... */
+
+export const projectsRouter = createTRPCRouter({
+  getAll: /* ... */,
+  create: /* ... */,
+
+  getById: protectedProcedure({ authorizations: ['ADMIN'] })
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/projects/{id}',
+        protect: true,
+        tags: ['projects'],
+      },
+    })
+    .input(zProject().pick({ id: true }))
+    .output(zProject())
+    .query(async ({ ctx, input }) => {
+      ctx.logger.info('Getting project');
+      const project = await ctx.db.project.findUnique({
+        where: { id: input.id },
+      });
+
+      if (!project) {
+        ctx.logger.warn('Unable to find project with the provided input');
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+        });
+      }
+
+      return project;
+    }),
+});
+```
 
 ### Create the page
 
-** Work in progress **
+Create the file `PageAdminProject.tsx` in the `src/features/projects` folder with the following content.
 
-- create PageAdminProject in feature
-- create "shell" page with AppLayoutPage
+```tsx filename="src/features/projects/PageAdminProject.tsx" showLineNumbers
+import React from "react";
+
+import {
+  Box,
+  Card,
+  CardBody,
+  Heading,
+  SkeletonText,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
+import { useParams } from "next/navigation";
+
+import { ErrorPage } from "@/components/ErrorPage";
+import { LoaderFull } from "@/components/LoaderFull";
+import { AdminBackButton } from "@/features/admin/AdminBackButton";
+import {
+  AdminLayoutPage,
+  AdminLayoutPageContent,
+  AdminLayoutPageTopBar,
+} from "@/features/admin/AdminLayoutPage";
+import { trpc } from "@/lib/trpc/client";
+
+export default function PageAdminProject() {
+  const params = useParams();
+  const project = trpc.projects.getById.useQuery({
+    id: params?.id?.toString() ?? "",
+  });
+
+  return (
+    <AdminLayoutPage showNavBar="desktop" containerMaxWidth="container.md">
+      <AdminLayoutPageTopBar leftActions={<AdminBackButton />}>
+        {project.isLoading && <SkeletonText maxW="6rem" noOfLines={2} />}
+        {project.isSuccess && <Heading size="sm">{project.data?.name}</Heading>}
+      </AdminLayoutPageTopBar>
+      <AdminLayoutPageContent>
+        {project.isLoading && <LoaderFull />}
+        {project.isError && <ErrorPage />}
+        {project.isSuccess && (
+          <Card>
+            <CardBody>
+              <Stack spacing={4}>
+                <Box>
+                  <Text fontSize="sm" fontWeight="bold">
+                    Name
+                  </Text>
+                  <Text>{project.data.name}</Text>
+                </Box>
+                <Box>
+                  <Text fontSize="sm" fontWeight="bold">
+                    Description
+                  </Text>
+                  <Text>{project.data.description || <small>-</small>}</Text>
+                </Box>
+              </Stack>
+            </CardBody>
+          </Card>
+        )}
+      </AdminLayoutPageContent>
+    </AdminLayoutPage>
+  );
+}
+```
 
 ### Create the NextJS route
 
-** Work in progress **
+To expose the page component, we need to create the route in the NextJS app router.<br />
+Create a `page.tsx` file in the a new `[id]` folder in `src/app/admin/(authenticated)/projects` folder.
 
-- create page.tsx in /src/app for routing with 'use client'
+```tsx filename="src/app/admin/(authenticated)/projects/[id]/page.tsx" showLineNumbers
+"use client";
 
-### Display the data
+import PageAdminProject from "@/features/projects/PageAdminProject";
 
-** Work in progress **
+export default function Page() {
+  return <PageAdminProject />;
+}
+```
 
-### Hanlde error state
+### Add the links in the listing
 
-** Work in progress **
+Now, in the `PageAdminProjects.tsx` we can add the link to each projects. We can use the [LinkOverlay component](https://chakra-ui.com/docs/components/link-overlay/usage) from Chakra UI.
+
+```tsx {6-7, 27, 30-33, 35} filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
+import {
+  Button,
+  Flex,
+  HStack,
+  Heading,
+  LinkBox,
+  LinkOverlay,
+  Stack,
+} from "@chakra-ui/react";
+/* ... */
+
+export default function PageAdminProjects() {
+  /* ... */
+
+  return (
+    <AdminLayoutPage>
+      <AdminLayoutPageContent>
+        <Stack spacing={4}>
+          <HStack spacing={4} alignItems={{ base: "end", md: "center" }}>
+            {/* ... */}
+          </HStack>
+          <DataList>
+            {/* ... */}
+            {projects.data?.pages
+              .flatMap((p) => p.items)
+              .map((project) => (
+                <DataListRow as={LinkBox} key={project.id} withHover>
+                  <DataListCell>
+                    <DataListText fontWeight="bold">
+                      <LinkOverlay
+                        as={Link}
+                        href={`${ADMIN_PATH}/projects/${project.id}`}
+                      >
+                        {project.name}
+                      </LinkOverlay>
+                    </DataListText>
+                  </DataListCell>
+                  {/* ... */}
+                </DataListRow>
+              ))}
+            {/* ... */}
+          </DataList>
+        </Stack>
+      </AdminLayoutPageContent>
+    </AdminLayoutPage>
+  );
+}
+```
+
+### Result
+
+The page of a project, should looks like this.
+
+![Project view](/images/tutorials/create-your-first-entity/project-view.png)
 
 </Steps>
 
