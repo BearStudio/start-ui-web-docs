@@ -686,7 +686,7 @@ import {
 import { trpc } from '@/lib/trpc/client';
 
 export default function PageAdminProjects() {
-  const project = trpc.projects.getAll.useQuery();
+  const projects = trpc.projects.getAll.useQuery();
 
   return (
     /* ... */
