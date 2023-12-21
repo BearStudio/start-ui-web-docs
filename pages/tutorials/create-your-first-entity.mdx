@@ -827,7 +827,7 @@ export default function PageAdminProjects() {
 
 Now, we need to update how we display the data.
 
-```tsx {19, 22-24} filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
+```tsx {18-19, 22-24} filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
 /* ... */
 
 export default function PageAdminProjects() {
@@ -1250,7 +1250,9 @@ export default function PageAdminProjectCreate() {
         rightActions={
           <>
             <AdminCancelButton />
-            <Button variant="@primary">Create</Button>
+            <Button type="submit" variant="@primary">
+              Create
+            </Button>
           </>
         }
       >
@@ -1313,7 +1315,7 @@ export const ProjectForm = () => {
 
 Now, let's setup Formiz and use this `ProjectForm` in the `PageAdminProjectCreate.tsx` file.
 
-```tsx {2, 11-14, 17, 20, 34, 37} filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
+```tsx {2, 11-14, 17, 20, 36, 39} filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
 import { Button, Heading } from "@chakra-ui/react";
 import { Formiz, useForm } from "@formiz/core";
 
@@ -1340,7 +1342,9 @@ export default function PageAdminProjectCreate() {
           rightActions={
             <>
               <AdminCancelButton />
-              <Button variant="@primary">Create</Button>
+              <Button type="submit" variant="@primary">
+                Create
+              </Button>
             </>
           }
         >
@@ -1357,16 +1361,210 @@ export default function PageAdminProjectCreate() {
 
 ### Submit the form
 
--- WORK IN PROGRESS BELOW THIS --
+When the form is submitted and valid, we can submit the mutation to the server.
 
-** Work in progress **
+```tsx {1, 5, 7-11} filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
+import { trpc } from '@/lib/trpc/client';
+/* ... */
 
-- use tRPC mutation to send data
-- redirect to "view" url (404 for now)
+export default function PageAdminProjectCreate() {
+  const createProject = trpc.projects.create.useMutation();
+
+  const form = useForm<ProjectFormFields>({
+    onValidSubmit: (values) => {
+      createProject.mutate(values);
+    },
+  });
+
+  return (
+    /* ... */
+  );
+}
+```
+
+And now, we need to invalidate the project list query and redirect the user when the mutation has succeeded.
+
+<Callout type="warning">
+  **`useRouter` is imported from `next/navigation`** and not `next/router`
+</Callout>
+
+```tsx {1, 5-10} filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
+import { useRouter } from 'next/navigation';
+/* ... */
+
+export default function PageAdminProjectCreate() {
+  const createProject = trpc.projects.create.useMutation({
+    onSuccess: async () => {
+      await trpcUtils.projects.getAll.invalidate();
+      router.back();
+    },
+  });
+
+  const form = /* ... */
+
+  return (
+    /* ... */
+  );
+}
+```
+
+### Enhance UX
+
+Let's improve the UX of the form.
+
+```tsx {1-2, 10-11, 16-18, 21-29, 45-46} filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
+import { useToastError, useToastSuccess } from "@/components/Toast";
+import { isErrorDatabaseConflict } from "@/lib/trpc/errors";
+
+/* ... */
+
+export default function PageAdminProjectCreate() {
+  const trpcUtils = trpc.useUtils();
+  const router = useRouter();
+
+  const toastError = useToastError();
+  const toastSuccess = useToastSuccess();
+
+  const createProject = trpc.projects.create.useMutation({
+    onSuccess: async () => {
+      await trpcUtils.projects.getAll.invalidate();
+      toastSuccess({
+        title: "Project created with success",
+      });
+      router.back();
+    },
+    onError: (error) => {
+      if (isErrorDatabaseConflict(error, "name")) {
+        form.setErrors({ name: "Name already used" });
+        return;
+      }
+      toastError({
+        title: "Failed to create the project",
+      });
+    },
+  });
+
+  const form = /* ... */;
+
+  return (
+    <Formiz connect={form} autoForm>
+      <AdminLayoutPage containerMaxWidth="container.md" showNavBar={false}>
+        <AdminLayoutPageTopBar
+          leftActions={<AdminBackButton />}
+          rightActions={
+            <>
+              <AdminCancelButton />
+              <Button
+                type="submit"
+                variant="@primary"
+                isLoading={createProject.isLoading || createProject.isSuccess}
+                isDisabled={!form.isValid && form.isSubmitted}
+              >
+                Create
+              </Button>
+            </>
+          }
+        >
+          <Heading size="sm">New Project</Heading>
+        </AdminLayoutPageTopBar>
+        <AdminLayoutPageContent>
+          <ProjectForm />
+        </AdminLayoutPageContent>
+      </AdminLayoutPage>
+    </Formiz>
+  );
+}
+```
 
 ### Result
 
-** Work in progress **
+The page that list the project should looks like this.
+
+![Project create form](/images/tutorials/create-your-first-entity/project-create.png)
+
+And the final code of `PageAdminProjectCreate.tsx` file should look like this.
+
+```tsx filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
+import { Button, Heading } from "@chakra-ui/react";
+import { Formiz, useForm } from "@formiz/core";
+import { useRouter } from "next/navigation";
+
+import { useToastError, useToastSuccess } from "@/components/Toast";
+import { AdminBackButton } from "@/features/admin/AdminBackButton";
+import { AdminCancelButton } from "@/features/admin/AdminCancelButton";
+import {
+  AdminLayoutPage,
+  AdminLayoutPageContent,
+  AdminLayoutPageTopBar,
+} from "@/features/admin/AdminLayoutPage";
+import {
+  ProjectForm,
+  ProjectFormFields,
+} from "@/features/projects/ProjectForm";
+import { trpc } from "@/lib/trpc/client";
+import { isErrorDatabaseConflict } from "@/lib/trpc/errors";
+
+export default function PageAdminProjectCreate() {
+  const trpcUtils = trpc.useUtils();
+  const router = useRouter();
+
+  const toastError = useToastError();
+  const toastSuccess = useToastSuccess();
+
+  const createProject = trpc.projects.create.useMutation({
+    onSuccess: async () => {
+      await trpcUtils.projects.getAll.invalidate();
+      toastSuccess({
+        title: "Project created with success",
+      });
+      router.back();
+    },
+    onError: (error) => {
+      if (isErrorDatabaseConflict(error, "name")) {
+        form.setErrors({ name: "Name already used" });
+        return;
+      }
+      toastError({
+        title: "Failed to create the project",
+      });
+    },
+  });
+
+  const form = useForm<ProjectFormFields>({
+    onValidSubmit: (values) => {
+      createProject.mutate(values);
+    },
+  });
+
+  return (
+    <Formiz connect={form} autoForm>
+      <AdminLayoutPage containerMaxWidth="container.md" showNavBar={false}>
+        <AdminLayoutPageTopBar
+          leftActions={<AdminBackButton />}
+          rightActions={
+            <>
+              <AdminCancelButton />
+              <Button
+                type="submit"
+                variant="@primary"
+                isLoading={createProject.isLoading || createProject.isSuccess}
+                isDisabled={!form.isValid && form.isSubmitted}
+              >
+                Create
+              </Button>
+            </>
+          }
+        >
+          <Heading size="sm">New Project</Heading>
+        </AdminLayoutPageTopBar>
+        <AdminLayoutPageContent>
+          <ProjectForm />
+        </AdminLayoutPageContent>
+      </AdminLayoutPage>
+    </Formiz>
+  );
+}
+```
 
 </Steps>
 
