@@ -1,6 +1,4 @@
 import React from 'react';
-import { Property } from "csstype";
-import FlexDirection = Property.FlexDirection;
 
 export type StackType = {
   children: React.ReactNode,
@@ -11,9 +9,9 @@ export type StackType = {
 export const Stack: React.FC<StackType> = ({ children, orientation = 'vertical', gap = 0 }) => {
   const styles = {
     display: 'flex',
-    flexDirection: orientation === 'vertical' ? 'column' : 'row' as FlexDirection,
+    flexDirection: orientation === 'vertical' ? 'column' : 'row',
     gap: `${gap}px`,
-  };
+  } as const;
 
   return <div style={styles}>{children}</div>;
 };
