@@ -138,7 +138,7 @@ const config: DocsThemeConfig = {
   footer: {
     text: () => (
       <div>
-        <p>© {new Date().getDay()} 🚀 Start UI [web]</p>
+        <p>© {new Date().getFullYear()} 🚀 Start UI [web]</p>
         <p>
           From{" "}
           <a href="https://bearstudio.fr" style={{ fontWeight: "bold" }}>

@@ -9,7 +9,7 @@
   "add-new-language": "Add new language",
   "document-component-on-storybook": "Document component on Storybook",
   "update-color-mode-key": "Update color mode key",
-  "update-env-variables": "Update env variables",
+  "update-env-variables": "Add and update env variables",
   "update-theme-typing": "Update theme typing",
   "deployment": "Deployment"
 }
