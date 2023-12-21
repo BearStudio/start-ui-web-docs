@@ -1476,6 +1476,60 @@ export default function PageAdminProjectCreate() {
 }
 ```
 
+### Add the create button
+
+Now, in the `PageAdminProjects.tsx` file, let's add the create button.
+
+```tsx {1-5, 15, 20, 32-41} filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
+import { Button, Flex, HStack, Heading, Stack } from "@chakra-ui/react";
+import Link from "next/link";
+import { LuPlus } from "react-icons/lu";
+import { ResponsiveIconButton } from "@/components/ResponsiveIconButton";
+import { ADMIN_PATH } from "@/features/admin/constants";
+/* ... */
+
+export default function PageAdminProjects() {
+  /* ... */
+
+  return (
+    <AdminLayoutPage>
+      <AdminLayoutPageContent>
+        <Stack spacing={4}>
+          <HStack spacing={4} alignItems={{ base: "end", md: "center" }}>
+            <Flex
+              flexDirection={{ base: "column", md: "row" }}
+              alignItems={{ base: "start", md: "center" }}
+              gap={4}
+              flex={1}
+            >
+              <Heading flex="none" size="md">
+                Projects
+              </Heading>
+              <SearchInput
+                value={searchTerm}
+                onChange={(value) => searchParamsUpdater({ s: value || null })}
+                size="sm"
+                maxW={{ base: "none", md: "20rem" }}
+              />
+            </Flex>
+            <ResponsiveIconButton
+              as={Link}
+              href={`${ADMIN_PATH}/projects/create`}
+              variant="@primary"
+              size="sm"
+              icon={<LuPlus />}
+            >
+              Create Project
+            </ResponsiveIconButton>
+          </HStack>
+          <DataList>{/* ... */}</DataList>
+        </Stack>
+      </AdminLayoutPageContent>
+    </AdminLayoutPage>
+  );
+}
+```
+
 ### Result
 
 The page that list the project should looks like this.
