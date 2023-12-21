@@ -30,7 +30,7 @@
   "devDependencies": {
     "@types/node": "20.8.7",
     "@types/react": "18.2.45",
-    "csstype": "3.0.2",
+    "@types/react-dom": "18.2.18",
     "typescript": "5.2.2"
   }
 }
