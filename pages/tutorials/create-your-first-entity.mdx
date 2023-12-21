@@ -1043,7 +1043,7 @@ Let's just add the search term to the existing `<DataListEmptyState />` for a be
 
 ### Result
 
-The page that list the project should looks like this.
+You can view the projects at [localhost:3000/admin/projects](http://localhost:3000/admin/projects), the page should looks like this.
 
 ![Projects listing](/images/tutorials/create-your-first-entity/projects-list.png)
 
@@ -1183,7 +1183,7 @@ export const projectsRouter = createTRPCRouter({
         description: true,
       })
     )
-    .output(zProject()),
+    .output(zProject())
 });
 ```
 
@@ -1211,7 +1211,7 @@ export const projectsRouter = createTRPCRouter({
         description: true,
       })
     )
-    .output(zProject()),
+    .output(zProject())
     .mutation(async ({ ctx, input }) => {
       try {
         ctx.logger.info('Creating project');
@@ -1286,7 +1286,7 @@ You can run the `pnpm dev` and visit the [localhost:3000/admin/projects/create](
 Let's create the form fields by creating a `ProjectForm` component.
 Create the `ProjectForm.tsx` in the `src/features/projects` folder and use the `FieldInput` and `FieldTextarea` like the following.
 
-```tsx
+```tsx filename="src/features/projects/ProjectForm.tsx" showLineNumbers
 import { Stack } from "@chakra-ui/react";
 
 import { FieldInput } from "@/components/FieldInput";
@@ -1388,11 +1388,14 @@ And now, we need to invalidate the project list query and redirect the user when
   **`useRouter` is imported from `next/navigation`** and not `next/router`
 </Callout>
 
-```tsx {1, 5-10} filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
+```tsx {1, 5-6, 8-13} filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
 import { useRouter } from 'next/navigation';
 /* ... */
 
 export default function PageAdminProjectCreate() {
+  const trpcUtils = trpc.useUtils();
+  const router = useRouter();
+
   const createProject = trpc.projects.create.useMutation({
     onSuccess: async () => {
       await trpcUtils.projects.getAll.invalidate();
@@ -1532,7 +1535,7 @@ export default function PageAdminProjects() {
 
 ### Result
 
-The page that list the project should looks like this.
+You can test the form at [localhost:3000/admin/projects/create](http://localhost:3000/admin/projects/create), the page hould looks like this.
 
 ![Project create form](/images/tutorials/create-your-first-entity/project-create.png)
 
