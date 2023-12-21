@@ -9,38 +9,44 @@ This is the main reason why it's strongly recommended to document each new compo
 
 ## How?
 
-### Create the file
+import { Steps } from 'nextra/components'
 
-According to the [Folders architecture](/folders-architecture), your components should be developed in a
-`src/components/YourComponent/index.tsx` file.
-We recommend you to add a `docs.stories.tsx` file to document the component.
+<Steps>
+    ### Create the file
 
-### Add your stories
+    According to the [Folders architecture](/folders-architecture), your components should be developed in a
+    `src/components/YourComponent/index.tsx` file.
+    We recommend you to add a `docs.stories.tsx` file to document the component.
 
-1. The first step is to add an `export default` with the title of the story.
-```
-export default {
-    title: 'Components/YourComponent',
-};
-```
-here, it means that the documentation will be available under the `Component` section, in the `YourComponent` link
-of the storybook.
+    ### Add your stories
 
-2. Then, you can add as many `export const` as your want, each of them being a use case of your component.
-```
-import { Stack } from '@chakra-ui/react';
 
-export const SomeUsage = () => {
-  return (
-    <Stack>
-      <YourComponent someProps={} />
-      <YourComponent someOtherProps={} />
-    </Stack>
-  );
-};
-```
+    1. The first step is to add an `export default` with the title of the story.
 
-> We recommend to document different usages of your components to help your team understand how your component can be used.
+    ```tsx
+    export default {
+        title: 'Components/YourComponent',
+    };
+    ```
+    here, it means that the documentation will be available under the `Component` section, in the `YourComponent` link
+    of the storybook.
 
-> You can also create some code templates using your IDE to quickly generate the file structure
+    2. Then, you can add as many `export const` as your want, each of them being a use case of your component.
+    ```
+    import { Stack } from '@chakra-ui/react';
+
+    export const SomeUsage = () => {
+      return (
+        <Stack>
+          <YourComponent someProps={} />
+          <YourComponent someOtherProps={} />
+        </Stack>
+      );
+    };
+    ```
+
+    > We recommend to document different usages of your components to help your team understand how your component can be used.
+
+    > You can also create some code templates using your IDE to quickly generate the file structure
+</Steps>
 
