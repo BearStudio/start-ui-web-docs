@@ -510,7 +510,7 @@ export const projectsRouter = createTRPCRouter({
         .object({
           cursor: z.string().cuid().nullish(),
           limit: z.number().min(1).max(100).default(20),
-          searchTerm: z.string().nullish(),
+          searchTerm: z.string().optional(),
         })
         .default({})
     )
@@ -1026,6 +1026,109 @@ Let's just add the search term to the existing `<DataListEmptyState />` for a be
 /* ... */
 <DataListEmptyState searchTerm={searchTerm} />
 /* ... */
+```
+
+Your `PageAdminProjects.tsx` file should look like this.
+
+```tsx filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
+import { Button, Flex, Heading, Stack } from "@chakra-ui/react";
+import { useSearchParams } from "next/navigation";
+
+import {
+  DataList,
+  DataListCell,
+  DataListEmptyState,
+  DataListErrorState,
+  DataListLoadingState,
+  DataListRow,
+  DataListText,
+} from "@/components/DataList";
+import { SearchInput } from "@/components/SearchInput";
+import {
+  AdminLayoutPage,
+  AdminLayoutPageContent,
+} from "@/features/admin/AdminLayoutPage";
+import { useSearchParamsUpdater } from "@/hooks/useSearchParamsUpdater";
+import { trpc } from "@/lib/trpc/client";
+
+export default function PageAdminProjects() {
+  const searchParams = useSearchParams();
+  const searchParamsUpdater = useSearchParamsUpdater();
+  const searchTerm = searchParams.get("s") ?? "";
+
+  const projects = trpc.projects.getAll.useInfiniteQuery(
+    {
+      searchTerm,
+    },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    }
+  );
+
+  return (
+    <AdminLayoutPage>
+      <AdminLayoutPageContent>
+        <Stack spacing={4}>
+          <Flex
+            flexDirection={{ base: "column", md: "row" }}
+            alignItems={{ base: "start", md: "center" }}
+            gap={4}
+          >
+            <Heading flex="none" size="md">
+              Projects
+            </Heading>
+            <SearchInput
+              value={searchTerm}
+              onChange={(value) => searchParamsUpdater({ s: value || null })}
+              size="sm"
+              maxW={{ base: "none", md: "20rem" }}
+            />
+          </Flex>
+          <DataList>
+            {projects.isLoading && <DataListLoadingState />}
+            {projects.isError && (
+              <DataListErrorState retry={() => projects.refetch()} />
+            )}
+            {projects.isSuccess &&
+              !projects.data.pages.flatMap((p) => p.items).length && (
+                <DataListEmptyState searchTerm={searchTerm} />
+              )}
+            {projects.data?.pages
+              .flatMap((p) => p.items)
+              .map((project) => (
+                <DataListRow key={project.id}>
+                  <DataListCell>
+                    <DataListText fontWeight="bold">
+                      {project.name}
+                    </DataListText>
+                  </DataListCell>
+                  <DataListCell>
+                    <DataListText color="text-dimmed">
+                      {project.description}
+                    </DataListText>
+                  </DataListCell>
+                </DataListRow>
+              ))}
+            {projects.isSuccess && (
+              <DataListRow mt="auto">
+                <DataListCell>
+                  <Button
+                    size="sm"
+                    onClick={() => projects.fetchNextPage()}
+                    isLoading={projects.isFetchingNextPage}
+                    isDisabled={!projects.hasNextPage}
+                  >
+                    Load more
+                  </Button>
+                </DataListCell>
+              </DataListRow>
+            )}
+          </DataList>
+        </Stack>
+      </AdminLayoutPageContent>
+    </AdminLayoutPage>
+  );
+}
 ```
 
 </Steps>
