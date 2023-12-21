@@ -744,7 +744,7 @@ export default function PageAdminProjects() {
 
 You should have this result on [localhost:3000/admin/projects](http://localhost:3000/admin/projects) 👇
 
-![Step 01](/images/tutorials/create-your-first-entity/display-datalist.png)
+![Display DataList](/images/tutorials/create-your-first-entity/display-datalist.png)
 
 ### Handle loading, empty and error state
 
@@ -937,6 +937,19 @@ export default function PageAdminProjects() {
 }
 ```
 
+Want to test with only 2 projects? Add `limit: 1` to the `useInfiniteQuery` and you should be able to see the first project and click on "Load more" to display the second projecT.
+
+```tsx {2} filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
+const projects = trpc.projects.getAll.useInfiniteQuery(
+  { limit: 1 },
+  {
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+  }
+);
+```
+
+Revert this last change to continue.
+
 ### Add search
 
 First, let's add the `SearchInput` component in the UI.
@@ -1028,7 +1041,13 @@ Let's just add the search term to the existing `<DataListEmptyState />` for a be
 /* ... */
 ```
 
-Your `PageAdminProjects.tsx` file should look like this.
+### Result
+
+The page that list the project should looks like this.
+
+![Projects listing](/images/tutorials/create-your-first-entity/projects-list.png)
+
+And the final code of `PageAdminProjects.tsx` file should look like this.
 
 ```tsx filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
 import { Button, Flex, Heading, Stack } from "@chakra-ui/react";
@@ -1208,37 +1227,146 @@ export const projectsRouter = createTRPCRouter({
 });
 ```
 
--- WORK IN PROGRESS BELOW THIS --
-
-** Work in progress **
-
-- create tRPC mutation
-
 ### Create the page
 
-** Work in progress **
+Create the file `PageAdminProjectCreate.tsx` in the `src/features/projects` folder with the following content.
 
-- create PageAdminProjectCreate in feature
-- create "shell" page with AppLayoutPage
+```tsx filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
+import { Button, Heading } from "@chakra-ui/react";
+
+import { AdminBackButton } from "@/features/admin/AdminBackButton";
+import { AdminCancelButton } from "@/features/admin/AdminCancelButton";
+import {
+  AdminLayoutPage,
+  AdminLayoutPageContent,
+  AdminLayoutPageTopBar,
+} from "@/features/admin/AdminLayoutPage";
+
+export default function PageAdminProjectCreate() {
+  return (
+    <AdminLayoutPage containerMaxWidth="container.md" showNavBar={false}>
+      <AdminLayoutPageTopBar
+        leftActions={<AdminBackButton />}
+        rightActions={
+          <>
+            <AdminCancelButton />
+            <Button variant="@primary">Create</Button>
+          </>
+        }
+      >
+        <Heading size="sm">New Project</Heading>
+      </AdminLayoutPageTopBar>
+      <AdminLayoutPageContent>...</AdminLayoutPageContent>
+    </AdminLayoutPage>
+  );
+}
+```
 
 ### Create the NextJS route
 
-** Work in progress **
+To expose the page component, we need to create the route in the NextJS app router.<br />
+Create a `page.tsx` file in the a new `create` folder in `src/app/admin/(authenticated)/projects` folder.
 
-- create page.tsx in /src/app for routing with 'use client'
+```tsx filename="src/app/admin/(authenticated)/projects/create/page.tsx" showLineNumbers
+"use client";
+
+import PageAdminProjectCreate from "@/features/projects/PageAdminProjectCreate";
+
+export default function Page() {
+  return <PageAdminProjectCreate />;
+}
+```
+
+You can run the `pnpm dev` and visit the [localhost:3000/admin/projects/create](http://localhost:3000/admin/projects/create) url to see the result. (You might need to login first).
 
 ### Create the form
 
-** Work in progress **
+Let's create the form fields by creating a `ProjectForm` component.
+Create the `ProjectForm.tsx` in the `src/features/projects` folder and use the `FieldInput` and `FieldTextarea` like the following.
 
-- create ProjectForm in feature
+```tsx
+import { Stack } from "@chakra-ui/react";
+
+import { FieldInput } from "@/components/FieldInput";
+import { FieldTextarea } from "@/components/FieldTextarea";
+
+export type ProjectFormFields = {
+  name: string;
+  description?: string | null;
+};
+
+export const ProjectForm = () => {
+  return (
+    <Stack spacing={4}>
+      <FieldInput name="name" label="Name" required="Name is required" />
+      <FieldTextarea
+        name="description"
+        label="Description"
+        textareaProps={{ rows: 6 }}
+      />
+    </Stack>
+  );
+};
+```
+
+### Use the form
+
+Now, let's setup Formiz and use this `ProjectForm` in the `PageAdminProjectCreate.tsx` file.
+
+```tsx {2, 11-14, 17, 20, 34, 37} filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
+import { Button, Heading } from "@chakra-ui/react";
+import { Formiz, useForm } from "@formiz/core";
+
+import { AdminBackButton } from "@/features/admin/AdminBackButton";
+import { AdminCancelButton } from "@/features/admin/AdminCancelButton";
+import {
+  AdminLayoutPage,
+  AdminLayoutPageContent,
+  AdminLayoutPageTopBar,
+} from "@/features/admin/AdminLayoutPage";
+import {
+  ProjectForm,
+  ProjectFormFields,
+} from "@/features/projects/ProjectForm";
+
+export default function PageAdminProjectCreate() {
+  const form = useForm<ProjectFormFields>();
+
+  return (
+    <Formiz connect={form} autoForm>
+      <AdminLayoutPage containerMaxWidth="container.md" showNavBar={false}>
+        <AdminLayoutPageTopBar
+          leftActions={<AdminBackButton />}
+          rightActions={
+            <>
+              <AdminCancelButton />
+              <Button variant="@primary">Create</Button>
+            </>
+          }
+        >
+          <Heading size="sm">New Project</Heading>
+        </AdminLayoutPageTopBar>
+        <AdminLayoutPageContent>
+          <ProjectForm />
+        </AdminLayoutPageContent>
+      </AdminLayoutPage>
+    </Formiz>
+  );
+}
+```
 
 ### Submit the form
+
+-- WORK IN PROGRESS BELOW THIS --
 
 ** Work in progress **
 
 - use tRPC mutation to send data
 - redirect to "view" url (404 for now)
+
+### Result
+
+** Work in progress **
 
 </Steps>
 
