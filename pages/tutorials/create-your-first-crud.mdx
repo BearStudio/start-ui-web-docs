@@ -189,7 +189,7 @@ export const projectsRouter = createTRPCRouter({
 });
 ```
 
-Then we need to create the `input` and the `output` of our query. For now, the input will be void and the output will only return an array of projects with `id` and `name` properties.
+Then we need to create the `input` and the `output` of our query. For now, the input will be void and the output will only return an array of projects with `id`, `name` and `description` properties.
 
 ```ts {1,7-16} filename="src/server/routers/projects.ts" showLineNumbers
 import { z } from "zod";
