@@ -76,8 +76,8 @@ const logo = (
 
 const head = (
   <>
-    <meta name="msapplication-TileColor" content="#ffffff" />
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="msapplication-TileColor" content="#000000" />
+    <meta name="theme-color" content="#000000" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta httpEquiv="Content-Language" content="en" />
     <meta
@@ -116,7 +116,8 @@ const head = (
 
 const config: DocsThemeConfig = {
   logo,
-  primaryHue: { dark: 60, light: 250 },
+  primaryHue: { dark: 45, light: 200 },
+  primarySaturation: { dark: 80, light: 50 },
   project: {
     link: "https://github.com/bearstudio/start-ui-web",
   },
@@ -137,7 +138,7 @@ const config: DocsThemeConfig = {
   footer: {
     text: () => (
       <div>
-        <p>© 2022 🚀 Start UI [web]</p>
+        <p>© {new Date().getFullYear()} 🚀 Start UI [web]</p>
         <p>
           From{" "}
           <a href="https://bearstudio.fr" style={{ fontWeight: "bold" }}>

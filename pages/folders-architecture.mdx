@@ -1,0 +1,160 @@
+import {
+  FileTree,
+  FileTreeFolder,
+  FileTreeFolderIcon,
+  FileTreeFile,
+  FileTreeFileIcon,
+} from "@/components/FileTree";
+
+# Folders Architecture
+
+---
+
+<FileTree>
+  <FileTreeFolder name=".github" href="#-github" />
+  <FileTreeFolder name=".husky" href="#-husky" />
+  <FileTreeFolder name=".storybook" href="#-storybook" />
+  <FileTreeFolder name=".vscode" href="#-vscode" />
+  <FileTreeFolder name="e2e" href="#-e2e" />
+  <FileTreeFolder name="node_modules" href="#-node_modules" />
+  <FileTreeFolder name="prisma" href="#-prisma" />
+  <FileTreeFolder name="public" href="#-public" />
+  <FileTreeFolder name="scripts" href="#-scripts">
+    <FileTreeFile name="build-info.ts" href="#-scriptsbuild-infots" />
+  </FileTreeFolder>
+  <FileTreeFolder name="src" href="#-src">
+    <FileTreeFolder name="app" href="#-srcapp" />
+    <FileTreeFolder name="components" href="#-srccomponents" />
+    <FileTreeFolder name="features" href="#-srcfeatures" />
+    <FileTreeFolder name="emails" href="#-srcemails" />
+    <FileTreeFolder name="hooks" href="#-srchooks" />
+    <FileTreeFolder name="lib" href="#-srclib" />
+    <FileTreeFolder name="locales" href="#-srclocales" />
+    <FileTreeFolder name="server" href="#-srcserver">
+      <FileTreeFolder name="config" href="#-srcserverconfig" />
+      <FileTreeFolder name="routers" href="#-srcserverrouters" />
+      <FileTreeFile name="router.ts" href="#-srcserverrouterts" />
+    </FileTreeFolder>
+    <FileTreeFolder name="theme" href="#-srctheme" />
+    <FileTreeFolder name="types" href="#-srctypes" />
+    <FileTreeFile name="env.mjs" href="#-srcenvmjs" />
+  </FileTreeFolder>
+
+  <FileTreeFile name=".env" href="#-env" />
+  <FileTreeFile name=".env.example" href="#-envexample" />
+</FileTree>
+
+---
+
+#### <FileTreeFolderIcon /> `/.github`
+
+[GitHub](https://github.com/) configuration files for GitHub actions, PR templates and README assets.
+
+#### <FileTreeFolderIcon /> `/.husky`
+
+GIT hooks created with [Husky](https://github.com/typicode/husky).
+
+#### <FileTreeFolderIcon /> `/.storybook`
+
+[Storybook](https://storybook.js.org/) configuration.
+
+#### <FileTreeFolderIcon /> `/.vscode`
+
+[VS Code workspace settings](https://code.visualstudio.com/docs/getstarted/settings#_workspace-settings).<br />
+The `extensions.json` file contains some recommended extensions for the project.
+
+#### <FileTreeFolderIcon /> `/e2e`
+
+End-to-end tests folder for [Playwright](https://playwright.dev/) tests.
+
+#### <FileTreeFolderIcon /> `/node_modules`
+
+This folder **should NEVER be tracked on GIT** because it contains all dependencies files of the project.<br />
+These files are downloaded when you install the dependencies with `pnpm install`.
+
+#### <FileTreeFolderIcon /> `/prisma`
+
+[Prisma](https://www.prisma.io/) folder for database schema `schema.prisma` and seed scripts.
+
+#### <FileTreeFolderIcon /> `/public`
+
+This folder contains static assets which will be exposed at the root of the website by NextJS. See [NextJS static assets documentation](https://nextjs.org/docs/app/building-your-application/optimizing/static-assets) for more details.
+
+#### <FileTreeFolderIcon /> `/scripts`
+
+Folder for scripts that will be auto executed on build or setup step.
+
+#### <FileTreeFileIcon /> `/scripts/build-info.ts`
+
+This scripts will be run on `postinstall` and will auto generate a `build-info.json` file with commit and date info that can be display in the application.
+
+#### <FileTreeFolderIcon /> `/src`
+
+Root folder of all the source code of the application. When importing files, you can use `@/` to reference this folder.
+
+#### <FileTreeFolderIcon /> `/src/app`
+
+Next router folder, all the routes of the application are declared in this folder. See the [Next App Router documentation](https://nextjs.org/docs/app/building-your-application/routing) for more details.
+
+#### <FileTreeFolderIcon /> `/src/components`
+
+React generic UI components. In this folder, all components should be "dumb", focus on UI rendering and without business logic. These components should be documented in Storybook.
+
+#### <FileTreeFolderIcon /> `/src/emails`
+
+This folder contains all emails templates created with [react-email](https://react.email/).
+
+#### <FileTreeFolderIcon /> `/src/features`
+
+All business features for client code or code shared between client and server.
+
+#### <FileTreeFolderIcon /> `/src/hooks`
+
+React generic hooks that can be use accross the application.
+
+#### <FileTreeFolderIcon /> `/src/lib`
+
+Global configuration for client libraries or libraries shared between client and server. If you need a configuration only on the server side, use the `src/server/config` folder.
+
+#### <FileTreeFolderIcon /> `/src/locales`
+
+Folder which contains all the translations files. Use [i18n Ally VS Code extension](https://marketplace.visualstudio.com/items?itemName=lokalise.i18n-ally) for help on this part 😅.
+
+#### <FileTreeFolderIcon /> `/src/server`
+
+All the code for the server ONLY code.
+
+#### <FileTreeFolderIcon /> `/src/server/config`
+
+Configuration of all server only libraries.
+
+#### <FileTreeFolderIcon /> `/src/server/routers`
+
+All tRPC routers that contains API routes splitted by features.
+
+#### <FileTreeFileIcon /> `/src/server/router.ts`
+
+The root file for all tRPC routers. This is the entry point of the API.
+
+#### <FileTreeFolderIcon /> `/src/theme`
+
+Customization of the [Chakra UI theme](https://chakra-ui.com/docs/styled-system/customize-theme).
+
+#### <FileTreeFolderIcon /> `/src/types`
+
+Global TypeScript types available accross all the code base without imports.
+
+#### <FileTreeFileIcon /> `/src/env.mjs`
+
+Allows to validate and transform environment variables. This will enforce strong typing for environment variables.<br />
+Update this file when you add/remove/update some environment variables.
+
+#### <FileTreeFileIcon /> `/.env`
+
+This file is **LOCAL and should NEVER be tracked on GIT**.
+All sensitive information should be set in this `.env` file by each developers.
+
+#### <FileTreeFileIcon /> `/.env.example`
+
+**This file IS tracked on GIT**, make sure that you **NEVER put sensitive information in this file**. All sensitive information should be set in the `.env`.
+This file show an example of the `.env` that a new developer on the project can duplicate to create their own `.env` file.

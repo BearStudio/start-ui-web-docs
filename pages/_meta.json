@@ -1,13 +1,15 @@
 {
   "index": "Introduction",
-  "": { "type": "separator" },
-  "technologies": "Technologies",
+  "getting-started": "Getting Started",
   "features": "Features",
+  "technologies": "Technologies",
+  "folders-architecture": "Folders Architecture",
+  "tutorials": "Tutorials",
   "guides": "Guides",
   "demo": {
     "title": "Demo ↗",
     "type": "page",
-    "href": "https://start-ui.vercel.app",
+    "href": "http://demo.start-ui.com",
     "newWindow": true
   },
   "contact": {
