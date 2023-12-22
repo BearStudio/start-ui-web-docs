@@ -1,4 +1,6 @@
-import {ImageTabs} from "../components/ImageTabs";
+import { ImageTabs } from "../components/ImageTabs";
+
+# Features
 
 This page presents the features included in StartUI that can assist you in your development,
 right from the project setup.
@@ -17,7 +19,10 @@ in the provided field.
 import accountCreationDesktopImage from "@/screenshots/account-management/account-creation-desktop.png";
 import accountCreationMobileImage from "@/screenshots/account-management/account-creation-mobile.png";
 
-<ImageTabs desktop={accountCreationDesktopImage} mobile={accountCreationMobileImage} />
+<ImageTabs
+  desktop={accountCreationDesktopImage}
+  mobile={accountCreationMobileImage}
+/>
 
 ### Sign In
 
@@ -33,12 +38,15 @@ are also present, allowing the update of their name, default language, email, an
 import accountManagementDesktopImage from "@/screenshots/account-management/account-management-desktop.png";
 import accountManagementMobileImage from "@/screenshots/account-management/account-management-mobile.png";
 
-<ImageTabs desktop={accountManagementDesktopImage} mobile={accountManagementMobileImage} />
-
+<ImageTabs
+  desktop={accountManagementDesktopImage}
+  mobile={accountManagementMobileImage}
+/>
 
 ## Admin app
 
 The starter also includes an Administration part, which aims at providing a kind of backoffice to the platform admin.
+
 ### User management
 
 From the project's creation, the administrator can manage the user list through a paginated interface, with the
@@ -47,8 +55,10 @@ ability to activate/deactivate a user, edit their information, view their detail
 import userManagementDesktopImage from "@/screenshots/admin-users-management/user-management-desktop.png";
 import userManagementMobileImage from "@/screenshots/admin-users-management/user-management-mobile.png";
 
-<ImageTabs desktop={userManagementDesktopImage} mobile={userManagementMobileImage} />
-
+<ImageTabs
+  desktop={userManagementDesktopImage}
+  mobile={userManagementMobileImage}
+/>
 
 ### CRUD sample
 
@@ -80,36 +90,36 @@ The user interfaces of StartUI are responsive by default.
 import Image from "next/image";
 import accountLogoutMobile from "@/screenshots/account-management/account-management-logout-mobile.png";
 import repositoriesMobile from "@/screenshots/repositories-mobile.png";
-import {ResponsiveStack} from "../components/ResponsiveStack";
+import { ResponsiveStack } from "../components/ResponsiveStack";
 
 <ResponsiveStack gap={2}>
-    <Image
-        src={accountLogoutMobile}
-        style={{
-            maxHeight: 500,
-            objectFit: "contain",
-            objectPosition: "0 0",
-        }}
-        placeholder="blur"
-    />
-    <Image
-        src={repositoriesMobile}
-        style={{
-            maxHeight: 500,
-            objectFit: "contain",
-            objectPosition: "0 0",
-        }}
-        placeholder="blur"
-    />
-    <Image
-        src={accountCreationMobileImage}
-        style={{
-            maxHeight: 500,
-            objectFit: "contain",
-            objectPosition: "0 0",
-        }}
-        placeholder="blur"
-    />
+  <Image
+    src={accountLogoutMobile}
+    style={{
+      maxHeight: 500,
+      objectFit: "contain",
+      objectPosition: "0 0",
+    }}
+    placeholder="blur"
+  />
+  <Image
+    src={repositoriesMobile}
+    style={{
+      maxHeight: 500,
+      objectFit: "contain",
+      objectPosition: "0 0",
+    }}
+    placeholder="blur"
+  />
+  <Image
+    src={accountCreationMobileImage}
+    style={{
+      maxHeight: 500,
+      objectFit: "contain",
+      objectPosition: "0 0",
+    }}
+    placeholder="blur"
+  />
 </ResponsiveStack>
 
 ### Theming
@@ -125,7 +135,10 @@ implement this feature.
 import userManagementMobileDarkmode from "@/screenshots/admin-users-management/user-management-mobile-darkmode.png";
 import userManagementDesktopDarkmode from "@/screenshots/admin-users-management/user-management-desktop-darkmode.png";
 
-<ImageTabs desktop={userManagementDesktopDarkmode} mobile={userManagementMobileDarkmode} />
+<ImageTabs
+  desktop={userManagementDesktopDarkmode}
+  mobile={userManagementMobileDarkmode}
+/>
 
 ### API documentation
 
