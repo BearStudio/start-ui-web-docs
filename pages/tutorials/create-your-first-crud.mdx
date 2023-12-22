@@ -304,7 +304,7 @@ export const projectsRouter = createTRPCRouter({
     .input(
       z
         .object({
-          cursor: z.string().cuid().nullish(),
+          cursor: z.string().cuid().optional(),
           limit: z.number().min(1).max(100).default(20),
         })
         .default({})
@@ -345,7 +345,7 @@ export const projectsRouter = createTRPCRouter({
     .input(
       z
         .object({
-          cursor: z.string().cuid().nullish(),
+          cursor: z.string().cuid().optional(),
           limit: z.number().min(1).max(100).default(20),
         })
         .default({})
@@ -390,7 +390,7 @@ export const projectsRouter = createTRPCRouter({
     .input(
       z
         .object({
-          cursor: z.string().cuid().nullish(),
+          cursor: z.string().cuid().optional(),
           limit: z.number().min(1).max(100).default(20),
         })
         .default({})
@@ -445,7 +445,7 @@ export const projectsRouter = createTRPCRouter({
     .input(
       z
         .object({
-          cursor: z.string().cuid().nullish(),
+          cursor: z.string().cuid().optional(),
           limit: z.number().min(1).max(100).default(20),
         })
         .default({})
@@ -508,7 +508,7 @@ export const projectsRouter = createTRPCRouter({
     .input(
       z
         .object({
-          cursor: z.string().cuid().nullish(),
+          cursor: z.string().cuid().optional(),
           limit: z.number().min(1).max(100).default(20),
           searchTerm: z.string().optional(),
         })
@@ -2115,7 +2115,7 @@ export default function PageAdminProject() {
   const params = /* ... */;
   const project = /* ... */;
 
-  const projectRemove = trpc.projects.removeById.useMutation({
+  const projectDelete = trpc.projects.removeById.useMutation({
     onSuccess: async () => {
       await trpcUtils.projects.getAll.invalidate();
       router.replace(`${ADMIN_PATH}/projects`);
@@ -2123,7 +2123,7 @@ export default function PageAdminProject() {
     onError: () => {
       toastError({
         title: "Deletion failed",
-        description: "Failed to removed the project",
+        description: "Failed to delete the project",
       });
     },
   });
@@ -2146,18 +2146,18 @@ export default function PageAdminProject() {
               message={`Would you like to delete "${project.data?.name}"? Delete will be permanent.`}
               onConfirm={() =>
                 project.data &&
-                projectRemove.mutate({
+                projectDelete.mutate({
                   id: project.data.id,
                 })
               }
               confirmText="Delete"
-              confirmVariant="@danger"
+              confirmVariant="@dangerSecondary"
             >
               <IconButton
                 aria-label="Delete"
                 icon={<LuTrash2 />}
                 isDisabled={!project.data}
-                isLoading={projectRemove.isLoading}
+                isLoading={projectDelete.isLoading}
               />
             </ConfirmModal>
           </>
