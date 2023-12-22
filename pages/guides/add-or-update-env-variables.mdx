@@ -11,23 +11,23 @@ Moreover, they allow configurations to be easily changed between different envir
 ## How?
 
 > Environment variables stands in the `.env` file, at the root of your project, which **isn't** versioned in the git
-repository. The .env file is created when you execute the "getting started" steps of StartUI's README.md
+> repository. The .env file is created when you execute the "getting started" steps of Start UI's README.md
 
 ### Edit an environment variable
 
 1. Change the value in the `.env` file and save the file
-2. Depending on the environment variable, the change could have take effect immediately
-3. If necessary, change the example value in the `.env.example` to help your colleagues having the right values by default
+2. Depending on the environment variable, the change could take effect immediately
+3. If necessary, change the example value in the `.env.example` to spread the right default values to your colleagues
 
 ### Add an environment variable
 
 1. Create a new environment variable in the `.env`. Note that environment variables should be prefixed by `NEXT_PUBLIC_`
-if you want them to be accessible in the front-end.
+   if you want them to be accessible in the front-end.
 2. Since environment variables are validated with zod, you need to add it to the `src/env.mjs` :
    - In the client or server section, depending on where it will be used
    - Also in the `runtimeEnv` section
 3. To use the values, import the `env` variable like this and use the variable of your choice
-4. Don't forget to add the new variable to the `.env.example` to help your colleagues when they'll set up their .env
+
 ```
 import { env } from '@/env.mjs';
 
@@ -35,4 +35,4 @@ const BASE_URL = env.NEXT_PUBLIC_BASE_URL;
 const LOG_LEVEL = env.LOGGER_LEVEL;
 ```
 
-
+4. Don't forget to add the new variable to the `.env.example` to help your colleagues when they'll set up their `.env`

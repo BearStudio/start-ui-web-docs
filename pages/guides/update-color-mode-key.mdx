@@ -2,11 +2,11 @@
 
 ## Why?
 
-If you work on several projects, that allows avoid to share same color mode key, and in some case to run a project on a not manage color mode.
+If you work on several projects using ChakraUI, this key will be shared between them if not updated. You should update this key to have independent color modes and avoid not understanding why you project is not in the correct color mode.
 
 ## How?
 
-You can update the storage key used to detect the project color mode by updating this constant:
+You can update the storage key used to detect the project color mode by updating this constant in the `src/theme/config.ts` file:
 
 ```tsx filename="src/theme/config.ts"
 export const COLOR_MODE_STORAGE_KEY = "start-ui-color-mode"; // Update the key according to your needs
