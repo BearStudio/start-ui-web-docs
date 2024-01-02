@@ -25,7 +25,9 @@ model Project {
 }
 ```
 
-Then, run the `pnpm db:push{:bash}` command to update your database.
+Cut the running `pnpm dev{:bash}` if needed, and then run the `pnpm db:push{:bash}` command to update your database.
+
+You can run `pnpm dev{:bash}` again.
 
 ### Create you first project
 
@@ -142,28 +144,6 @@ import { createTRPCRouter } from "@/server/config/trpc";
 export const projectsRouter = createTRPCRouter({
   //...
 });
-```
-
-Then, import this router in the `src/server/router.ts` file.
-
-```ts {4,12} filename="src/server/router.ts"
-// ...
-import { accountRouter } from "@/server/routers/account";
-import { authRouter } from "@/server/routers/auth";
-import { projectsRouter } from "@/server/routers/projects";
-import { repositoriesRouter } from "@/server/routers/repositories";
-import { usersRouter } from "@/server/routers/users";
-
-// ...
-export const appRouter = createTRPCRouter({
-  account: accountRouter,
-  auth: authRouter,
-  projects: projectsRouter,
-  repositories: repositoriesRouter,
-  users: usersRouter,
-});
-
-// ...
 ```
 
 ### Add the first query to list the projects
@@ -556,6 +536,30 @@ export const projectsRouter = createTRPCRouter({
 });
 ```
 
+### Add the router to the Router.ts file
+
+Finally, import this router in the `src/server/router.ts` file.
+
+```ts {4,12} filename="src/server/router.ts"
+// ...
+import { accountRouter } from "@/server/routers/account";
+import { authRouter } from "@/server/routers/auth";
+import { projectsRouter } from "@/server/routers/projects";
+import { repositoriesRouter } from "@/server/routers/repositories";
+import { usersRouter } from "@/server/routers/users";
+
+// ...
+export const appRouter = createTRPCRouter({
+  account: accountRouter,
+  auth: authRouter,
+  projects: projectsRouter,
+  repositories: repositoriesRouter,
+  users: usersRouter,
+});
+
+// ...
+```
+
 </Steps>
 
 ---
@@ -657,7 +661,7 @@ export default function PageAdminProjects() {
 
 ### Create the NextJS route
 
-To expose the page component, we need to create the route in the NextJS app router.<br />
+To expose the page component, we need to create the route in the [NextJS app router](https://nextjs.org/docs/app/building-your-application/routing/defining-routes).<br />
 Create a `page.tsx` file in the a new `projects` folder in `src/app/admin/(authenticated)` folder.
 
 ```tsx filename="src/app/admin/(authenticated)/projects/page.tsx" showLineNumbers
@@ -1279,7 +1283,59 @@ export default function Page() {
 }
 ```
 
-You can run the `pnpm dev` and visit the [localhost:3000/admin/projects/create](http://localhost:3000/admin/projects/create) url to see the result. (You might need to login first).
+### Add the create button
+
+Now, in the `PageAdminProjects.tsx` file, let's add the create button.
+
+```tsx {1-5, 15, 20, 32-41} filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
+import { Button, Flex, HStack, Heading, Stack } from "@chakra-ui/react";
+import Link from "next/link";
+import { LuPlus } from "react-icons/lu";
+import { ResponsiveIconButton } from "@/components/ResponsiveIconButton";
+import { ADMIN_PATH } from "@/features/admin/constants";
+/* ... */
+
+export default function PageAdminProjects() {
+  /* ... */
+
+  return (
+    <AdminLayoutPage>
+      <AdminLayoutPageContent>
+        <Stack spacing={4}>
+          <HStack spacing={4} alignItems={{ base: "end", md: "center" }}>
+            <Flex
+              flexDirection={{ base: "column", md: "row" }}
+              alignItems={{ base: "start", md: "center" }}
+              gap={4}
+              flex={1}
+            >
+              <Heading flex="none" size="md">
+                Projects
+              </Heading>
+              <SearchInput
+                value={searchTerm}
+                onChange={(value) => searchParamsUpdater({ s: value || null })}
+                size="sm"
+                maxW={{ base: "none", md: "20rem" }}
+              />
+            </Flex>
+            <ResponsiveIconButton
+              as={Link}
+              href={`${ADMIN_PATH}/projects/create`}
+              variant="@primary"
+              size="sm"
+              icon={<LuPlus />}
+            >
+              Create Project
+            </ResponsiveIconButton>
+          </HStack>
+          <DataList>{/* ... */}</DataList>
+        </Stack>
+      </AdminLayoutPageContent>
+    </AdminLayoutPage>
+  );
+}
+```
 
 ### Create the form
 
@@ -1479,63 +1535,9 @@ export default function PageAdminProjectCreate() {
 }
 ```
 
-### Add the create button
-
-Now, in the `PageAdminProjects.tsx` file, let's add the create button.
-
-```tsx {1-5, 15, 20, 32-41} filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
-import { Button, Flex, HStack, Heading, Stack } from "@chakra-ui/react";
-import Link from "next/link";
-import { LuPlus } from "react-icons/lu";
-import { ResponsiveIconButton } from "@/components/ResponsiveIconButton";
-import { ADMIN_PATH } from "@/features/admin/constants";
-/* ... */
-
-export default function PageAdminProjects() {
-  /* ... */
-
-  return (
-    <AdminLayoutPage>
-      <AdminLayoutPageContent>
-        <Stack spacing={4}>
-          <HStack spacing={4} alignItems={{ base: "end", md: "center" }}>
-            <Flex
-              flexDirection={{ base: "column", md: "row" }}
-              alignItems={{ base: "start", md: "center" }}
-              gap={4}
-              flex={1}
-            >
-              <Heading flex="none" size="md">
-                Projects
-              </Heading>
-              <SearchInput
-                value={searchTerm}
-                onChange={(value) => searchParamsUpdater({ s: value || null })}
-                size="sm"
-                maxW={{ base: "none", md: "20rem" }}
-              />
-            </Flex>
-            <ResponsiveIconButton
-              as={Link}
-              href={`${ADMIN_PATH}/projects/create`}
-              variant="@primary"
-              size="sm"
-              icon={<LuPlus />}
-            >
-              Create Project
-            </ResponsiveIconButton>
-          </HStack>
-          <DataList>{/* ... */}</DataList>
-        </Stack>
-      </AdminLayoutPageContent>
-    </AdminLayoutPage>
-  );
-}
-```
-
 ### Result
 
-You can test the form at [localhost:3000/admin/projects/create](http://localhost:3000/admin/projects/create), the page hould looks like this.
+You can test the form at [localhost:3000/admin/projects](http://localhost:3000/admin/projects) by using the create button we previously added, the page should looks like this.
 
 ![Project create form](/images/tutorials/create-your-first-entity/project-create.png)
 
@@ -1898,7 +1900,7 @@ export default function PageAdminProjectUpdate() {
 
   const params = useParams();
   const router = useRouter();
-  const repository = trpc.projects.getById.useQuery(
+  const project = trpc.projects.getById.useQuery(
     {
       id: params?.id?.toString() ?? "",
     },
@@ -1908,7 +1910,7 @@ export default function PageAdminProjectUpdate() {
     }
   );
 
-  const isReady = !repository.isFetching;
+  const isReady = !project.isFetching;
 
   const toastSuccess = useToastSuccess();
   const toastError = useToastError();
@@ -1934,11 +1936,11 @@ export default function PageAdminProjectUpdate() {
 
   const form = useForm<ProjectFormFields>({
     ready: isReady,
-    initialValues: repository.data,
+    initialValues: project.data,
     onValidSubmit: (values) => {
-      if (!repository.data?.id) return;
+      if (!project.data?.id) return;
       updateProject.mutate({
-        ...repository.data,
+        ...project.data,
         ...values,
       });
     },
@@ -1964,15 +1966,15 @@ export default function PageAdminProjectUpdate() {
           }
         >
           <Stack flex={1} spacing={0}>
-            {repository.isLoading && <SkeletonText maxW="6rem" noOfLines={2} />}
-            {repository.isSuccess && (
-              <Heading size="sm">{repository.data?.name}</Heading>
+            {project.isLoading && <SkeletonText maxW="6rem" noOfLines={2} />}
+            {project.isSuccess && (
+              <Heading size="sm">{project.data?.name}</Heading>
             )}
           </Stack>
         </AdminLayoutPageTopBar>
         {!isReady && <LoaderFull />}
-        {isReady && repository.isError && <ErrorPage />}
-        {isReady && repository.isSuccess && (
+        {isReady && project.isError && <ErrorPage />}
+        {isReady && project.isSuccess && (
           <AdminLayoutPageContent>
             <ProjectForm />
           </AdminLayoutPageContent>
