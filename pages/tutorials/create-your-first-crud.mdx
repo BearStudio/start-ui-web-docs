@@ -1,4 +1,4 @@
-import { Callout, Steps } from "nextra/components";
+import { Callout, Steps, FileTree } from "nextra/components";
 
 # Create your first CRUD
 
@@ -620,6 +620,7 @@ export const projectsRouter = createTRPCRouter({
       z.object({
         items: z.array(zProject()),
         nextCursor: z.string().cuid().nullish(),
+        total: z.number(),
       })
     )
     .query(/* ... */),
@@ -663,6 +664,20 @@ export default function PageAdminProjects() {
 
 To expose the page component, we need to create the route in the [NextJS app router](https://nextjs.org/docs/app/building-your-application/routing/defining-routes).<br />
 Create a `page.tsx` file in the a new `projects` folder in `src/app/admin/(authenticated)` folder.
+
+<FileTree>
+  <FileTree.Folder name="src" open>
+    <FileTree.Folder name="app" open>
+      <FileTree.Folder name="admin" open>
+        <FileTree.Folder name="(authenticated)" open>
+          <FileTree.Folder name="projects" open>
+            <FileTree.File name="page.tsx" />
+          </FileTree.Folder>
+        </FileTree.Folder>
+      </FileTree.Folder>
+    </FileTree.Folder>
+  </FileTree.Folder>
+</FileTree>
 
 ```tsx filename="src/app/admin/(authenticated)/projects/page.tsx" showLineNumbers
 "use client";
@@ -1273,6 +1288,22 @@ export default function PageAdminProjectCreate() {
 To expose the page component, we need to create the route in the NextJS app router.<br />
 Create a `page.tsx` file in the a new `create` folder in `src/app/admin/(authenticated)/projects` folder.
 
+<FileTree>
+  <FileTree.Folder name="src" open>
+    <FileTree.Folder name="app" open>
+      <FileTree.Folder name="admin" open>
+        <FileTree.Folder name="(authenticated)" open>
+          <FileTree.Folder name="projects" open>
+            <FileTree.Folder name="create" open>
+              <FileTree.File name="page.tsx" />
+            </FileTree.Folder>
+          </FileTree.Folder>
+        </FileTree.Folder>
+      </FileTree.Folder>
+    </FileTree.Folder>
+  </FileTree.Folder>
+</FileTree>
+
 ```tsx filename="src/app/admin/(authenticated)/projects/create/page.tsx" showLineNumbers
 "use client";
 
@@ -1678,6 +1709,11 @@ export const projectsRouter = createTRPCRouter({
 
 Create the file `PageAdminProject.tsx` in the `src/features/projects` folder with the following content.
 
+<Callout type="warning">
+  This file is not the same as `PageAdminProjects.tsx` which is used to diplay
+  all projects, `PageAdminProject.tsx` will be to display a project details
+</Callout>
+
 ```tsx filename="src/features/projects/PageAdminProject.tsx" showLineNumbers
 import {
   Box,
@@ -1745,6 +1781,22 @@ export default function PageAdminProject() {
 
 To expose the page component, we need to create the route in the NextJS app router.<br />
 Create a `page.tsx` file in the a new `[id]` folder in `src/app/admin/(authenticated)/projects` folder.
+
+<FileTree>
+  <FileTree.Folder name="src" open>
+    <FileTree.Folder name="app" open>
+      <FileTree.Folder name="admin" open>
+        <FileTree.Folder name="(authenticated)" open>
+          <FileTree.Folder name="projects" open>
+            <FileTree.Folder name="[id]" open>
+              <FileTree.File name="page.tsx" />
+            </FileTree.Folder>
+          </FileTree.Folder>
+        </FileTree.Folder>
+      </FileTree.Folder>
+    </FileTree.Folder>
+  </FileTree.Folder>
+</FileTree>
 
 ```tsx filename="src/app/admin/(authenticated)/projects/[id]/page.tsx" showLineNumbers
 "use client";
@@ -1988,7 +2040,25 @@ export default function PageAdminProjectUpdate() {
 ### Create the NextJS route
 
 To expose the page component, we need to create the route in the NextJS app router.<br />
-Create a `page.tsx` file in the a new `update` folder in `src/app/admin/(authenticated)/[id]` folder.
+Create a `page.tsx` file in the a new `update` folder in `src/app/admin/(authenticated)/projects/[id]` folder.
+
+<FileTree>
+  <FileTree.Folder name="src" open>
+    <FileTree.Folder name="app" open>
+      <FileTree.Folder name="admin" open>
+        <FileTree.Folder name="(authenticated)" open>
+          <FileTree.Folder name="projects" open>
+            <FileTree.Folder name="[id]" open>
+              <FileTree.Folder name="update" open>
+                <FileTree.File name="page.tsx" />
+              </FileTree.Folder>
+            </FileTree.Folder>
+          </FileTree.Folder>
+        </FileTree.Folder>
+      </FileTree.Folder>
+    </FileTree.Folder>
+  </FileTree.Folder>
+</FileTree>
 
 ```tsx filename="src/app/admin/(authenticated)/projects/[id]/update/page.tsx" showLineNumbers
 "use client";
