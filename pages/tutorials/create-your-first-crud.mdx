@@ -1005,16 +1005,13 @@ export default function PageAdminProjects() {
 
 Then connect the `SearchInput` value to the `useInfiniteQuery` via a search param (`s`) in the url.
 
-```tsx {1-2, 7-9, 12-14, 33-34} filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
-import { useSearchParams } from "next/navigation";
-import { useSearchParamsUpdater } from "@/hooks/useSearchParamsUpdater";
+```tsx {1, 6, 9-11, 30-31} filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
+import { useQueryState } from "nuqs";
 
 /* ... */
 
 export default function PageAdminProjects() {
-  const searchParams = useSearchParams();
-  const searchParamsUpdater = useSearchParamsUpdater();
-  const searchTerm = searchParams.get("s") ?? "";
+  const [searchTerm, setSearchTerm] = useQueryState("s", { defaultValue: "" });
 
   const projects = trpc.projects.getAll.useInfiniteQuery(
     {
@@ -1039,7 +1036,7 @@ export default function PageAdminProjects() {
             </Heading>
             <SearchInput
               value={searchTerm}
-              onChange={(value) => searchParamsUpdater({ s: value || null })}
+              onChange={(value) => setSearchTerm(value || null)}
               size="sm"
               maxW={{ base: "none", md: "20rem" }}
             />
@@ -1070,7 +1067,7 @@ And the final code of `PageAdminProjects.tsx` file should look like this.
 
 ```tsx filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
 import { Button, Flex, Heading, Stack } from "@chakra-ui/react";
-import { useSearchParams } from "next/navigation";
+import { useQueryState } from "nuqs";
 
 import {
   DataList,
@@ -1086,13 +1083,10 @@ import {
   AdminLayoutPage,
   AdminLayoutPageContent,
 } from "@/features/admin/AdminLayoutPage";
-import { useSearchParamsUpdater } from "@/hooks/useSearchParamsUpdater";
 import { trpc } from "@/lib/trpc/client";
 
 export default function PageAdminProjects() {
-  const searchParams = useSearchParams();
-  const searchParamsUpdater = useSearchParamsUpdater();
-  const searchTerm = searchParams.get("s") ?? "";
+  const [searchTerm, setSearchTerm] = useQueryState("s", { defaultValue: "" });
 
   const projects = trpc.projects.getAll.useInfiniteQuery(
     {
@@ -1117,7 +1111,7 @@ export default function PageAdminProjects() {
             </Heading>
             <SearchInput
               value={searchTerm}
-              onChange={(value) => searchParamsUpdater({ s: value || null })}
+              onChange={(value) => setSearchTerm(value || null)}
               size="sm"
               maxW={{ base: "none", md: "20rem" }}
             />
