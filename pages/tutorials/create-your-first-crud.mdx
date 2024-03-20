@@ -682,10 +682,16 @@ Create a `page.tsx` file in the a new `projects` folder in `src/app/admin/(authe
 ```tsx filename="src/app/admin/(authenticated)/projects/page.tsx" showLineNumbers
 "use client";
 
+import { Suspense } from "react";
+
 import PageAdminProjects from "@/features/projects/PageAdminProjects";
 
 export default function Page() {
-  return <PageAdminProjects />;
+  return (
+    <Suspense>
+      <PageAdminProjects />
+    </Suspense>
+  );
 }
 ```
 
@@ -1301,10 +1307,16 @@ Create a `page.tsx` file in the a new `create` folder in `src/app/admin/(authent
 ```tsx filename="src/app/admin/(authenticated)/projects/create/page.tsx" showLineNumbers
 "use client";
 
+import { Suspense } from "react";
+
 import PageAdminProjectCreate from "@/features/projects/PageAdminProjectCreate";
 
 export default function Page() {
-  return <PageAdminProjectCreate />;
+  return (
+    <Suspense>
+      <PageAdminProjectCreate />
+    </Suspense>
+  );
 }
 ```
 
@@ -1795,10 +1807,16 @@ Create a `page.tsx` file in the a new `[id]` folder in `src/app/admin/(authentic
 ```tsx filename="src/app/admin/(authenticated)/projects/[id]/page.tsx" showLineNumbers
 "use client";
 
+import { Suspense } from "react";
+
 import PageAdminProject from "@/features/projects/PageAdminProject";
 
 export default function Page() {
-  return <PageAdminProject />;
+  return (
+    <Suspense>
+      <PageAdminProject />
+    </Suspense>
+  );
 }
 ```
 
@@ -2057,10 +2075,16 @@ Create a `page.tsx` file in the a new `update` folder in `src/app/admin/(authent
 ```tsx filename="src/app/admin/(authenticated)/projects/[id]/update/page.tsx" showLineNumbers
 "use client";
 
+import { Suspense } from "react";
+
 import PageAdminProjectUpdate from "@/features/projects/PageAdminProjectUpdate";
 
 export default function Page() {
-  return <PageAdminProjectUpdate />;
+  return (
+    <Suspense>
+      <PageAdminProjectUpdate />
+    </Suspense>
+  );
 }
 ```
 
