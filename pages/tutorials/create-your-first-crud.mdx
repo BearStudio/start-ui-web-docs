@@ -580,25 +580,27 @@ Let's create the `src/features/projects/schemas.ts` file with the zod schema for
 
 ```ts filename="src/features/projects/schemas.ts" showLineNumbers
 import { z } from "zod";
+import { zu } from "@/lib/zod/zod-utils";
 
 export const zProject = () =>
   z.object({
     id: z.string().cuid(),
-    name: z.string(),
+    name: zu.string.nonEmpty(z.string()),
     description: z.string().nullish(),
   });
 ```
 
 Let's create the type from this schema.
 
-```ts {3} filename="src/features/projects/schemas.ts" showLineNumbers
+```ts {4} filename="src/features/projects/schemas.ts" showLineNumbers
 import { z } from "zod";
+import { zu } from "@/lib/zod/zod-utils";
 
 export type Project = z.infer<ReturnType<typeof zProject>>;
 export const zProject = () =>
   z.object({
     id: z.string().cuid(),
-    name: z.string(),
+    name: zu.string.nonEmpty(z.string()),
     description: z.string().nullish(),
   });
 ```
@@ -1374,30 +1376,52 @@ export default function PageAdminProjects() {
 }
 ```
 
-### Create the form
+### Create the form validation schema
+
+Let's create the `zFormFieldsProject` schema in the `src/features/projects/schemas.ts` file like the following.
+
+```ts {12-14} filename="src/features/projects/schemas.ts" showLineNumbers
+import { z } from "zod";
+import { zu } from "@/lib/zod/zod-utils";
+
+export type Project = z.infer<ReturnType<typeof zProject>>;
+export const zProject = () =>
+  z.object({
+    id: z.string().cuid(),
+    name: zu.string.nonEmpty(z.string()),
+    description: z.string().nullish(),
+  });
+
+export type FormFieldsProject = z.infer<ReturnType<typeof zFormFieldsProject>>;
+export const zFormFieldsProject = () =>
+  zProject().pick({ name: true, description: true });
+```
+
+### Create the form component
 
 Let's create the form fields by creating a `ProjectForm` component.
-Create the `ProjectForm.tsx` in the `src/features/projects` folder and use the `FieldInput` and `FieldTextarea` like the following.
+Create the `ProjectForm.tsx` in the `src/features/projects` folder and with the fields like the following.
 
 ```tsx filename="src/features/projects/ProjectForm.tsx" showLineNumbers
 import { Stack } from "@chakra-ui/react";
+import { useFormContext } from "react-hook-form";
 
-import { FieldInput } from "@/components/FieldInput";
-import { FieldTextarea } from "@/components/FieldTextarea";
-
-export type ProjectFormFields = {
-  name: string;
-  description?: string | null;
-};
+import { FormField } from "@/components/Form";
+import { FormFieldsProject } from "@/features/projects/schemas";
 
 export const ProjectForm = () => {
+  const form = useFormContext<FormFieldsProject>();
+
   return (
     <Stack spacing={4}>
-      <FieldInput name="name" label="Name" required="Name is required" />
-      <FieldTextarea
+      <FormField control={form.control} type="text" name="name" label="Name" />
+      <FormField
+        control={form.control}
+        type="textarea"
         name="description"
         label="Description"
-        textareaProps={{ rows: 6 }}
+        optionalityHint="optional"
+        rows={6}
       />
     </Stack>
   );
@@ -1406,12 +1430,14 @@ export const ProjectForm = () => {
 
 ### Use the form
 
-Now, let's setup Formiz and use this `ProjectForm` in the `PageAdminProjectCreate.tsx` file.
+Now, let's setup React Hook Form and use the `ProjectForm` component in the `PageAdminProjectCreate.tsx` file.
 
-```tsx {2, 11-14, 17, 20, 36, 39} filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
+```tsx {2-3, 5, 13-17, 20-26, 29, 45, 48} filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
 import { Button, Heading } from "@chakra-ui/react";
-import { Formiz, useForm } from "@formiz/core";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 
+import { Form } from "@/components/Form";
 import { AdminBackButton } from "@/features/admin/AdminBackButton";
 import { AdminCancelButton } from "@/features/admin/AdminCancelButton";
 import {
@@ -1419,16 +1445,23 @@ import {
   AdminLayoutPageContent,
   AdminLayoutPageTopBar,
 } from "@/features/admin/AdminLayoutPage";
+import { ProjectForm } from "@/features/projects/ProjectForm";
 import {
-  ProjectForm,
-  ProjectFormFields,
-} from "@/features/projects/ProjectForm";
+  FormFieldsProject,
+  zFormFieldsProject,
+} from "@/features/projects/schemas";
 
 export default function PageAdminProjectCreate() {
-  const form = useForm<ProjectFormFields>();
+  const form = useForm<FormFieldsProject>({
+    resolver: zodResolver(zFormFieldsProject()),
+    defaultValues: {
+      name: "",
+      description: "",
+    },
+  });
 
   return (
-    <Formiz connect={form} autoForm>
+    <Form {...form}>
       <AdminLayoutPage containerMaxWidth="container.md" showNavBar={false}>
         <AdminLayoutPageTopBar
           leftActions={<AdminBackButton />}
@@ -1447,7 +1480,7 @@ export default function PageAdminProjectCreate() {
           <ProjectForm />
         </AdminLayoutPageContent>
       </AdminLayoutPage>
-    </Formiz>
+    </Form>
   );
 }
 ```
@@ -1456,21 +1489,30 @@ export default function PageAdminProjectCreate() {
 
 When the form is submitted and valid, we can submit the mutation to the server.
 
-```tsx {1, 5, 7-11} filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
-import { trpc } from '@/lib/trpc/client';
+```tsx {1, 5, 7-13, 18-20} filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
+import { trpc } from "@/lib/trpc/client";
 /* ... */
 
 export default function PageAdminProjectCreate() {
   const createProject = trpc.projects.create.useMutation();
 
-  const form = useForm<ProjectFormFields>({
-    onValidSubmit: (values) => {
-      createProject.mutate(values);
+  const form = useForm<FormFieldsProject>({
+    resolver: zodResolver(zFormFieldsProject()),
+    defaultValues: {
+      name: "",
+      description: "",
     },
   });
 
   return (
-    /* ... */
+    <Form
+      {...form}
+      onSubmit={(values) => {
+        createProject.mutate(values);
+      }}
+    >
+      {/* ... */}
+    </Form>
   );
 }
 ```
@@ -1508,7 +1550,7 @@ export default function PageAdminProjectCreate() {
 
 Let's improve the UX of the form.
 
-```tsx {1-2, 10-11, 16-18, 21-29, 45-46} filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
+```tsx {1-2, 10-11, 16-18, 21-29, 50} filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
 import { useToastError, useToastSuccess } from "@/components/Toast";
 import { isErrorDatabaseConflict } from "@/lib/trpc/errors";
 
@@ -1531,7 +1573,7 @@ export default function PageAdminProjectCreate() {
     },
     onError: (error) => {
       if (isErrorDatabaseConflict(error, "name")) {
-        form.setErrors({ name: "Name already used" });
+        form.setError("name", { message: "Name already used" });
         return;
       }
       toastError({
@@ -1543,7 +1585,12 @@ export default function PageAdminProjectCreate() {
   const form = /* ... */;
 
   return (
-    <Formiz connect={form} autoForm>
+    <Form
+      {...form}
+      onSubmit={(values) => {
+        createProject.mutate(values);
+      }}
+    >
       <AdminLayoutPage containerMaxWidth="container.md" showNavBar={false}>
         <AdminLayoutPageTopBar
           leftActions={<AdminBackButton />}
@@ -1554,7 +1601,6 @@ export default function PageAdminProjectCreate() {
                 type="submit"
                 variant="@primary"
                 isLoading={createProject.isLoading || createProject.isSuccess}
-                isDisabled={!form.isValid && form.isSubmitted}
               >
                 Create
               </Button>
@@ -1567,7 +1613,7 @@ export default function PageAdminProjectCreate() {
           <ProjectForm />
         </AdminLayoutPageContent>
       </AdminLayoutPage>
-    </Formiz>
+    </Form>
   );
 }
 ```
@@ -1582,8 +1628,9 @@ And the final code of `PageAdminProjectCreate.tsx` file should look like this.
 
 ```tsx filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
 import { Button, Heading } from "@chakra-ui/react";
-import { Formiz, useForm } from "@formiz/core";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
 
 import { useToastError, useToastSuccess } from "@/components/Toast";
 import { AdminBackButton } from "@/features/admin/AdminBackButton";
@@ -1617,7 +1664,7 @@ export default function PageAdminProjectCreate() {
     },
     onError: (error) => {
       if (isErrorDatabaseConflict(error, "name")) {
-        form.setErrors({ name: "Name already used" });
+        form.setError("name", { message: "Name already used" });
         return;
       }
       toastError({
@@ -1626,14 +1673,21 @@ export default function PageAdminProjectCreate() {
     },
   });
 
-  const form = useForm<ProjectFormFields>({
-    onValidSubmit: (values) => {
-      createProject.mutate(values);
+  const form = useForm<FormFieldsProject>({
+    resolver: zodResolver(zFormFieldsProject()),
+    defaultValues: {
+      name: "",
+      description: "",
     },
   });
 
   return (
-    <Formiz connect={form} autoForm>
+    <Form
+      {...form}
+      onSubmit={(values) => {
+        createProject.mutate(values);
+      }}
+    >
       <AdminLayoutPage containerMaxWidth="container.md" showNavBar={false}>
         <AdminLayoutPageTopBar
           leftActions={<AdminBackButton />}
@@ -1644,7 +1698,6 @@ export default function PageAdminProjectCreate() {
                 type="submit"
                 variant="@primary"
                 isLoading={createProject.isLoading || createProject.isSuccess}
-                isDisabled={!form.isValid && form.isSubmitted}
               >
                 Create
               </Button>
@@ -1657,7 +1710,7 @@ export default function PageAdminProjectCreate() {
           <ProjectForm />
         </AdminLayoutPageContent>
       </AdminLayoutPage>
-    </Formiz>
+    </Form>
   );
 }
 ```
@@ -1939,10 +1992,12 @@ Create the file `PageAdminProjectUpdate.tsx` in the `src/features/projects` fold
 
 ```tsx filename="src/features/projects/PageAdminProjectUpdate.tsx" showLineNumbers
 import { Button, Heading, SkeletonText, Stack } from "@chakra-ui/react";
-import { Formiz, useForm } from "@formiz/core";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams, useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
 
 import { ErrorPage } from "@/components/ErrorPage";
+import { Form } from "@/components/Form";
 import { LoaderFull } from "@/components/LoaderFull";
 import { useToastError, useToastSuccess } from "@/components/Toast";
 import { AdminBackButton } from "@/features/admin/AdminBackButton";
@@ -1952,10 +2007,11 @@ import {
   AdminLayoutPageContent,
   AdminLayoutPageTopBar,
 } from "@/features/admin/AdminLayoutPage";
+import { ProjectForm } from "@/features/projects/ProjectForm";
 import {
-  ProjectForm,
-  ProjectFormFields,
-} from "@/features/projects/ProjectForm";
+  FormFieldsProject,
+  zFormFieldsProject,
+} from "@/features/projects/schemas";
 import { trpc } from "@/lib/trpc/client";
 import { isErrorDatabaseConflict } from "@/lib/trpc/errors";
 
@@ -1969,8 +2025,7 @@ export default function PageAdminProjectUpdate() {
       id: params?.id?.toString() ?? "",
     },
     {
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
+      staleTime: Infinity,
     }
   );
 
@@ -1989,7 +2044,7 @@ export default function PageAdminProjectUpdate() {
     },
     onError: (error) => {
       if (isErrorDatabaseConflict(error, "name")) {
-        form.setErrors({ name: "Name already used" });
+        form.setError("name", { message: "Name already used" });
         return;
       }
       toastError({
@@ -1998,20 +2053,25 @@ export default function PageAdminProjectUpdate() {
     },
   });
 
-  const form = useForm<ProjectFormFields>({
-    ready: isReady,
-    initialValues: project.data,
-    onValidSubmit: (values) => {
-      if (!project.data?.id) return;
-      updateProject.mutate({
-        ...project.data,
-        ...values,
-      });
+  const form = useForm<FormFieldsProject>({
+    resolver: zodResolver(zFormFieldsProject()),
+    values: {
+      name: project.data?.name ?? "",
+      description: project.data?.description,
     },
   });
 
   return (
-    <Formiz connect={form} autoForm>
+    <Form
+      {...form}
+      onSubmit={(values) => {
+        if (!project.data?.id) return;
+        updateProject.mutate({
+          id: project.data.id,
+          ...values,
+        });
+      }}
+    >
       <AdminLayoutPage containerMaxWidth="container.md" showNavBar={false}>
         <AdminLayoutPageTopBar
           leftActions={<AdminBackButton withConfrim={!form.isPristine} />}
@@ -2022,7 +2082,6 @@ export default function PageAdminProjectUpdate() {
                 type="submit"
                 variant="@primary"
                 isLoading={updateProject.isLoading || updateProject.isSuccess}
-                isDisabled={!form.isValid && form.isSubmitted}
               >
                 Save
               </Button>
@@ -2044,7 +2103,7 @@ export default function PageAdminProjectUpdate() {
           </AdminLayoutPageContent>
         )}
       </AdminLayoutPage>
-    </Formiz>
+    </Form>
   );
 }
 ```
