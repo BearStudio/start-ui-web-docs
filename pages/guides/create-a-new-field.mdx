@@ -1,101 +1,144 @@
-import { Steps, FileTree } from 'nextra/components'
+import { Steps, FileTree } from "nextra/components";
 
 # Create new field
 
 ## Why?
 
-Allows to integrate any controlled component into a Formiz form.
+Allows to integrate a new type of field with React Hook Form.
 
-## How?
+## How? Create a new FormField type (recommended)
 
 <Steps>
-### Create your component File
-
-In the `src/components` directory, create an `index.tsx` file in a new folder named after the controlled component, prefixed by Field.
-
-<FileTree>
-  <FileTree.Folder name="src" open>
-    <FileTree.Folder name="components" open>
-      <FileTree.Folder name="MyComponent" open>
-        <FileTree.File name="index.tsx" />
-      </FileTree.Folder>
-      <FileTree.Folder name="FieldMyComponent" open>
-        <FileTree.File name="index.tsx" />
-      </FileTree.Folder>
-    </FileTree.Folder>
-  </FileTree.Folder>
-</FileTree>
-
 ### Define your Field
 
-We recommend using this structure to define a Field. This file can include some other stuff if your component has some specificity.
+In the `src/components/Form` directory, create a new folder `FieldYourType` with an `index.tsx` file.
 
-```tsx filename="src/components/FieldMyComponent/index.tsx"
-import { MyComponent, MyComponentProps } from "@/components/MyComponent";
+```tsx filename="src/components/Form/FieldYourType/index.tsx"
+import { ReactNode } from "react";
 
-type Value = MyComponentProps["value"];
+import { Controller, FieldPath, FieldValues } from "react-hook-form";
 
-type UsualMyComponentProps = "usualProp1" | "usualProp2"
+import { CustomComponent } from "@/components/CustomComponent";
 
-type FieldMyComponentProps<FormattedValue = Value> = FieldProps<
-  Value,
-  FormattedValue
-> &
-  FormGroupProps & Pick<MyComponentProps, UsualMyComponentProps> &
-  { myComponentProps?: Omit<MyComponentProps, UsualMyComponentProps> };
+import { FieldCommonProps } from "../FormField";
+import { FormFieldError } from "../FormFieldError";
+import { FormFieldHelper } from "../FormFieldHelper";
+import { FormFieldItem } from "../FormFieldItem";
+import { FormFieldLabel } from "../FormFieldLabel";
 
-export const FieldMyComponent = <FormattedValue = Value>(
-  props: FieldMyComponentProps<FormattedValue>
+export type FieldYourTypeProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+> = {
+  type: "your-type";
+  label?: ReactNode;
+  helper?: ReactNode;
+} & FieldCommonProps<TFieldValues, TName>;
+
+export const FieldYourType = <
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+>(
+  props: FieldYourTypeProps<TFieldValues, TName>
 ) => {
-  const field = useField(props);
-
-  const { myComponentProps, children, usualProp1, usualProp2, ...rest } = field.otherProps;
-
-  const formGroupProps = {
-    ...rest,
-    errorMessage: field.errorMessage,
-    id: field.id,
-    isRequired: field.isRequired,
-    showError: field.shouldDisplayError,
-  } satifies FormGroupProps;
-
   return (
-    <FormGroup {...formGroupProps}>
-      <MyComponent
-        {...myComponentProps}
-        usualProp1={usualProp1}
-        usualProp2={usualProp2}
-        value={field.value}
-        onChange={field.setValue}
-        onFocus={(e) => {
-          field.setIsTouched(false);
-          myComponentProps?.onFocus?.(e);
-          }
-        }
-        onBlur={(e) => {
-          field.setIsTouched(true);
-          myComponentProps?.onBlur?.(e);
-          }
-        }
-      />
-      {children}
-    </FormGroup>
+    <Controller
+      {...props}
+      render={({ field }) => (
+        <FormFieldItem>
+          {!!props.label && <FormFieldLabel>{props.label}</FormFieldLabel>}
+          <CustomComponent {...field} />
+          {!!props.helper && <FormFieldHelper>{props.helper}</FormFieldHelper>}
+          <FormFieldError />
+        </FormFieldItem>
+      )}
+    />
   );
+};
+```
+
+### Declare your Field in the FormField file
+
+In the `src/components/Form/FormField.tsx` file, add the props and the component for your type.
+
+```tsx {3,15,31-32} filename="src/components/Form/FormField.tsx"
+/* ... */
+
+import { FieldYourType, FieldYourTypeProps } from "./FieldYourType";
+
+/* ... */
+
+export const FormField = <
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+>(
+  props:
+    | FieldCustomProps<TFieldValues, TName>
+    | FieldTextProps<TFieldValues, TName>
+    /* ... */
+    | FieldYourTypeProps<TFieldValues, TName>
+  // -- ADD NEW FIELD PROPS TYPE HERE --
+) => {
+  const getField = () => {
+    switch (props.type) {
+      case "custom":
+        return <Controller {...props} />;
+
+      case "text":
+      case "email":
+      case "number":
+      case "tel":
+        return <FieldText {...props} />;
+
+      /* ... */
+
+      case "your-type":
+        return <FieldYourType {...props} />;
+
+      // -- ADD NEW FIELD COMPONENT HERE --
+    }
+  };
+
+  /* ... */
 };
 ```
 
 ### Use your new Field in a form
 
 ```tsx
-<Formiz connect={form}>
-  <FieldMyComponent
-    name="myComponent"
-    label="My component"
-    usualProp1="myProp"
-    myComponentProps={{ unusualProp: "myProp" }}
+<Form {...form}>
+  <FormField
+    control={form.control}
+    type="your-type"
+    name="field-name"
+    label="Field Label"
   />
-</Formiz>
+</Form>
 ```
 
+### Storybook and tests
+
+It's good practice to create `docs.stories.tsx` and `FieldYourType.spec.tsx` files in the `src/components/Form/FieldYourType` folder for documenting and testing your new field type.
 
 </Steps>
+
+## How? Use the FormField custom type
+
+Use the `custom` type of the FormField component to use an abitrary component on the fly. If you need a reusable component, take the "Create field new type" approach.
+
+```tsx
+<Form {...form}>
+  <FormField
+    control={form.control}
+    type="custom"
+    name="field-name"
+    render={({ field }) => (
+      <FormFieldItem>
+        <FormFieldLabel>Field Label</FormFieldLabel>
+        <CustomComponent {...field} />
+        <FormFieldError />
+      </FormFieldItem>
+    )}
+  />
+</Form>
+```
