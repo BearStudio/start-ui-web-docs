@@ -1463,7 +1463,7 @@ export default function PageAdminProjectCreate() {
   return (
     <Form {...form}>
       <AdminLayoutPage containerMaxWidth="container.md" showNavBar={false}>
-        <AdminLayoutPageTopBar
+         <AdminLayoutPageTopBar
           leftActions={<AdminBackButton />}
           rightActions={
             <>
@@ -1550,7 +1550,7 @@ export default function PageAdminProjectCreate() {
 
 Let's improve the UX of the form.
 
-```tsx {1-2, 10-11, 16-18, 21-29, 50} filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
+```tsx {1-2, 10-11, 16-18, 21-29, 43, 46, 50} filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
 import { useToastError, useToastSuccess } from "@/components/Toast";
 import { isErrorDatabaseConflict } from "@/lib/trpc/errors";
 
@@ -1592,11 +1592,11 @@ export default function PageAdminProjectCreate() {
       }}
     >
       <AdminLayoutPage containerMaxWidth="container.md" showNavBar={false}>
-        <AdminLayoutPageTopBar
-          leftActions={<AdminBackButton />}
+          <AdminLayoutPageTopBar
+          leftActions={<AdminBackButton withConfrim={form.formState.isDirty} />}
           rightActions={
             <>
-              <AdminCancelButton />
+              <AdminCancelButton withConfrim={form.formState.isDirty} />
               <Button
                 type="submit"
                 variant="@primary"
@@ -1690,10 +1690,10 @@ export default function PageAdminProjectCreate() {
     >
       <AdminLayoutPage containerMaxWidth="container.md" showNavBar={false}>
         <AdminLayoutPageTopBar
-          leftActions={<AdminBackButton />}
+          leftActions={<AdminBackButton withConfrim={form.formState.isDirty} />}
           rightActions={
             <>
-              <AdminCancelButton />
+              <AdminCancelButton withConfrim={form.formState.isDirty} />
               <Button
                 type="submit"
                 variant="@primary"
@@ -2074,10 +2074,10 @@ export default function PageAdminProjectUpdate() {
     >
       <AdminLayoutPage containerMaxWidth="container.md" showNavBar={false}>
         <AdminLayoutPageTopBar
-          leftActions={<AdminBackButton withConfrim={!form.isPristine} />}
+          leftActions={<AdminBackButton withConfirm={form.formState.isDirty} />}
           rightActions={
             <>
-              <AdminCancelButton withConfrim={!form.isPristine} />
+              <AdminCancelButton withConfirm={form.formState.isDirty} />
               <Button
                 type="submit"
                 variant="@primary"

@@ -1,6 +1,6 @@
 import { Steps, FileTree } from "nextra/components";
 
-# Create new field
+# Create a new form field
 
 ## Why?
 
@@ -118,13 +118,13 @@ export const FormField = <
 
 ### Storybook and tests
 
-It's good practice to create `docs.stories.tsx` and `FieldYourType.spec.tsx` files in the `src/components/Form/FieldYourType` folder for documenting and testing your new field type.
+It is good practice to create `docs.stories.tsx` and `FieldYourType.spec.tsx` files in the `src/components/Form/FieldYourType` folder for documenting and testing your new field type.
 
 </Steps>
 
-## How? Use the FormField custom type
+## How? Use the FormField `custom` type
 
-Use the `custom` type of the FormField component to use an abitrary component on the fly. If you need a reusable component, take the "Create field new type" approach.
+Use the `custom` type of the FormField component to use an abitrary component on the fly. If you need a reusable component, take the [Create a new FormField type](#how-create-a-new-formfield-type-recommended) approach.
 
 ```tsx
 <Form {...form}>
