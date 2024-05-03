@@ -41,7 +41,7 @@ You should see your `Project` model and be able to create a new project like the
 ### Create database seeds
 
 For easy development and better Developer eXperience (DX), we will create a new seed for our new `Project` model.<br />
-This will allows every new developer to start with some projects instead of an empty database.
+This will allow every new developer to start with some projects instead of an empty database.
 
 Create an new file `project.ts` in the `prisma/seed/models` folder with a `createProjects` function.
 
@@ -159,7 +159,7 @@ export const projectsRouter = createTRPCRouter({
 });
 ```
 
-We need this query to be protected and be accessible only by the admin users. So we will use the `protectedProcedure`.
+We need this query to be protected and accessible only by admin users. So we will use the `protectedProcedure`.
 
 ```ts {1,4} filename="src/server/routers/projects.ts" showLineNumbers
 import { createTRPCRouter, protectedProcedure } from "@/server/config/trpc";
@@ -191,7 +191,7 @@ export const projectsRouter = createTRPCRouter({
 });
 ```
 
-Will will add some `meta` to auto generate the REST api based on the tRPC api.
+We will add some `meta` to auto generate the REST api based on the tRPC api.
 
 <Callout type="info">
   This step is optional, if you don't plan to support and maintain the REST api,
@@ -226,7 +226,7 @@ export const projectsRouter = createTRPCRouter({
 });
 ```
 
-And now, let create the query with the projects.
+And now, let's create the query with the projects.
 
 ```ts {25-28} filename="src/server/routers/projects.ts" showLineNumbers
 import { z } from "zod";
@@ -262,7 +262,7 @@ export const projectsRouter = createTRPCRouter({
 
 ### Add load more capability
 
-We will allows the query to be paginated with a load more strategy.
+We will allow the query to be paginated with a load more strategy.
 
 First, let's update our input to accept a `limit` and a `cursor` params.
 
@@ -405,7 +405,7 @@ export const projectsRouter = createTRPCRouter({
 });
 ```
 
-We will now add the total of projects in the data in the output to let the UI now how many projects are available even if now the UI will not request all projects at once.
+We will now add the total of projects in the output data to let the UI know how many projects are available even if now the UI will not request all projects at once.
 
 ```ts {33,37-38,43-44,52} filename="src/server/routers/projects.ts" showLineNumbers
 import { z } from "zod";
@@ -574,31 +574,33 @@ It's in this folder that we will put all the UI of the projects feature and also
 
 ### Extract project zod schema
 
-First to we will extract the zod schema for the project from the tRPC router and put it into a `schemas.ts` file in the `src/features/projects` folder.
+First, we will extract the zod schema for the project from the tRPC router and put it into a `schemas.ts` file in the `src/features/projects` folder.
 
 Let's create the `src/features/projects/schemas.ts` file with the zod schema for one project.
 
 ```ts filename="src/features/projects/schemas.ts" showLineNumbers
 import { z } from "zod";
+import { zu } from "@/lib/zod/zod-utils";
 
 export const zProject = () =>
   z.object({
     id: z.string().cuid(),
-    name: z.string(),
+    name: zu.string.nonEmpty(z.string()),
     description: z.string().nullish(),
   });
 ```
 
 Let's create the type from this schema.
 
-```ts {3} filename="src/features/projects/schemas.ts" showLineNumbers
+```ts {4} filename="src/features/projects/schemas.ts" showLineNumbers
 import { z } from "zod";
+import { zu } from "@/lib/zod/zod-utils";
 
 export type Project = z.infer<ReturnType<typeof zProject>>;
 export const zProject = () =>
   z.object({
     id: z.string().cuid(),
-    name: z.string(),
+    name: zu.string.nonEmpty(z.string()),
     description: z.string().nullish(),
   });
 ```
@@ -663,7 +665,7 @@ export default function PageAdminProjects() {
 ### Create the NextJS route
 
 To expose the page component, we need to create the route in the [NextJS app router](https://nextjs.org/docs/app/building-your-application/routing/defining-routes).<br />
-Create a `page.tsx` file in the a new `projects` folder in `src/app/admin/(authenticated)` folder.
+Create a `page.tsx` file in your new `projects` folder in `src/app/admin/(authenticated)` folder.
 
 <FileTree>
   <FileTree.Folder name="src" open>
@@ -962,7 +964,7 @@ export default function PageAdminProjects() {
 }
 ```
 
-Want to test with only 2 projects? Add `limit: 1` to the `useInfiniteQuery` and you should be able to see the first project and click on "Load more" to display the second projecT.
+Want to test with only 2 projects? Add `limit: 1` to the `useInfiniteQuery` and you should be able to see the first project and click on "Load more" to display the second project.
 
 ```tsx {2} filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
 const projects = trpc.projects.getAll.useInfiniteQuery(
@@ -1286,7 +1288,7 @@ export default function PageAdminProjectCreate() {
 ### Create the NextJS route
 
 To expose the page component, we need to create the route in the NextJS app router.<br />
-Create a `page.tsx` file in the a new `create` folder in `src/app/admin/(authenticated)/projects` folder.
+Create a `page.tsx` file in a new `create` folder in `src/app/admin/(authenticated)/projects` folder.
 
 <FileTree>
   <FileTree.Folder name="src" open>
@@ -1374,30 +1376,52 @@ export default function PageAdminProjects() {
 }
 ```
 
-### Create the form
+### Create the form validation schema
+
+Let's create the `zFormFieldsProject` schema in the `src/features/projects/schemas.ts` file like the following.
+
+```ts {12-14} filename="src/features/projects/schemas.ts" showLineNumbers
+import { z } from "zod";
+import { zu } from "@/lib/zod/zod-utils";
+
+export type Project = z.infer<ReturnType<typeof zProject>>;
+export const zProject = () =>
+  z.object({
+    id: z.string().cuid(),
+    name: zu.string.nonEmpty(z.string()),
+    description: z.string().nullish(),
+  });
+
+export type FormFieldsProject = z.infer<ReturnType<typeof zFormFieldsProject>>;
+export const zFormFieldsProject = () =>
+  zProject().pick({ name: true, description: true });
+```
+
+### Create the form component
 
 Let's create the form fields by creating a `ProjectForm` component.
-Create the `ProjectForm.tsx` in the `src/features/projects` folder and use the `FieldInput` and `FieldTextarea` like the following.
+Create the `ProjectForm.tsx` in the `src/features/projects` folder and with the fields like the following.
 
 ```tsx filename="src/features/projects/ProjectForm.tsx" showLineNumbers
 import { Stack } from "@chakra-ui/react";
+import { useFormContext } from "react-hook-form";
 
-import { FieldInput } from "@/components/FieldInput";
-import { FieldTextarea } from "@/components/FieldTextarea";
-
-export type ProjectFormFields = {
-  name: string;
-  description?: string | null;
-};
+import { FormField } from "@/components/Form";
+import { FormFieldsProject } from "@/features/projects/schemas";
 
 export const ProjectForm = () => {
+  const form = useFormContext<FormFieldsProject>();
+
   return (
     <Stack spacing={4}>
-      <FieldInput name="name" label="Name" required="Name is required" />
-      <FieldTextarea
+      <FormField control={form.control} type="text" name="name" label="Name" />
+      <FormField
+        control={form.control}
+        type="textarea"
         name="description"
         label="Description"
-        textareaProps={{ rows: 6 }}
+        optionalityHint="optional"
+        rows={6}
       />
     </Stack>
   );
@@ -1406,12 +1430,14 @@ export const ProjectForm = () => {
 
 ### Use the form
 
-Now, let's setup Formiz and use this `ProjectForm` in the `PageAdminProjectCreate.tsx` file.
+Now, let's setup React Hook Form and use the `ProjectForm` component in the `PageAdminProjectCreate.tsx` file.
 
-```tsx {2, 11-14, 17, 20, 36, 39} filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
+```tsx {2-3, 5, 13-17, 20-26, 29, 45, 48} filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
 import { Button, Heading } from "@chakra-ui/react";
-import { Formiz, useForm } from "@formiz/core";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 
+import { Form } from "@/components/Form";
 import { AdminBackButton } from "@/features/admin/AdminBackButton";
 import { AdminCancelButton } from "@/features/admin/AdminCancelButton";
 import {
@@ -1419,18 +1445,25 @@ import {
   AdminLayoutPageContent,
   AdminLayoutPageTopBar,
 } from "@/features/admin/AdminLayoutPage";
+import { ProjectForm } from "@/features/projects/ProjectForm";
 import {
-  ProjectForm,
-  ProjectFormFields,
-} from "@/features/projects/ProjectForm";
+  FormFieldsProject,
+  zFormFieldsProject,
+} from "@/features/projects/schemas";
 
 export default function PageAdminProjectCreate() {
-  const form = useForm<ProjectFormFields>();
+  const form = useForm<FormFieldsProject>({
+    resolver: zodResolver(zFormFieldsProject()),
+    defaultValues: {
+      name: "",
+      description: "",
+    },
+  });
 
   return (
-    <Formiz connect={form} autoForm>
+    <Form {...form}>
       <AdminLayoutPage containerMaxWidth="container.md" showNavBar={false}>
-        <AdminLayoutPageTopBar
+         <AdminLayoutPageTopBar
           leftActions={<AdminBackButton />}
           rightActions={
             <>
@@ -1447,7 +1480,7 @@ export default function PageAdminProjectCreate() {
           <ProjectForm />
         </AdminLayoutPageContent>
       </AdminLayoutPage>
-    </Formiz>
+    </Form>
   );
 }
 ```
@@ -1456,21 +1489,30 @@ export default function PageAdminProjectCreate() {
 
 When the form is submitted and valid, we can submit the mutation to the server.
 
-```tsx {1, 5, 7-11} filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
-import { trpc } from '@/lib/trpc/client';
+```tsx {1, 5, 7-13, 18-20} filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
+import { trpc } from "@/lib/trpc/client";
 /* ... */
 
 export default function PageAdminProjectCreate() {
   const createProject = trpc.projects.create.useMutation();
 
-  const form = useForm<ProjectFormFields>({
-    onValidSubmit: (values) => {
-      createProject.mutate(values);
+  const form = useForm<FormFieldsProject>({
+    resolver: zodResolver(zFormFieldsProject()),
+    defaultValues: {
+      name: "",
+      description: "",
     },
   });
 
   return (
-    /* ... */
+    <Form
+      {...form}
+      onSubmit={(values) => {
+        createProject.mutate(values);
+      }}
+    >
+      {/* ... */}
+    </Form>
   );
 }
 ```
@@ -1508,7 +1550,7 @@ export default function PageAdminProjectCreate() {
 
 Let's improve the UX of the form.
 
-```tsx {1-2, 10-11, 16-18, 21-29, 45-46} filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
+```tsx {1-2, 10-11, 16-18, 21-29, 43, 46, 50} filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
 import { useToastError, useToastSuccess } from "@/components/Toast";
 import { isErrorDatabaseConflict } from "@/lib/trpc/errors";
 
@@ -1531,7 +1573,7 @@ export default function PageAdminProjectCreate() {
     },
     onError: (error) => {
       if (isErrorDatabaseConflict(error, "name")) {
-        form.setErrors({ name: "Name already used" });
+        form.setError("name", { message: "Name already used" });
         return;
       }
       toastError({
@@ -1543,18 +1585,22 @@ export default function PageAdminProjectCreate() {
   const form = /* ... */;
 
   return (
-    <Formiz connect={form} autoForm>
+    <Form
+      {...form}
+      onSubmit={(values) => {
+        createProject.mutate(values);
+      }}
+    >
       <AdminLayoutPage containerMaxWidth="container.md" showNavBar={false}>
-        <AdminLayoutPageTopBar
-          leftActions={<AdminBackButton />}
+          <AdminLayoutPageTopBar
+          leftActions={<AdminBackButton withConfirm={form.formState.isDirty} />}
           rightActions={
             <>
-              <AdminCancelButton />
+              <AdminCancelButton withConfirm={form.formState.isDirty} />
               <Button
                 type="submit"
                 variant="@primary"
                 isLoading={createProject.isLoading || createProject.isSuccess}
-                isDisabled={!form.isValid && form.isSubmitted}
               >
                 Create
               </Button>
@@ -1567,14 +1613,14 @@ export default function PageAdminProjectCreate() {
           <ProjectForm />
         </AdminLayoutPageContent>
       </AdminLayoutPage>
-    </Formiz>
+    </Form>
   );
 }
 ```
 
 ### Result
 
-You can test the form at [localhost:3000/admin/projects](http://localhost:3000/admin/projects) by using the create button we previously added, the page should looks like this.
+You can test the form at [localhost:3000/admin/projects](http://localhost:3000/admin/projects) by using the create button we previously added, the page should look like this.
 
 ![Project create form](/images/tutorials/create-your-first-entity/project-create.png)
 
@@ -1582,8 +1628,9 @@ And the final code of `PageAdminProjectCreate.tsx` file should look like this.
 
 ```tsx filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
 import { Button, Heading } from "@chakra-ui/react";
-import { Formiz, useForm } from "@formiz/core";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
 
 import { useToastError, useToastSuccess } from "@/components/Toast";
 import { AdminBackButton } from "@/features/admin/AdminBackButton";
@@ -1617,7 +1664,7 @@ export default function PageAdminProjectCreate() {
     },
     onError: (error) => {
       if (isErrorDatabaseConflict(error, "name")) {
-        form.setErrors({ name: "Name already used" });
+        form.setError("name", { message: "Name already used" });
         return;
       }
       toastError({
@@ -1626,25 +1673,31 @@ export default function PageAdminProjectCreate() {
     },
   });
 
-  const form = useForm<ProjectFormFields>({
-    onValidSubmit: (values) => {
-      createProject.mutate(values);
+  const form = useForm<FormFieldsProject>({
+    resolver: zodResolver(zFormFieldsProject()),
+    defaultValues: {
+      name: "",
+      description: "",
     },
   });
 
   return (
-    <Formiz connect={form} autoForm>
+    <Form
+      {...form}
+      onSubmit={(values) => {
+        createProject.mutate(values);
+      }}
+    >
       <AdminLayoutPage containerMaxWidth="container.md" showNavBar={false}>
         <AdminLayoutPageTopBar
-          leftActions={<AdminBackButton />}
+          leftActions={<AdminBackButton withConfirm={form.formState.isDirty} />}
           rightActions={
             <>
-              <AdminCancelButton />
+              <AdminCancelButton withConfirm={form.formState.isDirty} />
               <Button
                 type="submit"
                 variant="@primary"
                 isLoading={createProject.isLoading || createProject.isSuccess}
-                isDisabled={!form.isValid && form.isSubmitted}
               >
                 Create
               </Button>
@@ -1657,7 +1710,7 @@ export default function PageAdminProjectCreate() {
           <ProjectForm />
         </AdminLayoutPageContent>
       </AdminLayoutPage>
-    </Formiz>
+    </Form>
   );
 }
 ```
@@ -1717,7 +1770,7 @@ Create the file `PageAdminProject.tsx` in the `src/features/projects` folder wit
 
 <Callout type="warning">
   This file is not the same as `PageAdminProjects.tsx` which is used to diplay
-  all projects, `PageAdminProject.tsx` will be to display a project details
+  all projects, `PageAdminProject.tsx` will be displaying a project details.
 </Callout>
 
 ```tsx filename="src/features/projects/PageAdminProject.tsx" showLineNumbers
@@ -1786,7 +1839,7 @@ export default function PageAdminProject() {
 ### Create the NextJS route
 
 To expose the page component, we need to create the route in the NextJS app router.<br />
-Create a `page.tsx` file in the a new `[id]` folder in `src/app/admin/(authenticated)/projects` folder.
+Create a `page.tsx` file in a new `[id]` folder in `src/app/admin/(authenticated)/projects` folder.
 
 <FileTree>
   <FileTree.Folder name="src" open>
@@ -1939,10 +1992,12 @@ Create the file `PageAdminProjectUpdate.tsx` in the `src/features/projects` fold
 
 ```tsx filename="src/features/projects/PageAdminProjectUpdate.tsx" showLineNumbers
 import { Button, Heading, SkeletonText, Stack } from "@chakra-ui/react";
-import { Formiz, useForm } from "@formiz/core";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams, useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
 
 import { ErrorPage } from "@/components/ErrorPage";
+import { Form } from "@/components/Form";
 import { LoaderFull } from "@/components/LoaderFull";
 import { useToastError, useToastSuccess } from "@/components/Toast";
 import { AdminBackButton } from "@/features/admin/AdminBackButton";
@@ -1952,10 +2007,11 @@ import {
   AdminLayoutPageContent,
   AdminLayoutPageTopBar,
 } from "@/features/admin/AdminLayoutPage";
+import { ProjectForm } from "@/features/projects/ProjectForm";
 import {
-  ProjectForm,
-  ProjectFormFields,
-} from "@/features/projects/ProjectForm";
+  FormFieldsProject,
+  zFormFieldsProject,
+} from "@/features/projects/schemas";
 import { trpc } from "@/lib/trpc/client";
 import { isErrorDatabaseConflict } from "@/lib/trpc/errors";
 
@@ -1969,8 +2025,7 @@ export default function PageAdminProjectUpdate() {
       id: params?.id?.toString() ?? "",
     },
     {
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
+      staleTime: Infinity,
     }
   );
 
@@ -1989,7 +2044,7 @@ export default function PageAdminProjectUpdate() {
     },
     onError: (error) => {
       if (isErrorDatabaseConflict(error, "name")) {
-        form.setErrors({ name: "Name already used" });
+        form.setError("name", { message: "Name already used" });
         return;
       }
       toastError({
@@ -1998,31 +2053,35 @@ export default function PageAdminProjectUpdate() {
     },
   });
 
-  const form = useForm<ProjectFormFields>({
-    ready: isReady,
-    initialValues: project.data,
-    onValidSubmit: (values) => {
-      if (!project.data?.id) return;
-      updateProject.mutate({
-        ...project.data,
-        ...values,
-      });
+  const form = useForm<FormFieldsProject>({
+    resolver: zodResolver(zFormFieldsProject()),
+    values: {
+      name: project.data?.name ?? "",
+      description: project.data?.description,
     },
   });
 
   return (
-    <Formiz connect={form} autoForm>
+    <Form
+      {...form}
+      onSubmit={(values) => {
+        if (!project.data?.id) return;
+        updateProject.mutate({
+          id: project.data.id,
+          ...values,
+        });
+      }}
+    >
       <AdminLayoutPage containerMaxWidth="container.md" showNavBar={false}>
         <AdminLayoutPageTopBar
-          leftActions={<AdminBackButton withConfrim={!form.isPristine} />}
+          leftActions={<AdminBackButton withConfirm={form.formState.isDirty} />}
           rightActions={
             <>
-              <AdminCancelButton withConfrim={!form.isPristine} />
+              <AdminCancelButton withConfirm={form.formState.isDirty} />
               <Button
                 type="submit"
                 variant="@primary"
                 isLoading={updateProject.isLoading || updateProject.isSuccess}
-                isDisabled={!form.isValid && form.isSubmitted}
               >
                 Save
               </Button>
@@ -2044,7 +2103,7 @@ export default function PageAdminProjectUpdate() {
           </AdminLayoutPageContent>
         )}
       </AdminLayoutPage>
-    </Formiz>
+    </Form>
   );
 }
 ```
@@ -2052,7 +2111,7 @@ export default function PageAdminProjectUpdate() {
 ### Create the NextJS route
 
 To expose the page component, we need to create the route in the NextJS app router.<br />
-Create a `page.tsx` file in the a new `update` folder in `src/app/admin/(authenticated)/projects/[id]` folder.
+Create a `page.tsx` file in a new `update` folder in `src/app/admin/(authenticated)/projects/[id]` folder.
 
 <FileTree>
   <FileTree.Folder name="src" open>
@@ -2090,7 +2149,7 @@ export default function Page() {
 
 ### Add the edit button in the view
 
-Now, in the `PageAdminProject.tsx` we can add edit button with the link to the update page.
+Now, in the `PageAdminProject.tsx` we can add an edit button which links to the update page.
 
 ```tsx {1-4, 14-22} filename="src/features/projects/PageAdminProject.tsx" showLineNumbers
 import Link from "next/link";
@@ -2265,7 +2324,7 @@ export default function PageAdminProject() {
 
 ### Result
 
-The delete action of a project should looks like this.
+The delete action of a project should look like this.
 
 ![Project update](/images/tutorials/create-your-first-entity/project-delete.png)
 
