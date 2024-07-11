@@ -9,5 +9,5 @@
   "email-development": "Email development",
   "add-new-language": "Add new language",
   "translations-management": "Translations management",
-  "hint-development-env": "Hint development env"
+  "env-hint": "Visual hint for environments"
 }
