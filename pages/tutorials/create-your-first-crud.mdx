@@ -13,9 +13,12 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
 ### Update the Prisma Database Schema
 
 We will use [Prisma](https://www.prisma.io/docs/concepts/components/prisma-schema/data-model) to add the project entity to our database schema.<br />
-Open the `prisma/schema.prisma` file and add a new model called `Project` with the following fields.
 
-```prisma filename="prisma/schema.prisma"
+Because we are creating a new entity, we need to create a new file to store all details related to the new `Project` model.
+
+Create a `prisma/schema/project.prisma` file and add a new model called `Project` with the following fields.
+
+```prisma filename="prisma/schema/project.prisma"
 model Project {
   id          String   @id @default(cuid())
   createdAt   DateTime @default(now())
@@ -1463,7 +1466,7 @@ export default function PageAdminProjectCreate() {
   return (
     <Form {...form}>
       <AdminLayoutPage containerMaxWidth="container.md" showNavBar={false}>
-         <AdminLayoutPageTopBar
+        <AdminLayoutPageTopBar
           leftActions={<AdminBackButton />}
           rightActions={
             <>

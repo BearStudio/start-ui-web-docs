@@ -74,7 +74,12 @@ These files are downloaded when you install the dependencies with `pnpm install`
 
 #### <FileTreeFolderIcon /> `/prisma`
 
-[Prisma](https://www.prisma.io/) folder for database schema `schema.prisma` and seed scripts.
+[Prisma](https://www.prisma.io/) folder for database schema and seed scripts.
+
+Prisma generator and client blocs are defined in the `/schema/main.prisma` file.
+
+All other schema files organize related models / enum together. For example, in `/schema/user.prisma` you will be able to find
+all models / enum related or used by a `User` model, like `VerificationToken` model or `UserRole` enum.
 
 #### <FileTreeFolderIcon /> `/public`
 
