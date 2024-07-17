@@ -1417,15 +1417,20 @@ export const ProjectForm = () => {
 
   return (
     <Stack spacing={4}>
-      <FormField control={form.control} type="text" name="name" label="Name" />
-      <FormField
-        control={form.control}
-        type="textarea"
-        name="description"
-        label="Description"
-        optionalityHint="optional"
-        rows={6}
-      />
+      <FormField>
+        <FormFieldLabel>Name</FormFieldLabel>
+        <FormFieldController control={form.control} type="text" name="name" />
+      </FormField>
+
+      <FormField>
+        <FormFieldLabel optionalityHint="optional">Description</FormFieldLabel>
+        <FormField
+          control={form.control}
+          type="textarea"
+          name="description"
+          rows={6}
+        />
+      </FormField>
     </Stack>
   );
 };
