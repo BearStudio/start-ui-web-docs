@@ -13,26 +13,19 @@ Allows to integrate a new type of field with React Hook Form.
 
 In the `src/components/Form` directory, create a new folder `FieldYourType` with an `index.tsx` file.
 
-```tsx filename="src/components/Form/FieldYourType/index.tsx"
-import { ReactNode } from "react";
-
+```tsx showLineNumbers filename="src/components/Form/FieldYourType/index.tsx"
 import { Controller, FieldPath, FieldValues } from "react-hook-form";
 
 import { CustomComponent } from "@/components/CustomComponent";
 
-import { FieldCommonProps } from "../FormField";
-import { FormFieldError } from "../FormFieldError";
-import { FormFieldHelper } from "../FormFieldHelper";
-import { FormFieldItem } from "../FormFieldItem";
-import { FormFieldLabel } from "../FormFieldLabel";
+import { FieldCommonProps } from "@/components/Form/FormFieldController";
+import { FormFieldError } from "@/components/Form/FormFieldError";
 
 export type FieldYourTypeProps<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
 > = {
   type: "your-type";
-  label?: ReactNode;
-  helper?: ReactNode;
 } & FieldCommonProps<TFieldValues, TName>;
 
 export const FieldYourType = <
@@ -45,12 +38,10 @@ export const FieldYourType = <
     <Controller
       {...props}
       render={({ field }) => (
-        <FormFieldItem>
-          {!!props.label && <FormFieldLabel>{props.label}</FormFieldLabel>}
+        <>
           <CustomComponent {...field} />
-          {!!props.helper && <FormFieldHelper>{props.helper}</FormFieldHelper>}
           <FormFieldError />
-        </FormFieldItem>
+        </>
       )}
     />
   );
@@ -61,24 +52,32 @@ export const FieldYourType = <
 
 In the `src/components/Form/FormField.tsx` file, add the props and the component for your type.
 
-```tsx {3,15,31-32} filename="src/components/Form/FormField.tsx"
+```tsx {3,13,39-40} showLineNumbers filename="src/components/Form/FormFieldController.tsx"
 /* ... */
 
 import { FieldYourType, FieldYourTypeProps } from "./FieldYourType";
 
 /* ... */
 
-export const FormField = <
+export type FormFieldProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+> =
+  | FieldCustomProps<TFieldValues, TName>
+  // -- ADD NEW FIELD PROPS TYPE HERE --
+  | FieldYourTypeProps<TFieldValues, TName>
+  | FieldTextProps<TFieldValues, TName>
+  /* ... */
+  | FieldRadiosProps<TFieldValues, TName>;
+
+export const FormFieldController = <
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
 >(
-  props:
-    | FieldCustomProps<TFieldValues, TName>
-    | FieldTextProps<TFieldValues, TName>
-    /* ... */
-    | FieldYourTypeProps<TFieldValues, TName>
-  // -- ADD NEW FIELD PROPS TYPE HERE --
+  _props: FormFieldControllerProps<TFieldValues, TName>
 ) => {
+  /* ...*/
+
   const getField = () => {
     switch (props.type) {
       case "custom":
@@ -107,12 +106,14 @@ export const FormField = <
 
 ```tsx
 <Form {...form}>
-  <FormField
-    control={form.control}
-    type="your-type"
-    name="field-name"
-    label="Field Label"
-  />
+  <FormField>
+    <FormFieldLabel>Field Label</FormFieldLabel>
+    <FormFieldController
+      control={form.control}
+      type="your-type"
+      name="field-name"
+    />
+  </FormField>
 </Form>
 ```
 
@@ -128,17 +129,19 @@ Use the `custom` type of the FormField component to use an abitrary component on
 
 ```tsx
 <Form {...form}>
-  <FormField
-    control={form.control}
-    type="custom"
-    name="field-name"
-    render={({ field }) => (
-      <FormFieldItem>
-        <FormFieldLabel>Field Label</FormFieldLabel>
-        <CustomComponent {...field} />
-        <FormFieldError />
-      </FormFieldItem>
-    )}
-  />
+  <FormField>
+    <FormFieldLabel>Field Label</FormFieldLabel>
+    <FormFieldController
+      control={form.control}
+      type="custom"
+      name="field-name"
+      render={({ field }) => (
+        <>
+          <CustomComponent {...field} />
+          <FormFieldError />
+        </>
+      )}
+    />
+  </FormField>
 </Form>
 ```
