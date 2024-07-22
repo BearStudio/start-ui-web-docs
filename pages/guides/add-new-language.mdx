@@ -9,34 +9,31 @@ You may want to add a new language to your app to make your content available to
 ### Add the translation files
 
 First, you will have to add the JSON translation files under the `src/locales/<yourLanguageCode>` folder,
-with `yourLanguageCode` being a country's alpha2 code (`de` for instance), or a value allowed by
-[React i18next](https://react.i18next.com/legacy-v9/step-by-step-guide#1-adding-more-languages).
+with `yourLanguageCode` being a country's alpha2 code (`de` for example).
+
+Initiate the dayjs locale and the zod locale in this file.
+
+Example:
+
+```ts filename="src/locales/de/index.ts"
+import "dayjs/locale/de";
+import zod from "zod-i18n-map/locales/de/zod.json";
+```
 
 ### Import translations in the index
 
 All translation files are referenced in the `src/locales/index.ts` file. You need to import the new folder
-you created, for instance, for german :
+you created, for instance, for german:
 
 ```ts filename="src/locales/index.ts"
 import de from "@/locales/de";
 ```
 
-and add it to the default export :
+and add it to the default export:
 
 ```ts filename="src/locales/index.ts"
 export default { en, fr, ar, sw, de } as const;
 ```
-
-### Import the dayjs locale
-
-Start UI is using dayjs to format dates, and each country has its own specificities for displaying dates, so you need to
-import the new locale's plugin in the `src/locales/index.ts` file, for instance :
-
-```ts filename="src/locales/index.ts"
-import "dayjs/locale/de";
-```
-
-You can find the available plugins [here](https://github.com/iamkun/dayjs/tree/dev/src/locale)
 
 ### Add the language to the list of user's available languages
 
