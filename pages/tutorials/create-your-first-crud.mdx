@@ -632,6 +632,26 @@ export const projectsRouter = createTRPCRouter({
 });
 ```
 
+### Create the routes.ts file
+
+To prevent raw string urls all over our files, we are creating a `routes.ts` file in the `src/features/projects` folder.
+This file will have all the available urls of our `projects` feature.
+
+```tsx filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
+import { ROUTES_ADMIN } from "@/features/admin/routes";
+
+export const ROUTES_PROJECTS = {
+  admin: {
+    root: () => `${ROUTES_ADMIN.baseUrl()}/projects`,
+    create: () => `${ROUTES_PROJECTS.admin.root()}/create`,
+    project: (params: { id: string }) =>
+      `${ROUTES_PROJECTS.admin.root()}/${params.id}`,
+    update: (params: { id: string }) =>
+      `${ROUTES_PROJECTS.admin.root()}/${params.id}/update`,
+  },
+};
+```
+
 </Steps>
 
 ---
@@ -1334,7 +1354,7 @@ import { Button, Flex, HStack, Heading, Stack } from "@chakra-ui/react";
 import Link from "next/link";
 import { LuPlus } from "react-icons/lu";
 import { ResponsiveIconButton } from "@/components/ResponsiveIconButton";
-import { ADMIN_PATH } from "@/features/admin/constants";
+import { ROUTES_PROJECTS } from "@/features/projects/routes";
 /* ... */
 
 export default function PageAdminProjects() {
@@ -1363,7 +1383,7 @@ export default function PageAdminProjects() {
             </Flex>
             <ResponsiveIconButton
               as={Link}
-              href={`${ADMIN_PATH}/projects/create`}
+              href={ROUTES_PROJECTS.admin.create()}
               variant="@primary"
               size="sm"
               icon={<LuPlus />}
@@ -1917,7 +1937,7 @@ export default function PageAdminProjects() {
                     <DataListText fontWeight="bold">
                       <LinkOverlay
                         as={Link}
-                        href={`${ADMIN_PATH}/projects/${project.id}`}
+                        href={ROUTES_PROJECTS.admin.project({ id: project.id })}
                       >
                         {project.name}
                       </LinkOverlay>
@@ -2163,7 +2183,7 @@ Now, in the `PageAdminProject.tsx` we can add an edit button which links to the 
 import Link from "next/link";
 import { LuPenLine } from "react-icons/lu";
 import { ResponsiveIconButton } from "@/components/ResponsiveIconButton";
-import { ADMIN_PATH } from "@/features/admin/constants";
+import { ROUTES_PROJECTS } from "@/features/projects/routes";
 /* ... */
 
 export default function PageAdminProject() {
@@ -2176,7 +2196,7 @@ export default function PageAdminProject() {
         rightActions={
           <ResponsiveIconButton
             as={Link}
-            href={`${ADMIN_PATH}/projects/${params?.id}/update`}
+            href={ROUTES_PROJECTS.admin.update({ id: project.id })}
             icon={<LuPenLine />}
           >
             Edit
@@ -2275,7 +2295,7 @@ export default function PageAdminProject() {
   const projectDelete = trpc.projects.removeById.useMutation({
     onSuccess: async () => {
       await trpcUtils.projects.getAll.invalidate();
-      router.replace(`${ADMIN_PATH}/projects`);
+      router.replace(ROUTES_PROJECTS.admin.root());
     },
     onError: () => {
       toastError({
@@ -2293,7 +2313,7 @@ export default function PageAdminProject() {
           <>
             <ResponsiveIconButton
               as={Link}
-              href={`${ADMIN_PATH}/projects/${params?.id}/update`}
+              href={ROUTES_PROJECTS.admin.update({ id: project.id })}
               icon={<LuPenLine />}
             >
               Edit
@@ -2346,23 +2366,24 @@ The delete action of a project should look like this.
 
 Udpate the `AdminNavBarMainMenu` component in the `src/features/admin/AdminNavBar.tsx` file.
 
-```tsx {13-15} filename="src/features/admin/AdminNavBar.tsx" showLineNumbers
+```tsx {1,14-16} filename="src/features/admin/AdminNavBar.tsx" showLineNumbers
+import { ROUTES_PROJECTS } from "@/features/projects/routes";
 /* ... */
 
 const AdminNavBarMainMenu = ({ ...rest }: StackProps) => {
   const { t } = useTranslation(["admin"]);
   return (
     <Stack direction="row" spacing="1" {...rest}>
-      <AdminNavBarMainMenuItem href={`${ADMIN_PATH}/dashboard`}>
+      <AdminNavBarMainMenuItem href={ROUTES_ADMIN_DASHBOARD.admin.root()}>
         {t("admin:layout.mainMenu.dashboard")}
       </AdminNavBarMainMenuItem>
-      <AdminNavBarMainMenuItem href={`${ADMIN_PATH}/repositories`}>
+      <AdminNavBarMainMenuItem href={ROUTES_REPOSITORIES.admin.root()}>
         {t("admin:layout.mainMenu.repositories")}
       </AdminNavBarMainMenuItem>
-      <AdminNavBarMainMenuItem href={`${ADMIN_PATH}/projects`}>
+      <AdminNavBarMainMenuItem href={ROUTES_PROJECTS.admin.root()}>
         Projects
       </AdminNavBarMainMenuItem>
-      <AdminNavBarMainMenuItem href={`${ADMIN_PATH}/management`}>
+      <AdminNavBarMainMenuItem href={ROUTES_MANAGEMENT.admin.root()}>
         {t("admin:layout.mainMenu.management")}
       </AdminNavBarMainMenuItem>
     </Stack>
