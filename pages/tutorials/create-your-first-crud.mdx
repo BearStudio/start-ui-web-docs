@@ -1578,8 +1578,8 @@ export default function PageAdminProjectCreate() {
 
 Let's improve the UX of the form.
 
-```tsx {1-2, 10-11, 16-18, 21-29, 43, 46, 50} filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
-import { useToastError, useToastSuccess } from "@/components/Toast";
+```tsx {1-2, 13-16, 19-28, 42, 45, 49} filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
+import { toastCustom } from "@/components/Toast";
 import { isErrorDatabaseConflict } from "@/lib/trpc/errors";
 
 /* ... */
@@ -1588,13 +1588,11 @@ export default function PageAdminProjectCreate() {
   const trpcUtils = trpc.useUtils();
   const router = useRouter();
 
-  const toastError = useToastError();
-  const toastSuccess = useToastSuccess();
-
   const createProject = trpc.projects.create.useMutation({
     onSuccess: async () => {
       await trpcUtils.projects.getAll.invalidate();
-      toastSuccess({
+      toastCustom({
+        status: 'success',
         title: "Project created with success",
       });
       router.back();
@@ -1604,7 +1602,8 @@ export default function PageAdminProjectCreate() {
         form.setError("name", { message: "Name already used" });
         return;
       }
-      toastError({
+      toastCustom({
+        status: 'error',
         title: "Failed to create the project",
       });
     },
@@ -1660,7 +1659,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
-import { useToastError, useToastSuccess } from "@/components/Toast";
+import { toastCustom } from "@/components/Toast";
 import { AdminBackButton } from "@/features/admin/AdminBackButton";
 import { AdminCancelButton } from "@/features/admin/AdminCancelButton";
 import {
@@ -1679,13 +1678,11 @@ export default function PageAdminProjectCreate() {
   const trpcUtils = trpc.useUtils();
   const router = useRouter();
 
-  const toastError = useToastError();
-  const toastSuccess = useToastSuccess();
-
   const createProject = trpc.projects.create.useMutation({
     onSuccess: async () => {
       await trpcUtils.projects.getAll.invalidate();
-      toastSuccess({
+      toastCustom({
+        status: "success",
         title: "Project created with success",
       });
       router.back();
@@ -1695,7 +1692,8 @@ export default function PageAdminProjectCreate() {
         form.setError("name", { message: "Name already used" });
         return;
       }
-      toastError({
+      toastCustom({
+        status: "error",
         title: "Failed to create the project",
       });
     },
@@ -2027,7 +2025,7 @@ import { useForm } from "react-hook-form";
 import { ErrorPage } from "@/components/ErrorPage";
 import { Form } from "@/components/Form";
 import { LoaderFull } from "@/components/LoaderFull";
-import { useToastError, useToastSuccess } from "@/components/Toast";
+import { toastCustom } from "@/components/Toast";
 import { AdminBackButton } from "@/features/admin/AdminBackButton";
 import { AdminCancelButton } from "@/features/admin/AdminCancelButton";
 import {
@@ -2059,13 +2057,11 @@ export default function PageAdminProjectUpdate() {
 
   const isReady = !project.isFetching;
 
-  const toastSuccess = useToastSuccess();
-  const toastError = useToastError();
-
   const updateProject = trpc.projects.updateById.useMutation({
     onSuccess: async () => {
       await trpcUtils.projects.invalidate();
-      toastSuccess({
+      toastCustom({
+        status: "success",
         title: "Updated with success",
       });
       router.back();
@@ -2075,7 +2071,8 @@ export default function PageAdminProjectUpdate() {
         form.setError("name", { message: "Name already used" });
         return;
       }
-      toastError({
+      toastCustom({
+        status: "error",
         title: "Update failed",
       });
     },
@@ -2272,7 +2269,7 @@ Now, let's implement the delete button with a confirm modal in the `PageAdminPro
   **`useRouter` is imported from `next/navigation`** and not `next/router`
 </Callout>
 
-```tsx {3, 6-9, 13-15, 20-31, 38, 46-65} filename="src/features/projects/PageAdminProject.tsx" showLineNumbers
+```tsx {3, 6-9, 13-14, 19-31, 38, 46-65} filename="src/features/projects/PageAdminProject.tsx" showLineNumbers
 import {
   /* ... */
   IconButton,
@@ -2281,13 +2278,12 @@ import {
 import { /* ... */, useRouter } from "next/navigation";
 import { /* ... */, LuTrash2 } from "react-icons/lu";
 import { ConfirmModal } from "@/components/ConfirmModal";
-import { useToastError } from "@/components/Toast";
+import { toastCustom } from "@/components/Toast";
 /* ... */
 
 export default function PageAdminProject() {
   const router = useRouter();
   const trpcUtils = trpc.useUtils();
-  const toastError = useToastError();
 
   const params = /* ... */;
   const project = /* ... */;
@@ -2298,7 +2294,8 @@ export default function PageAdminProject() {
       router.replace(ROUTES_PROJECTS.admin.root());
     },
     onError: () => {
-      toastError({
+      toastCustom({
+        status: "error",
         title: "Deletion failed",
         description: "Failed to delete the project",
       });
