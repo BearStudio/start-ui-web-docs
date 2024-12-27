@@ -1654,25 +1654,27 @@ You can test the form at [localhost:3000/admin/projects](http://localhost:3000/a
 And the final code of `PageAdminProjectCreate.tsx` file should look like this.
 
 ```tsx filename="src/features/projects/PageAdminProjectCreate.tsx" showLineNumbers
-import { Button, Heading } from "@chakra-ui/react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { Button, Heading } from '@chakra-ui/react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
 
-import { toastCustom } from "@/components/Toast";
-import { AdminBackButton } from "@/features/admin/AdminBackButton";
-import { AdminCancelButton } from "@/features/admin/AdminCancelButton";
+import { Form } from '@/components/Form';
+import { toastCustom } from '@/components/Toast';
+import { AdminBackButton } from '@/features/admin/AdminBackButton';
+import { AdminCancelButton } from '@/features/admin/AdminCancelButton';
 import {
   AdminLayoutPage,
   AdminLayoutPageContent,
   AdminLayoutPageTopBar,
-} from "@/features/admin/AdminLayoutPage";
+} from '@/features/admin/AdminLayoutPage';
+import { ProjectForm } from '@/features/projects/ProjectForm';
 import {
-  ProjectForm,
-  ProjectFormFields,
-} from "@/features/projects/ProjectForm";
-import { trpc } from "@/lib/trpc/client";
-import { isErrorDatabaseConflict } from "@/lib/trpc/errors";
+  FormFieldsProject,
+  zFormFieldsProject,
+} from '@/features/projects/schemas';
+import { trpc } from '@/lib/trpc/client';
+import { isErrorDatabaseConflict } from '@/lib/trpc/errors';
 
 export default function PageAdminProjectCreate() {
   const trpcUtils = trpc.useUtils();
@@ -1682,19 +1684,19 @@ export default function PageAdminProjectCreate() {
     onSuccess: async () => {
       await trpcUtils.projects.getAll.invalidate();
       toastCustom({
-        status: "success",
-        title: "Project created with success",
+        status: 'success',
+        title: 'Project created with success',
       });
       router.back();
     },
     onError: (error) => {
-      if (isErrorDatabaseConflict(error, "name")) {
-        form.setError("name", { message: "Name already used" });
+      if (isErrorDatabaseConflict(error, 'name')) {
+        form.setError('name', { message: 'Name already used' });
         return;
       }
       toastCustom({
-        status: "error",
-        title: "Failed to create the project",
+        status: 'error',
+        title: 'Failed to create the project',
       });
     },
   });
@@ -1702,8 +1704,8 @@ export default function PageAdminProjectCreate() {
   const form = useForm<FormFieldsProject>({
     resolver: zodResolver(zFormFieldsProject()),
     defaultValues: {
-      name: "",
-      description: "",
+      name: '',
+      description: '',
     },
   });
 
