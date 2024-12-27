@@ -2191,11 +2191,13 @@ export default function PageAdminProject() {
       <AdminLayoutPageTopBar
         leftActions={<AdminBackButton />}
         rightActions={
-          <ResponsiveIconButton
-            as={Link}
-            href={ROUTES_PROJECTS.admin.update({ id: project.id })}
-            icon={<LuPenLine />}
-          >
+            <ResponsiveIconButton
+              as={Link}
+              href={ROUTES_PROJECTS.admin.update({
+                id: project.data?.id ?? "Unknown",
+              })}
+              icon={<LuPenLine />}
+            >
             Edit
           </ResponsiveIconButton>
         }
