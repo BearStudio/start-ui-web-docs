@@ -1429,7 +1429,7 @@ Create the `ProjectForm.tsx` in the `src/features/projects` folder and with the 
 import { Stack } from "@chakra-ui/react";
 import { useFormContext } from "react-hook-form";
 
-import { FormField } from "@/components/Form";
+import { FormField, FormFieldLabel, FormFieldController } from "@/components/Form";
 import { FormFieldsProject } from "@/features/projects/schemas";
 
 export const ProjectForm = () => {
@@ -1444,7 +1444,7 @@ export const ProjectForm = () => {
 
       <FormField>
         <FormFieldLabel optionalityHint="optional">Description</FormFieldLabel>
-        <FormField
+        <FormFieldController
           control={form.control}
           type="textarea"
           name="description"
