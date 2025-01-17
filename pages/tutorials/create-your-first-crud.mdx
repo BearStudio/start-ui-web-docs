@@ -637,7 +637,7 @@ export const projectsRouter = createTRPCRouter({
 To prevent raw string urls all over our files, we are creating a `routes.ts` file in the `src/features/projects` folder.
 This file will have all the available urls of our `projects` feature.
 
-```tsx filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
+```tsx filename="src/features/projects/routes.ts" showLineNumbers
 import { ROUTES_ADMIN } from "@/features/admin/routes";
 
 export const ROUTES_PROJECTS = {
@@ -1004,9 +1004,13 @@ Revert this last change to continue.
 
 First, let's add the `SearchInput` component in the UI.
 
-```tsx {1, 12-16, 20-21} filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
+```tsx {1, 4, 12-16, 20-21} filename="src/features/projects/PageAdminProjects.tsx" showLineNumbers
 import { SearchInput } from "@/components/SearchInput";
-
+import {
+  /* ... */,
+  Flex,
+  /* ... */
+} from '@chakra-ui/react';
 /* ... */
 
 export default function PageAdminProjects() {
