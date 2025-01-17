@@ -637,7 +637,7 @@ export const projectsRouter = createTRPCRouter({
 To prevent raw string urls all over our files, we are creating a `routes.ts` file in the `src/features/projects` folder.
 This file will have all the available urls of our `projects` feature.
 
-```tsx filename="src/features/projects/route.ts" showLineNumbers
+```tsx filename="src/features/projects/routes.ts" showLineNumbers
 import { ROUTES_ADMIN } from "@/features/admin/routes";
 
 export const ROUTES_PROJECTS = {
