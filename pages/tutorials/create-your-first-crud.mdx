@@ -2176,7 +2176,7 @@ export default function Page() {
 
 Now, in the `PageAdminProject.tsx` we can add an edit button which links to the update page.
 
-```tsx {1-4, 14-24} filename="src/features/projects/PageAdminProject.tsx" showLineNumbers
+```tsx {1-4, 14-25} filename="src/features/projects/PageAdminProject.tsx" showLineNumbers
 import Link from "next/link";
 import { LuPenLine } from "react-icons/lu";
 import { ResponsiveIconButton } from "@/components/ResponsiveIconButton";
@@ -2196,6 +2196,7 @@ export default function PageAdminProject() {
               href={ROUTES_PROJECTS.admin.update({
                 params?.id?.toString() ?? 'unknown',
               })}
+	            isDisabled={!params?.id}
               icon={<LuPenLine />}
             >
             Edit
