@@ -1675,11 +1675,11 @@ import {
 } from "@/features/projects/schemas";
 import { trpc } from "@/lib/trpc/client";
 import { isErrorDatabaseConflict } from "@/lib/trpc/errors";
- 
+
 export default function PageAdminProjectCreate() {
   const trpcUtils = trpc.useUtils();
   const router = useRouter();
- 
+
   const createProject = trpc.projects.create.useMutation({
     onSuccess: async () => {
       await trpcUtils.projects.getAll.invalidate();
@@ -1700,7 +1700,7 @@ export default function PageAdminProjectCreate() {
       });
     },
   });
- 
+
   const form = useForm<FormFieldsProject>({
     resolver: zodResolver(zFormFieldsProject()),
     defaultValues: {
@@ -1708,7 +1708,7 @@ export default function PageAdminProjectCreate() {
       description: "",
     },
   });
- 
+
   return (
     <Form
       {...form}
