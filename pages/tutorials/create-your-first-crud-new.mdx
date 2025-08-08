@@ -1,0 +1,146 @@
+import { Callout, Steps, FileTree } from "nextra/components";
+
+# Create your first CRUD
+
+Make sure you followed the [Getting Started](/getting-started) before starting this tutorial.
+
+Let's dive into creating a full new entity with database, backend and ui.<br />
+We will create a **"Project"** entity with the full CRUD (Create Read Update Delete) screens.
+
+## Step 1: Create the Project database schema
+
+<Steps>
+
+### Update the Prisma Database Schema
+
+We will use [Prisma](https://www.prisma.io/docs/concepts/components/prisma-schema/data-model) to add the project entity to our database schema.<br />
+
+Because we are creating a new entity, we need to create a new file to store all details related to the new `Project` model.
+
+Update the `prisma/schema.prisma` file and add a new model called `Project` with the following fields.
+
+```prisma filename="prisma/schema.prisma"
+model Project {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  name        String   @unique
+  description String?
+}
+```
+
+Cut the running `pnpm dev{:bash}` if needed, and then run the `pnpm db:push{:bash}` command to update your database.
+
+You can run `pnpm dev{:bash}` again.
+
+### Create you first project
+
+We can see what is inside of our database with the `pnpm db:ui{:bash}` command.<br />
+You should see your `Project` model and be able to create a new project like the following.
+
+![Step 01](/images/tutorials/new/db-ui-01.png)<br />
+![Step 02](/images/tutorials/new/db-ui-02.png)<br />
+![Step 03](/images/tutorials/new/db-ui-03.png)<br />
+
+### Create database seeds
+
+For easy development and better Developer eXperience (DX), we will create a new seed for our new `Project` model.<br />
+This will allow every new developer to start with some projects instead of an empty database.
+
+Create an new file `project.ts` in the `prisma/seed/models` folder with a `createProjects` function.
+
+```ts filename="prisma/seed/project.ts" showLineNumbers
+export async function createProjects() {
+  // ...
+}
+```
+
+Add a console.log for better DX.
+
+```ts {2} filename="prisma/seed/models/project.ts" showLineNumbers
+export async function createProjects() {
+  console.log(`⏳ Seeding projects`);
+  // ...
+}
+```
+
+Get existing projects. It will help us to make the seed idempotent.
+
+```ts {1, 5-6} filename="prisma/seed/models/project.ts" showLineNumbers
+import { prisma } from "prisma/seed/utils";
+
+export async function createProjects() {
+  console.log(`⏳ Seeding projects`);
+
+  const existingProjects = await db.project.findMany();
+}
+```
+
+Create the projects with prisma.
+
+```ts {7-26} filename="prisma/seed/models/project.ts" showLineNumbers
+import { db } from "@/server/db";
+
+export async function createProjects() {
+  console.log(`⏳ Seeding projects`);
+
+  const existingProjects = await db.project.findMany();
+
+  const projects = [
+    { name: "Project 1" },
+    { name: "Project 2" },
+    { name: "Project 3" },
+  ] as const;
+
+  const result = await db.project.createMany({
+    data: projects
+      .filter(
+        (project) =>
+          !existingProjects
+            .map((existingProject) => existingProject.name)
+            .includes(project.name)
+      )
+      .map(({ name }) => ({ name })),
+  });
+  console.log(
+    `✅ ${existingProjects.length} existing projects 👉 ${result.count} projects created`
+  );
+}
+```
+
+Now, import the function into the `prisma/seed/index.ts` file.
+
+```ts {4,9} filename="prisma/seed/index.ts"
+import { db } from "@/server/db";
+
+import { createBooks } from "./book";
+import { createProjects } from "./project";
+import { createUsers } from "./user";
+
+async function main() {
+  await createBooks();
+  await createProjects();
+  await createUsers();
+}
+
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(() => {
+    db.$disconnect();
+  });
+```
+
+Finally, run the seed command.
+
+```bash
+pnpm db:seed
+```
+
+You can check that the project is created by running the `pnpm db:ui{:bash}` command again.
+
+![Seed result](/images/tutorials/new/db-seed-result.png)<br />
+
+</Steps>

@@ -46,7 +46,7 @@ You should see your `Project` model and be able to create a new project like the
 For easy development and better Developer eXperience (DX), we will create a new seed for our new `Project` model.<br />
 This will allow every new developer to start with some projects instead of an empty database.
 
-Create an new file `project.ts` in the `prisma/seed/models` folder with a `createProjects` function.
+Create an new file `project.ts` in the `prisma/seed` folder with a `createProjects` function.
 
 ```ts filename="prisma/seed/models/project.ts" showLineNumbers
 export async function createProjects() {
@@ -1433,7 +1433,11 @@ Create the `ProjectForm.tsx` in the `src/features/projects` folder and with the 
 import { Stack } from "@chakra-ui/react";
 import { useFormContext } from "react-hook-form";
 
-import { FormField, FormFieldLabel, FormFieldController } from "@/components/Form";
+import {
+  FormField,
+  FormFieldLabel,
+  FormFieldController,
+} from "@/components/Form";
 import { FormFieldsProject } from "@/features/projects/schemas";
 
 export const ProjectForm = () => {
