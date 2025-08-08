@@ -144,3 +144,440 @@ You can check that the project is created by running the `pnpm db:ui{:bash}` com
 ![Seed result](/images/tutorials/new/db-seed-result.png)<br />
 
 </Steps>
+
+---
+
+## Step 2: Create the backend router
+
+<Steps>
+
+### Setup the access controls
+
+We will use [BetterAuth](https://better-auth.com/) to handle the access control and permissions for our application.<br />
+Update the file `permissions.ts` in the `app/features/auth` folder.
+Add the following code to define the permissions for the `Project` entity.
+
+```ts {17, 27, 36} filename="app/features/auth/permissions.ts" showLineNumbers
+import { UserRole } from "@prisma/client";
+import {
+  createAccessControl,
+  Role as BetterAuthRole,
+} from "better-auth/plugins/access";
+import { adminAc, defaultStatements } from "better-auth/plugins/admin/access";
+import { z } from "zod";
+
+import { authClient } from "@/features/auth/client";
+
+const statement = {
+  ...defaultStatements,
+  account: ["read", "update"],
+  apps: ["app", "manager"],
+  book: ["read", "create", "update", "delete"],
+  genre: ["read"],
+  project: ["read", "create", "update", "delete"],
+} as const;
+
+const ac = createAccessControl(statement);
+
+const user = ac.newRole({
+  account: ["update"],
+  apps: ["app"],
+  book: ["read"],
+  genre: ["read"],
+  project: ["read"],
+});
+
+const admin = ac.newRole({
+  ...adminAc.statements,
+  account: ["update"],
+  apps: ["app", "manager"],
+  book: ["read", "create", "update", "delete"],
+  genre: ["read"],
+  project: ["read", "create", "update", "delete"],
+});
+
+export const rolesNames = ["admin", "user"] as const;
+export const zRole: () => z.ZodType<Role> = () => z.enum(rolesNames);
+export type Role = keyof typeof roles;
+const roles = {
+  admin,
+  user,
+} satisfies Record<UserRole, BetterAuthRole>;
+
+export const permissions = {
+  ac,
+  roles,
+};
+
+export type Permission = NonNullable<
+  Parameters<typeof authClient.admin.hasPermission>["0"]["permission"]
+>;
+```
+
+### Create the oRPC router
+
+Create a `project.ts` file in the `app/server/routers` folder and create an empty object default export with the following code. This object will contain our router's procedures.
+
+```ts filename="app/server/routers/project.ts" showLineNumbers
+export default {
+  // ...
+};
+```
+
+### Add the first query to list the projects
+
+We will create a query to get all the projects from the database.<br />
+In the projects router file (`src/server/routers/project.ts`), create a `getAll` key for our query.
+
+```ts {2} filename="app/server/routers/project.ts" showLineNumbers
+export default {
+  getAll: // ...
+};
+```
+
+We need this query to be protected and accessible only for users with `"read"` access to the `project` resource. So we will use the `protectedProcedure`.
+
+```ts {1, 4-8} filename="app/server/routers/project.ts" showLineNumbers
+import { protectedProcedure } from "@/server/orpc";
+
+export default {
+  getAll: protectedProcedure({
+    permission: {
+      project: ["read"],
+    },
+  }),
+};
+```
+
+Then we need to create the `input` and the `output` of our query. For now, the input will be void and the output will only return an array of projects with `id`, `name` and `description` properties.
+
+```ts {11-20} filename="app/server/routers/project.ts" showLineNumbers
+import { z } from "zod";
+
+import { protectedProcedure } from "@/server/orpc";
+
+export default {
+  getAll: protectedProcedure({
+    permission: {
+      project: ["read"],
+    },
+  })
+    .input(z.void())
+    .output(
+      z.array(
+        z.object({
+          id: z.string().cuid(),
+          name: z.string(),
+          description: z.string().optional(),
+        })
+      )
+    ),
+};
+```
+
+We will add some `meta` to auto generate the REST api based on the tRPC api.
+
+<Callout type="info">
+  This step is optional, if you don't plan to support and maintain the REST api,
+  you can skip this step.
+</Callout>
+
+```ts {5, 13-17} filename="app/server/routers/project.ts" showLineNumbers
+import { z } from "zod";
+
+import { protectedProcedure } from "@/server/orpc";
+
+const tags = ["projects"];
+
+export default {
+  getAll: protectedProcedure({
+    permission: {
+      project: ["read"],
+    },
+  })
+    .route({
+      method: "GET",
+      path: "/projects",
+      tags,
+    })
+    .input(z.void())
+    .output(
+      z.array(
+        z.object({
+          id: z.string().cuid(),
+          name: z.string(),
+          description: z.string().optional(),
+        })
+      )
+    ),
+};
+```
+
+And now, let's create the handler with the projects.
+
+```ts {28-32} filename="app/server/routers/project.ts" showLineNumbers
+import { z } from "zod";
+
+import { protectedProcedure } from "@/server/orpc";
+
+const tags = ["projects"];
+
+export default {
+  getAll: protectedProcedure({
+    permission: {
+      project: ["read"],
+    },
+  })
+    .route({
+      method: "GET",
+      path: "/projects",
+      tags,
+    })
+    .input(z.void())
+    .output(
+      z.array(
+        z.object({
+          id: z.string().cuid(),
+          name: z.string(),
+          description: z.string().nullish(),
+        })
+      )
+    )
+    .handler(async ({ context }) => {
+      context.logger.info("Getting projects from database");
+
+      return await context.db.project.findMany();
+    }),
+};
+```
+
+### Add load more capability
+
+We will allow the query to be paginated with a load more strategy.
+
+First, let's update our input to accept a `limit` and a `cursor` params.
+
+```ts {19-24} filename="app/server/routers/project.ts" showLineNumbers
+import { z } from "zod";
+
+import { protectedProcedure } from "@/server/orpc";
+
+const tags = ["projects"];
+
+export default {
+  getAll: protectedProcedure({
+    permission: {
+      project: ["read"],
+    },
+  })
+    .route({
+      method: "GET",
+      path: "/projects",
+      tags,
+    })
+    .input(
+      z
+        .object({
+          cursor: z.string().cuid().optional(),
+          limit: z.number().min(1).max(100).default(20),
+        })
+        .default({})
+    )
+    .output(
+      z.array(
+        z.object({
+          id: z.string().cuid(),
+          name: z.string(),
+          description: z.string().nullish(),
+        })
+      )
+    )
+    .handler(async ({ context }) => {
+      context.logger.info("Getting projects from database");
+
+      return await context.db.project.findMany();
+    }),
+};
+```
+
+Then we will need to update our prisma query.
+
+```ts {39-42} filename="app/server/routers/project.ts" showLineNumbers
+import { z } from "zod";
+
+import { protectedProcedure } from "@/server/orpc";
+
+const tags = ["projects"];
+
+export default {
+  getAll: protectedProcedure({
+    permission: {
+      project: ["read"],
+    },
+  })
+    .route({
+      method: "GET",
+      path: "/projects",
+      tags,
+    })
+    .input(
+      z
+        .object({
+          cursor: z.string().cuid().optional(),
+          limit: z.number().min(1).max(100).default(20),
+        })
+        .default({})
+    )
+    .output(
+      z.array(
+        z.object({
+          id: z.string().cuid(),
+          name: z.string(),
+          description: z.string().nullish(),
+        })
+      )
+    )
+    .handler(async ({ context, input }) => {
+      context.logger.info("Getting projects from database");
+
+      return await context.db.project.findMany({
+        // Get an extra item at the end which we'll use as next cursor
+        take: input.limit + 1,
+        cursor: input.cursor ? { id: input.cursor } : undefined,
+      });
+    }),
+};
+```
+
+Now, we need to update our output to send not only the projects but also the `nextCursor`.
+
+```ts {27-36, 41, 46-56} filename="app/server/routers/project.ts" showLineNumbers
+import { z } from "zod";
+
+import { protectedProcedure } from "@/server/orpc";
+
+const tags = ["projects"];
+
+export default {
+  getAll: protectedProcedure({
+    permission: {
+      project: ["read"],
+    },
+  })
+    .route({
+      method: "GET",
+      path: "/projects",
+      tags,
+    })
+    .input(
+      z
+        .object({
+          cursor: z.string().cuid().optional(),
+          limit: z.number().min(1).max(100).default(20),
+        })
+        .default({})
+    )
+    .output(
+      z.object({
+        items: z.array(
+          z.object({
+            id: z.string().cuid(),
+            name: z.string(),
+            description: z.string().nullish(),
+          })
+        ),
+        nextCursor: z.string().cuid().nullish(),
+      })
+    )
+    .handler(async ({ context, input }) => {
+      context.logger.info("Getting projects from database");
+
+      const projects = await context.db.project.findMany({
+        // Get an extra item at the end which we'll use as next cursor
+        take: input.limit + 1,
+        cursor: input.cursor ? { id: input.cursor } : undefined,
+      });
+
+      let nextCursor: typeof input.cursor | undefined = undefined;
+      if (projects.length > input.limit) {
+        const nextItem = projects.pop();
+        nextCursor = nextItem?.id;
+      }
+
+      return {
+        items: projects,
+        nextCursor,
+      };
+    }),
+};
+```
+
+We will now add the total of projects in the output data to let the UI know how many projects are available even if now the UI will not request all projects at once.
+
+```ts {36, 42-43, 52-53, 60} filename="app/server/routers/project.ts" showLineNumbers
+import { z } from "zod";
+
+import { protectedProcedure } from "@/server/orpc";
+
+const tags = ["projects"];
+
+export default {
+  getAll: protectedProcedure({
+    permission: {
+      project: ["read"],
+    },
+  })
+    .route({
+      method: "GET",
+      path: "/projects",
+      tags,
+    })
+    .input(
+      z
+        .object({
+          cursor: z.string().cuid().optional(),
+          limit: z.number().min(1).max(100).default(20),
+        })
+        .default({})
+    )
+    .output(
+      z.object({
+        items: z.array(
+          z.object({
+            id: z.string().cuid(),
+            name: z.string(),
+            description: z.string().nullish(),
+          })
+        ),
+        nextCursor: z.string().cuid().nullish(),
+        total: z.number(),
+      })
+    )
+    .handler(async ({ context, input }) => {
+      context.logger.info("Getting projects from database");
+
+      const [total, items] = await context.db.$transaction([
+        context.db.project.count(),
+        context.db.project.findMany({
+          // Get an extra item at the end which we'll use as next cursor
+          take: input.limit + 1,
+          cursor: input.cursor ? { id: input.cursor } : undefined,
+        }),
+      ]);
+
+      let nextCursor: typeof input.cursor | undefined = undefined;
+      if (items.length > input.limit) {
+        const nextItem = items.pop();
+        nextCursor = nextItem?.id;
+      }
+
+      return {
+        items,
+        nextCursor,
+        total,
+      };
+    }),
+};
+```
+
+</Steps>
