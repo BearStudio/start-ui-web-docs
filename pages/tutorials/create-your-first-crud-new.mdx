@@ -580,4 +580,109 @@ export default {
 };
 ```
 
+### Add search capability
+
+Let's add the possibility to search a project by name. We are adding a `searchTerm` in the input and add a `where` clause.
+We need to put this `where` on both prisma requests, so we can create a constant with the help of the `Prisma.ProjectWhereInput` generated types.
+
+```ts {24, 44-49, 52} filename="app/server/routers/project.ts" showLineNumbers
+import { Prisma } from "@prisma/client";
+import { z } from "zod";
+
+import { protectedProcedure } from "@/server/orpc";
+
+const tags = ["projects"];
+
+export default {
+  getAll: protectedProcedure({
+    permission: {
+      project: ["read"],
+    },
+  })
+    .route({
+      method: "GET",
+      path: "/projects",
+      tags,
+    })
+    .input(
+      z
+        .object({
+          cursor: z.string().cuid().optional(),
+          limit: z.number().min(1).max(100).default(20),
+          searchTerm: z.string().optional(),
+        })
+        .default({})
+    )
+    .output(
+      z.object({
+        items: z.array(
+          z.object({
+            id: z.string().cuid(),
+            name: z.string(),
+            description: z.string().nullish(),
+          })
+        ),
+        nextCursor: z.string().cuid().nullish(),
+        total: z.number(),
+      })
+    )
+    .handler(async ({ context, input }) => {
+      context.logger.info("Getting projects from database");
+
+      const where = {
+        name: {
+          contains: input.searchTerm,
+          mode: "insensitive",
+        },
+      } satisfies Prisma.ProjectWhereInput;
+
+      const [total, items] = await context.db.$transaction([
+        context.db.project.count({ where }),
+        context.db.project.findMany({
+          // Get an extra item at the end which we'll use as next cursor
+          take: input.limit + 1,
+          cursor: input.cursor ? { id: input.cursor } : undefined,
+        }),
+      ]);
+
+      let nextCursor: typeof input.cursor | undefined = undefined;
+      if (items.length > input.limit) {
+        const nextItem = items.pop();
+        nextCursor = nextItem?.id;
+      }
+
+      return {
+        items,
+        nextCursor,
+        total,
+      };
+    }),
+};
+```
+
+### Add the router to the Router.ts file
+
+Finally, import this router in the `src/server/router.ts` file.
+
+```ts {6,16} filename="src/server/router.ts"
+import { InferRouterInputs, InferRouterOutputs } from "@orpc/server";
+
+import accountRouter from "./routers/account";
+import bookRouter from "./routers/book";
+import genreRouter from "./routers/genre";
+import projectRouter from "./routers/project";
+import userRouter from "./routers/user";
+
+export type Router = typeof router;
+export type Inputs = InferRouterInputs<typeof router>;
+export type Outputs = InferRouterOutputs<typeof router>;
+export const router = {
+  account: accountRouter,
+  book: bookRouter,
+  genre: genreRouter,
+  project: projectRouter,
+  user: userRouter,
+};
+```
+
 </Steps>
