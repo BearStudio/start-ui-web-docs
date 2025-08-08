@@ -47,7 +47,7 @@ You should see your `Project` model and be able to create a new project like the
 For easy development and better Developer eXperience (DX), we will create a new seed for our new `Project` model.<br />
 This will allow every new developer to start with some projects instead of an empty database.
 
-Create an new file `project.ts` in the `prisma/seed/models` folder with a `createProjects` function.
+Create an new file `project.ts` in the `prisma/seed` folder with a `createProjects` function.
 
 ```ts filename="prisma/seed/project.ts" showLineNumbers
 export async function createProjects() {
@@ -57,7 +57,7 @@ export async function createProjects() {
 
 Add a console.log for better DX.
 
-```ts {2} filename="prisma/seed/models/project.ts" showLineNumbers
+```ts {2} filename="prisma/seed/project.ts" showLineNumbers
 export async function createProjects() {
   console.log(`⏳ Seeding projects`);
   // ...
@@ -66,7 +66,7 @@ export async function createProjects() {
 
 Get existing projects. It will help us to make the seed idempotent.
 
-```ts {1, 5-6} filename="prisma/seed/models/project.ts" showLineNumbers
+```ts {1, 5-6} filename="prisma/seed/project.ts" showLineNumbers
 import { prisma } from "prisma/seed/utils";
 
 export async function createProjects() {
@@ -78,7 +78,7 @@ export async function createProjects() {
 
 Create the projects with prisma.
 
-```ts {7-26} filename="prisma/seed/models/project.ts" showLineNumbers
+```ts {7-26} filename="prisma/seed/project.ts" showLineNumbers
 import { db } from "@/server/db";
 
 export async function createProjects() {
@@ -227,7 +227,7 @@ export default {
 ### Add the first query to list the projects
 
 We will create a query to get all the projects from the database.<br />
-In the projects router file (`src/server/routers/project.ts`), create a `getAll` key for our query.
+In the projects router file (`app/server/routers/project.ts`), create a `getAll` key for our query.
 
 ```ts {2} filename="app/server/routers/project.ts" showLineNumbers
 export default {
@@ -662,9 +662,9 @@ export default {
 
 ### Add the router to the Router.ts file
 
-Finally, import this router in the `src/server/router.ts` file.
+Finally, import this router in the `app/server/router.ts` file.
 
-```ts {6,16} filename="src/server/router.ts"
+```ts {6,16} filename="app/server/router.ts"
 import { InferRouterInputs, InferRouterOutputs } from "@orpc/server";
 
 import accountRouter from "./routers/account";
@@ -682,6 +682,83 @@ export const router = {
   genre: genreRouter,
   project: projectRouter,
   user: userRouter,
+};
+```
+
+</Steps>
+
+---
+
+## Step 3: Create the feature folder
+
+<Steps>
+### Create the feature folder
+
+To put the UI and shared code, let's create a `project` folder in the `app/features` folder.
+It's in this folder that we will put all the UI of the projects feature and also the shared code between server and UI.
+
+### Extract project zod schema
+
+First, we will extract the zod schema for the project from the tRPC router and put it into a `schemas.ts` file in the `src/features/projects` folder.
+
+Let's create the `app/features/project/schema.ts` file with the zod schema for one project.
+
+```ts filename="app/features/project/schema.ts" showLineNumbers
+import { z } from "zod";
+
+import { zu } from "@/lib/zod/zod-utils";
+
+export const zProject = () =>
+  z.object({
+    id: z.string().cuid(),
+    name: zu.string.nonEmpty(z.string()),
+    description: z.string().nullish(),
+  });
+```
+
+Let's create the type from this schema.
+
+```ts {5} filename="src/features/project/schemas.ts" showLineNumbers
+import { z } from "zod";
+
+import { zu } from "@/lib/zod/zod-utils";
+
+export type Project = z.infer<ReturnType<typeof zProject>>;
+export const zProject = () =>
+  z.object({
+    id: z.string().cuid(),
+    name: zu.string.nonEmpty(z.string()),
+    description: z.string().nullish(),
+  });
+```
+
+Use this schema in the oRPC router in the `app/server/routers/project.ts` file.
+
+```ts {4, 19} filename="app/server/routers/project.ts" showLineNumbers
+import { Prisma } from "@prisma/client";
+import { z } from "zod";
+
+import { zProject } from "@/features/projects/schema";
+import { protectedProcedure } from "@/server/orpc";
+
+const tags = ["projects"];
+
+export default {
+  getAll: protectedProcedure({
+    permission: {
+      project: ["read"],
+    },
+  })
+    .route(/* ... */)
+    .input(/* ... */)
+    .output(
+      z.object({
+        items: z.array(zProject()),
+        nextCursor: z.string().cuid().nullish(),
+        total: z.number(),
+      })
+    )
+    .handler(/* ... */),
 };
 ```
 
