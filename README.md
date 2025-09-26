@@ -1,49 +1,47 @@
-# Starlight Starter Kit: Basics
+# This is Start UI [web] documentation repository
 
-[![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
+<h1 align="center"><img src=".github/assets/thumbnail.png" alt="Start UI Web" /></h1>
 
-```
-pnpm create astro@latest -- --template starlight
-```
+[![Discord](https://img.shields.io/discord/452798408491663361)](https://go.bearstudio.fr/discord)
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+🚀 Start UI <small>[web]</small> is an opinionated frontend starter repository created & maintained by the [BearStudio Team](https://www.bearstudio.fr/team) and other contributors.
+It represents our team's up-to-date stack that we use when creating web apps for our clients.
 
-## 🚀 Project Structure
+# Contribution
 
-Inside of your Astro + Starlight project, you'll see the following folders and files:
+## Getting Started
 
-```
-.
-├── public/
-├── src/
-│   ├── assets/
-│   ├── content/
-│   │   └── docs/
-│   └── content.config.ts
-├── astro.config.mjs
-├── package.json
-└── tsconfig.json
+```bash
+pnpm install
+pnpm dev
 ```
 
-Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
+The documentation uses Nextra from Vercel, so it's based on NextJS. You can check the [documentation](https://nextra.site) for more information.
 
-Images can be added to `src/assets/` and embedded in Markdown with a relative link.
+## Integrate screenshots
 
-Static assets, like favicons, can be placed in the `public/` directory.
+For keep consistency between all documentation's screenshots, make sure to follow up these rules :
 
-## 🧞 Commands
+1. Desktop screenshots dimensions are 1280x800
+2. Mobile screenshots dimensions are 390x844 (iPhone 12 Pro)
+3. Screenshots have to be with application in dark mode
+4. Put every feature/guide's screenshots in a folder named like `my-feature` in `public/images/screenshots/my-feature`
+5. Import screenshots using `@/screenshots/my-feature/my-screenshot` path
 
-All commands are run from the root of the project, from a terminal:
+Here is a tutorial for make perfect screenshots for this documentation (with Google Chrome)
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
+1. If set, deactivate scrollbar always display
+2. Go to [start-ui [web]](https://demo.start-ui/com), and then go the page you want to screen
+3. Open the developer tools, and open device toolbar
+4. 1. For desktop screenshot, set dimensions manually at 1280x800 (you can create a custom device with these dimensions).
+   2. For mobile screenshot, set dimensions to iPhone 12 Pro (or manually at 390x844)
+5. Click on three dots on the right of device toolbar and click on "Capture screenshot"
+6. The screenshot is download with dimensions defined
 
-## 👀 Want to learn more?
+## Components
 
-Check out [Starlight’s docs](https://starlight.astro.build/), read [the Astro documentation](https://docs.astro.build), or jump into the [Astro Discord server](https://astro.build/chat).
+Some components have been developed and could be used in documentation pages.
+
+### `WorkInProgress`
+
+Component based on Starlight Aside, to warn user that a page is not yet written.
