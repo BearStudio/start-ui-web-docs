@@ -1,0 +1,158 @@
+---
+title: Folders Architecture
+---
+
+import { FileTree, Icon } from "@astrojs/starlight/components";
+import WorkInProgress from "../../components/WorkInProgress.astro";
+import FileTreeItem from "../../components/FileTreeItem.astro";
+import FileTreeTitle from "../../components/FileTreeTitle.astro";
+
+<WorkInProgress />
+
+<FileTree>
+- <FileTreeItem folder label=".github"  />
+- <FileTreeItem folder label=".storybook"  />
+- <FileTreeItem folder label=".vscode"  />
+- <FileTreeItem folder label=".e2e"  />
+- <FileTreeItem folder label="prisma"  />
+- <FileTreeItem folder label="public"  />
+- <FileTreeItem folder label="src"  />
+    - <FileTreeItem folder parent="src" label="components"  />
+    - <FileTreeItem folder parent="src" label="emails"  />
+    - <FileTreeItem folder parent="src" label="env"  />
+    - <FileTreeItem folder parent="src" label="features"  />
+    - <FileTreeItem folder parent="src" label="hooks"  />
+    - <FileTreeItem folder parent="src" label="layout"  />
+    - <FileTreeItem folder parent="src" label="lib"  />
+    - <FileTreeItem folder parent="src" label="locales"  />
+    - <FileTreeItem folder parent="src" label="routes"  />
+    - <FileTreeItem folder parent="src" label="server"  />
+    - <FileTreeItem folder parent="src" label="styles"  />
+    - <FileTreeItem folder parent="src" label="tests"  />
+    - <FileTreeItem folder parent="src" label="types"  />
+    - <FileTreeItem label="providers.tsx" />
+    - <FileTreeItem label="routeTree.gen.ts"  />
+    - <FileTreeItem label="router.tsx"  />
+- <FileTreeItem label=".env" />
+- <FileTreeItem label="lefthook.yml" />
+- <FileTreeItem label="vite.config.ts" />
+- <FileTreeItem label="vitest.config.ts" />
+</FileTree>
+
+
+<FileTreeTitle folder>.github</FileTreeTitle>
+
+[GitHub](https://github.com/) configuration files for GitHub actions, PR templates and README assets.
+
+<FileTreeTitle folder>.storybook</FileTreeTitle>
+[Storybook](https://storybook.js.org/) configuration files.
+
+<FileTreeTitle folder>.vscode</FileTreeTitle>
+
+[VS Code workspace settings](https://code.visualstudio.com/docs/getstarted/settings#_workspace-settings).
+The extensions.json file contains some recommended extensions for the project.
+
+<FileTreeTitle folder>.e2e</FileTreeTitle>
+
+End-to-end tests folder for [Playwright](https://playwright.dev/) tests.
+
+<FileTreeTitle folder>prisma</FileTreeTitle>
+
+[Prisma](https://www.prisma.io/) folder for database schema and seed scripts.
+
+Prisma generator and client blocs are defined in the /schema/main.prisma file.
+
+All other schema files organize related models / enum together. For example, in /schema/user.prisma you will be able to find all models / enum related or used by a User model, like VerificationToken model or UserRole enum.
+
+<FileTreeTitle folder>public</FileTreeTitle>
+
+Static assets served as-is (images, icons, robots.txt, etc.).
+
+<FileTreeTitle folder>src</FileTreeTitle>
+
+Main application source code.
+
+<FileTreeTitle folder>src/components</FileTreeTitle>
+
+React generic UI components. In this folder, all components should be "dumb", focus on UI rendering and without business logic. These components should be documented in Storybook.
+
+<FileTreeTitle folder>src/emails</FileTreeTitle>
+
+This folder contains all emails templates created with [react-email](https://react.email/).
+
+<FileTreeTitle folder>src/env</FileTreeTitle>
+
+Environment variables and validation utilities.
+
+<FileTreeTitle folder>src/features</FileTreeTitle>
+
+All business features for client code or code shared between client and server.
+
+<FileTreeTitle folder>src/hooks</FileTreeTitle>
+
+React generic hooks that can be use accross the application.
+
+<FileTreeTitle folder>src/layout</FileTreeTitle>
+
+Layout components and page wrappers.
+
+<FileTreeTitle folder>src/lib</FileTreeTitle>
+
+Global configuration for client libraries or libraries shared between client and server. If you need a configuration only on the server side, use the src/server/config folder.
+
+<FileTreeTitle folder>src/locales</FileTreeTitle>
+
+Folder which contains all the translations files. Use [i18n Ally VS Code extension for help](https://marketplace.visualstudio.com/items?itemName=lokalise.i18n-ally) on this part 😅.
+
+<FileTreeTitle folder>src/routes</FileTreeTitle>
+
+Tanstack Start router folder, all the routes of the application are declared in this folder. See the [Tanstack Start](https://tanstack.com/start/latest) documentation for more details.
+
+<FileTreeTitle folder>src/server</FileTreeTitle>
+
+All the code for the server ONLY code.
+
+<FileTreeTitle folder>src/styles</FileTreeTitle>
+
+Global styles, Tailwind config, or CSS utilities.
+
+<FileTreeTitle folder>src/tests</FileTreeTitle>
+
+Unit and integration tests.
+
+<FileTreeTitle folder>src/types</FileTreeTitle>
+
+Global TypeScript types available accross all the code base without imports.
+
+<FileTreeTitle folder>src/providers.tsx</FileTreeTitle>
+
+Top-level React providers (context, theme, query client, etc.).
+
+<FileTreeTitle folder>src/routeTree.gen.ts</FileTreeTitle>
+
+Generated route tree file (auto-generated, don’t edit manually).
+
+<FileTreeTitle folder>src/router.ts</FileTreeTitle>
+
+Router configuration and setup.
+
+<FileTreeTitle>.env</FileTreeTitle>
+
+This file is **LOCAL and should NEVER be tracked on GIT**. All sensitive information should be set in this `.env` file by each developers.
+
+<FileTreeTitle>.env.example</FileTreeTitle>
+
+This file IS tracked on GIT, make sure that you **NEVER** put sensitive information in this file. All sensitive information should be set in the `.env`. This file show an example of the `.env` that a new developer on the project can duplicate to create their own `.env` file.
+
+<FileTreeTitle>lefthook.yml</FileTreeTitle>
+
+GIT hooks created with [Lefthook](https://lefthook.dev/).
+
+<FileTreeTitle>vite.config.ts</FileTreeTitle>
+
+Vite build and dev server configuration.
+
+<FileTreeTitle>vitest.config.ts</FileTreeTitle>
+
+Vitest configuration for unit and integration tests.
+

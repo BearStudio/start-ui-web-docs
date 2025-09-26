@@ -1,0 +1,54 @@
+---
+import config from "virtual:starlight/user-config";
+import { Icon } from "@astrojs/starlight/components";
+import { extraLinks } from "../../content/links";
+
+const socials = config.social || [];
+---
+
+{
+  extraLinks.length > 0 && (
+    <>
+      {extraLinks.map(({ label, href }) => (
+        <a
+          {href}
+          target="_blank"
+          rel="noopenner noreferrer"
+          class="sl-flex external-link"
+        >
+          {label}
+          <Icon name="external" />
+        </a>
+      ))}
+    </>
+  )
+}
+{
+  socials.length > 0 && (
+    <>
+      {socials.map(({ label, href, icon }) => (
+        <a {href} rel="me" class="sl-flex">
+          <span class="sr-only">{label}</span>
+          <Icon name={icon} size="1.5em" />
+        </a>
+      ))}
+    </>
+  )
+}
+
+<style>
+  @layer starlight.core {
+    a {
+      color: var(--sl-color-text-accent);
+      padding: 0.5em;
+      margin: -0.5em;
+    }
+    a:hover {
+      opacity: 0.66;
+    }
+    .external-link {
+      display: flex;
+      align-items: center;
+    }
+  }
+</style>

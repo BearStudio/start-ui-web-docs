@@ -1,0 +1,51 @@
+---
+title: Getting started
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+## Requirements
+
+- [Node.js](https://nodejs.org) >= 22
+- [pnpm](https://pnpm.io/)
+- [Docker](https://www.docker.com/) (or a [PostgreSQL](https://www.postgresql.org/) database)
+
+## Create your project
+
+```bash
+pnpm create start-ui -t web myApp
+```
+
+That will scaffold a new folder with the latest version of 🚀 Start UI <small>[web]</small> 🎉
+
+## Installation
+
+```bash
+cp .env.example .env # Setup your env variables
+cp .vscode/settings.example.json .vscode/settings.json  # (Optionnal) Setup your VS Code
+pnpm install # Install dependencies
+pnpm dk:init # Init docker
+pnpm db:init # Init the db
+```
+
+<Aside type="tip">
+  **Quick advices for local development** <br />
+  **DON'T update** the **EMAIL_SERVER** variable, because the default value will
+  be used to catch the emails during the development.
+</Aside>
+
+## Development
+
+```bash
+# Run the database in Docker (if not already started)
+pnpm dk:start
+# Run the development server
+pnpm dev
+```
+
+<Aside>
+  **Don't want to use docker?** <br />
+  Setup a PostgreSQL database (locally or online) and replace the **DATABASE_URL**
+  environment variable. Then you can run `pnpm db:push` to update your database schema
+  and then run `pnpm db:seed` to seed your database.
+</Aside>

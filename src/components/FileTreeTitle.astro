@@ -1,0 +1,25 @@
+---
+import { Icon, Code } from "@astrojs/starlight/components";
+
+interface Props {
+  folder?: boolean;
+}
+
+const { folder } = Astro.props;
+---
+
+<h4 class="file-tree-title">
+  {folder ? <Icon name="seti:folder" /> : <Icon name="document" />}
+
+  <code>/<slot /></code>
+</h4>
+
+<style>
+  @layer starlight.components {
+    .file-tree-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+    }
+  }
+</style>

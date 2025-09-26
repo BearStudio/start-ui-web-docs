@@ -1,0 +1,21 @@
+.right-sidebar-panel,
+.right-sidebar-container,
+.right-sidebar {
+  max-width: 15rem;
+}
+
+.main-pane {
+  flex: 2;
+  width: 100%;
+
+  .content-panel {
+    .sl-container {
+      width: 100%;
+      margin-inline: auto;
+    }
+  }
+}
+
+.hero > .stack {
+  grid-column: 1 / -1;
+}
