@@ -3,15 +3,15 @@ import { Icon, Code } from "@astrojs/starlight/components";
 
 interface Props {
   folder?: boolean;
+  label: string;
 }
 
-const { folder } = Astro.props;
+const { folder, label } = Astro.props;
 ---
 
-<h4 class="file-tree-title">
+<h4 class="file-tree-title" id={label.replaceAll("/", "")}>
   {folder ? <Icon name="seti:folder" /> : <Icon name="document" />}
-
-  <code>/<slot /></code>
+  <code>/{label}</code>
 </h4>
 
 <style>

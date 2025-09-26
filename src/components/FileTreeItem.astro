@@ -5,9 +5,9 @@ interface Props {
   parent?: string;
 }
 
-const { label, folder, parent } = Astro.props;
+const { label, folder, parent = "" } = Astro.props;
 
-const href = `#${parent}${label}`.toLowerCase().replaceAll(".", "");
+const href = `#${parent}${label}`.toLowerCase();
 ---
 
 <a href={href}>{label}{folder && "/"}</a>
