@@ -82,11 +82,11 @@ const head = (
     <meta httpEquiv="Content-Language" content="en" />
     <meta
       name="description"
-      content="Documentation of Start UI [web], an opinionated UI starter for React. From Bearstudio team"
+      content="Documentation of Start UI [web] v2, an opinionated UI starter for React. From Bearstudio team"
     />
     <meta
       name="og:description"
-      content="Documentation of Start UI [web], an opinionated UI starter for React. From Bearstudio team"
+      content="Documentation of Start UI [web] v2, an opinionated UI starter for React. From Bearstudio team"
     />
     <meta name="twitter:card" content="summary_large_image" />
     <meta
@@ -101,14 +101,14 @@ const head = (
       name="twitter:url"
       content="https://github.com/bearstudio/start-ui-web-doc"
     />
-    <meta name="og:title" content="Start UI [web] documentation" />
+    <meta name="og:title" content="Start UI [web] v2 documentation" />
     <meta
       name="og:image"
       content="https://github.com/BearStudio/start-ui-web/raw/master/assets/thumbnail.png"
     />
     <meta
       name="apple-mobile-web-app-title"
-      content="Start UI [web] documentation"
+      content="Start UI [web] v2 documentation"
     />
     <link rel="icon" href="/favicon-16x16.png" type="image/png" />
   </>
@@ -129,7 +129,9 @@ const config: DocsThemeConfig = {
   useNextSeoProps: () => {
     const { route } = useRouter();
     const titleTemplate =
-      route === "/" ? "Start UI [web] documentation" : "%s - Start UI [web]";
+      route === "/"
+        ? "Start UI [web] v2 documentation"
+        : "%s - Start UI [web] v2";
     return {
       titleTemplate,
     };
