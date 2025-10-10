@@ -9,15 +9,15 @@ const socials = config.social || [];
 {
   extraLinks.length > 0 && (
     <>
-      {extraLinks.map(({ label, href }) => (
+      {extraLinks.map(({ label, href, isExternal }) => (
         <a
           {href}
           target="_blank"
           rel="noopenner noreferrer"
-          class="sl-flex external-link"
+          class={`sl-flex link ${isExternal ? "external-link" : ""}`}
         >
           {label}
-          <Icon name="external" />
+          {isExternal && <Icon name="external" size="1em" class="sl-ml-1" />}
         </a>
       ))}
     </>
@@ -27,7 +27,7 @@ const socials = config.social || [];
   socials.length > 0 && (
     <>
       {socials.map(({ label, href, icon }) => (
-        <a {href} rel="me" class="sl-flex">
+        <a {href} rel="me" class={"sl-flex"}>
           <span class="sr-only">{label}</span>
           <Icon name={icon} size="1.5em" />
         </a>
@@ -45,6 +45,10 @@ const socials = config.social || [];
     }
     a:hover {
       opacity: 0.66;
+    }
+
+    .link {
+      underline: none;
     }
     .external-link {
       display: flex;

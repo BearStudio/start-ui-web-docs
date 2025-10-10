@@ -2,8 +2,6 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 
-import logoLight from "./public/logo-light.svg";
-import logoDark from "./public/logo-dark.svg";
 import { sidebar } from "./src/config/sidebar";
 import { socials } from "./src/content/links";
 import { head } from "./src/config/head";
@@ -14,8 +12,8 @@ export default defineConfig({
     starlight({
       title: "Start UI Documentation",
       logo: {
-        dark: logoDark,
-        light: logoLight,
+        dark: "/public/logo-dark.svg",
+        light: "/public/logo-light.svg",
         alt: "Start UI",
         replacesTitle: true,
       },
