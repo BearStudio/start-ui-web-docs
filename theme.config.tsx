@@ -124,8 +124,7 @@ const config: DocsThemeConfig = {
   chat: {
     link: "https://go.bearstudio.fr/discord",
   },
-  docsRepositoryBase:
-    "https://github.com/bearstudio/start-ui-web-doc/blob/main",
+  docsRepositoryBase: "https://github.com/bearstudio/start-ui-web-doc/blob/v2",
   useNextSeoProps: () => {
     const { route } = useRouter();
     const titleTemplate =
@@ -137,6 +136,7 @@ const config: DocsThemeConfig = {
     };
   },
   head,
+
   footer: {
     text: () => (
       <div>
@@ -156,15 +156,15 @@ const config: DocsThemeConfig = {
     labels: "feedback",
   },
   banner: {
-    key: "beta-release",
+    key: "old-documentation",
     text: (
       <a
-        href="https://github.com/bearstudio/start-ui-web-doc"
+        href="https://docs.web.start-ui.com"
         target="_blank"
         rel="noreferrer"
+        style={{ fontSize: 16 }}
       >
-        🚀 Start UI [web]'s documentation is still in progress. Feel free to
-        give feedback or contribute ↗
+        🎉 Start UI [web] v3 is now available! Check it out!
       </a>
     ),
   },
