@@ -316,9 +316,9 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
         .output(
           z.array(
             z.object({
-            id: z.string().cuid(),
-            name: z.string(),
-            description: z.string().optional(),
+              id: z.string(),
+              name: z.string(),
+              description: z.string().optional(),
             })
           )
         ),
@@ -350,9 +350,9 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
         .output(
           z.array(
             z.object({
-            id: z.string().cuid(),
-            name: z.string(),
-            description: z.string().nullish(),
+              id: z.string(),
+              name: z.string(),
+              description: z.string().nullish(),
             })
           )
         )
@@ -391,15 +391,15 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
         .input(
           z
             .object({
-              cursor: z.string().cuid().optional(),
+              cursor: z.string().optional(),
               limit: z.number().min(1).max(100).default(20),
             })
-            .default({})
+            .prefault({})
         )
         .output(
           z.array(
             z.object({
-            id: z.string().cuid(),
+            id: z.string(),
             name: z.string(),
             description: z.string().nullish(),
             })
@@ -437,15 +437,15 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
         .input(
           z
             .object({
-            cursor: z.string().cuid().optional(),
-            limit: z.number().min(1).max(100).default(20),
+              cursor: z.string().optional(),
+              limit: z.number().min(1).max(100).default(20),
             })
-            .default({})
+            .prefault({})
         )
         .output(
           z.array(
             z.object({
-              id: z.string().cuid(),
+              id: z.string(),
               name: z.string(),
               description: z.string().nullish(),
             })
@@ -487,21 +487,21 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
         .input(
           z
             .object({
-              cursor: z.string().cuid().optional(),
+              cursor: z.string().optional(),
               limit: z.number().min(1).max(100).default(20),
             })
-            .default({})
+            .prefault({})
         )
         .output(
           z.object({
             items: z.array(
               z.object({
-                id: z.string().cuid(),
+                id: z.string(),
                 name: z.string(),
                 description: z.string().nullish(),
               })
             ),
-            nextCursor: z.string().cuid().nullish(),
+            nextCursor: z.string().nullish(),
           })
         )
         .handler(async ({ context, input }) => {
@@ -527,7 +527,7 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
     };
     ```
 
-    We will now add the total of projects in the output data to let the UI know how many projects are available even if now the UI will not request all projects at once.
+    We will now add the total of projects in the output data to let the UI know how many projects are available even if the UI will not request all projects at once.
 
     ```ts {37, 43-44, 53-54, 61}
     // src/server/routers/project.ts
@@ -551,21 +551,21 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
         .input(
           z
             .object({
-              cursor: z.string().cuid().optional(),
+              cursor: z.string().optional(),
               limit: z.number().min(1).max(100).default(20),
             })
-            .default({})
+            .prefault({})
         )
         .output(
           z.object({
             items: z.array(
               z.object({
-                id: z.string().cuid(),
+                id: z.string(),
                 name: z.string(),
                 description: z.string().nullish(),
               })
             ),
-            nextCursor: z.string().cuid().nullish(),
+            nextCursor: z.string().nullish(),
             total: z.number(),
           })
         )
@@ -623,22 +623,22 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
         .input(
         z
             .object({
-            cursor: z.string().cuid().optional(),
+            cursor: z.string().optional(),
             limit: z.number().min(1).max(100).default(20),
             searchTerm: z.string().optional(),
             })
-            .default({})
+            .prefault({})
         )
         .output(
         z.object({
             items: z.array(
             z.object({
-                id: z.string().cuid(),
+                id: z.string(),
                 name: z.string(),
                 description: z.string().nullish(),
             })
             ),
-            nextCursor: z.string().cuid().nullish(),
+            nextCursor: z.string().nullish(),
             total: z.number(),
         })
         )
@@ -719,19 +719,19 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
 
     First, we will extract the zod schema for the project from the tRPC router and put it into a `schemas.ts` file in the `src/features/projects` folder.
 
-    Let's create the `app/features/project/schema.ts` file with the zod schema for one project.
+    Let's create the `src/features/project/schema.ts` file with the zod schema for one project.
 
-    ```ts filename="app/features/project/schema.ts"
+    ```ts filename="src/features/project/schema.ts"
     import { z } from "zod";
 
     import { zu } from "@/lib/zod/zod-utils";
 
     export const zProject = () =>
-    z.object({
-        id: z.string().cuid(),
+      z.object({
+        id: z.string(),
         name: zu.string.nonEmpty(z.string()),
         description: z.string().nullish(),
-    });
+      });
     ```
 
     Let's create the type from this schema.
@@ -743,16 +743,16 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
 
     export type Project = z.infer<ReturnType<typeof zProject>>;
     export const zProject = () =>
-    z.object({
-        id: z.string().cuid(),
+      z.object({
+        id: z.string(),
         name: zu.string.nonEmpty(z.string()),
         description: z.string().nullish(),
-    });
+      });
     ```
 
-    Use this schema in the oRPC router in the `app/server/routers/project.ts` file.
+    Use this schema in the oRPC router in the `src/server/routers/project.ts` file.
 
-    ```ts {4, 19} filename="app/server/routers/project.ts"
+    ```ts {4, 19} filename="src/server/routers/project.ts"
     import { Prisma } from "@prisma/client";
     import { z } from "zod";
 
@@ -762,19 +762,19 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
     const tags = ["projects"];
 
     export default {
-    getAll: protectedProcedure({
+      getAll: protectedProcedure({
         permission: {
         project: ["read"],
         },
-    })
+      })
         .route(/* ... */)
         .input(/* ... */)
         .output(
-        z.object({
+          z.object({
             items: z.array(zProject()),
-            nextCursor: z.string().cuid().nullish(),
+            nextCursor: z.string().nullish(),
             total: z.number(),
-        })
+          })
         )
         .handler(/* ... */),
     };
