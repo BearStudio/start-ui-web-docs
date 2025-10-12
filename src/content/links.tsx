@@ -1,3 +1,5 @@
+import type { StarlightUserConfig } from "@astrojs/starlight/types";
+
 export const socials = [
   {
     icon: "github",
@@ -9,7 +11,7 @@ export const socials = [
     label: "Discord",
     href: "https://go.bearstudio.fr/discord",
   },
-] as const;
+] satisfies StarlightUserConfig["social"];
 
 export const extraLinks = [
   {
