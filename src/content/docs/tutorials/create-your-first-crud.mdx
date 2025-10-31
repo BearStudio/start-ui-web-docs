@@ -2,7 +2,7 @@
 title: Create your first CRUD 🚧
 ---
 
-import WorkInProgress from "../../../components/WorkInProgress.astro";
+import WorkInProgress from "@/components/WorkInProgress.astro";
 import { Aside, Steps, FileTree } from "@astrojs/starlight/components";
 
 <WorkInProgress />
@@ -12,104 +12,110 @@ Make sure you followed the [Getting Started](/getting-started) before starting t
 Let's dive into creating a full new entity with database, backend and ui.<br />
 We will create a **"Project"** entity with the full CRUD (Create Read Update Delete) screens.
 
-## Step 1: Create the Project database schema
+## Step 1: Create the _Project_ model in the schema
 
 <Steps>
 
 1. Update the Prisma Database Schema
 
-    We will use [Prisma](https://www.prisma.io/docs/concepts/components/prisma-schema/data-model) to add the project entity to our database schema.<br />
-
-    Because we are creating a new entity, we need to create a new file to store all details related to the new `Project` model.
+    We will use [Prisma](https://www.prisma.io/docs/concepts/components/prisma-schema/data-model) to add the _Project_ model to our database schema.
 
     Update the `prisma/schema.prisma` file and add a new model called `Project` with the following fields.
 
     ```prisma filename="prisma/schema.prisma"
     model Project {
-    id          String   @id @default(cuid())
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
-    name        String   @unique
-    description String?
+      id          String   @id @default(cuid())
+      createdAt   DateTime @default(now())
+      updatedAt   DateTime @updatedAt
+      name        String   @unique
+      description String?
     }
     ```
 
-    Cut the running `pnpm dev{:bash}` if needed, and then run the `pnpm db:push{:bash}` command to update your database.
-
-    You can run `pnpm dev{:bash}` again.
+    Run `pnpm db:push` command to update your database.
 
 2. Create you first project
 
-    We can see what is inside of our database with the `pnpm db:ui{:bash}` command.<br />
+    We can see what is inside of our database with the `pnpm db:ui` command (accessible on <a href="http://localhost:5555" target="_blank">localhost:5555</a>)
     You should see your `Project` model and be able to create a new project like the following.
 
-    ![Step 01](/images/tutorials/new/db-ui-01.png)<br />
-    ![Step 02](/images/tutorials/new/db-ui-02.png)<br />
-    ![Step 03](/images/tutorials/new/db-ui-03.png)<br />
+    ![Prisma UI, select Project modal](@/assets/tutorials/create-your-first-crud/db-ui-1.png)
+    ![Prisma UI, select Add Record](@/assets/tutorials/create-your-first-crud/db-ui-2.png)
+    ![Prisma UI, create Record with name Start UI [web]](@/assets/tutorials/create-your-first-crud/db-ui-3.png)
 
-3. Create database seeds
+3. Create fake data using database seeds
 
-    For easy development and better Developer eXperience (DX), we will create a new seed for our new `Project` model.<br />
+    For a better Developer eXperience (DX), we will create a new seed for our new `Project` model.
     This will allow every new developer to start with some projects instead of an empty database.
 
     Create an new file `project.ts` in the `prisma/seed` folder with a `createProjects` function.
 
-    ```ts filename="prisma/seed/project.ts" showLineNumbers
+    <FileTree>
+
+    - prisma
+        - seed
+            - _utils.ts
+            - index.ts
+            - **project.ts**
+            - ...
+    - src/
+    - package.json
+
+    </FileTree>
+
+    ```ts filename="prisma/seed/project.ts"
     export async function createProjects() {
-    // ...
+
     }
     ```
 
     Add a console.log for better DX.
 
-    ```ts {2} filename="prisma/seed/project.ts" showLineNumbers
+    ```ts {2} filename="prisma/seed/project.ts"
     export async function createProjects() {
-    console.log(`⏳ Seeding projects`);
-    // ...
+      console.log(`⏳ Seeding projects`);
     }
     ```
 
     Get existing projects. It will help us to make the seed idempotent.
 
-    ```ts {1, 5-6} filename="prisma/seed/project.ts" showLineNumbers
-    import { prisma } from "prisma/seed/utils";
+    ```ts {1, 5-6} filename="prisma/seed/project.ts"
+    import { db } from '@/server/db';
 
     export async function createProjects() {
-    console.log(`⏳ Seeding projects`);
+      console.log(`⏳ Seeding projects`);
 
-    const existingProjects = await db.project.findMany();
+      const existingProjects = await db.project.findMany();
     }
     ```
 
     Create the projects with prisma.
 
-    ```ts {7-26} filename="prisma/seed/project.ts" showLineNumbers
-    import { db } from "@/server/db";
-
+    ```ts {6-25} filename="prisma/seed/project.ts"
     export async function createProjects() {
-    console.log(`⏳ Seeding projects`);
+      console.log(`⏳ Seeding projects`);
 
-    const existingProjects = await db.project.findMany();
+      const existingProjects = await db.project.findMany();
 
-    const projects = [
-        { name: "Project 1" },
-        { name: "Project 2" },
-        { name: "Project 3" },
-    ] as const;
+      const projects = [
+          { name: 'Project 1' },
+          { name: 'Project 2' },
+          { name: 'Project 3' },
+      ] as const;
 
-    const result = await db.project.createMany({
-        data: projects
-        .filter(
-            (project) =>
-            !existingProjects
-                .map((existingProject) => existingProject.name)
-                .includes(project.name)
-        )
-        .map(({ name }) => ({ name })),
-    });
-    console.log(
-        `✅ ${existingProjects.length} existing projects 👉 ${result.count} projects created`
-    );
+      const result = await db.project.createMany({
+          data: projects
+          .filter(
+              (project) =>
+              !existingProjects
+                  .map((existingProject) => existingProject.name)
+                  .includes(project.name)
+          )
+          .map(({ name }) => ({ name })),
+      });
+      console.log(
+          `✅ ${existingProjects.length} existing projects 👉 ${result.count} projects created`
+      );
     }
     ```
 
@@ -123,31 +129,25 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
     import { createUsers } from "./user";
 
     async function main() {
-    await createBooks();
-    await createProjects();
-    await createUsers();
+      await createBooks();
+      await createProjects();
+      await createUsers();
     }
 
     main()
-    .catch((e) => {
+      .catch((e) => {
         console.error(e);
         process.exit(1);
-    })
-    .finally(() => {
+      })
+      .finally(() => {
         db.$disconnect();
-    });
+      });
     ```
 
-    Finally, run the seed command.
+    Finally, run `pnpm db:seed` to populate the database.
+    Remember that you can check your database through the Prisma UI (`pnpm db:ui`).
 
-    ```bash
-    pnpm db:seed
-    ```
-
-    You can check that the project is created by running the `pnpm db:ui{:bash}` command again.
-
-    ![Seed result](/images/tutorials/new/db-seed-result.png)<br />
-
+    ![Seed result](@/assets/tutorials/create-your-first-crud/db-seed-result.png)<br />
 </Steps>
 
 ---
@@ -162,11 +162,12 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
     Update the file `permissions.ts` in the `app/features/auth` folder.
     Add the following code to define the permissions for the `Project` entity.
 
-    ```ts {17, 27, 36} filename="app/features/auth/permissions.ts" showLineNumbers
+    ```diff lang="ts"
+    // src/features/auth/permissions.ts
     import { UserRole } from "@prisma/client";
     import {
-    createAccessControl,
-    Role as BetterAuthRole,
+      createAccessControl,
+      Role as BetterAuthRole,
     } from "better-auth/plugins/access";
     import { adminAc, defaultStatements } from "better-auth/plugins/admin/access";
     import { z } from "zod";
@@ -174,120 +175,126 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
     import { authClient } from "@/features/auth/client";
 
     const statement = {
-    ...defaultStatements,
-    account: ["read", "update"],
-    apps: ["app", "manager"],
-    book: ["read", "create", "update", "delete"],
-    genre: ["read"],
-    project: ["read", "create", "update", "delete"],
+      ...defaultStatements,
+      account: ["read", "update"],
+      apps: ["app", "manager"],
+      book: ["read", "create", "update", "delete"],
+      genre: ["read"],
+    +  project: ["read", "create", "update", "delete"],
     } as const;
 
     const ac = createAccessControl(statement);
 
     const user = ac.newRole({
-    account: ["update"],
-    apps: ["app"],
-    book: ["read"],
-    genre: ["read"],
-    project: ["read"],
+      account: ["update"],
+      apps: ["app"],
+      book: ["read"],
+      genre: ["read"],
+    +  project: ["read"],
     });
 
     const admin = ac.newRole({
-    ...adminAc.statements,
-    account: ["update"],
-    apps: ["app", "manager"],
-    book: ["read", "create", "update", "delete"],
-    genre: ["read"],
-    project: ["read", "create", "update", "delete"],
+      ...adminAc.statements,
+      account: ["update"],
+      apps: ["app", "manager"],
+      book: ["read", "create", "update", "delete"],
+      genre: ["read"],
+    +  project: ["read", "create", "update", "delete"],
     });
 
     export const rolesNames = ["admin", "user"] as const;
     export const zRole: () => z.ZodType<Role> = () => z.enum(rolesNames);
     export type Role = keyof typeof roles;
     const roles = {
-    admin,
-    user,
+      admin,
+      user,
     } satisfies Record<UserRole, BetterAuthRole>;
 
     export const permissions = {
-    ac,
-    roles,
+      ac,
+      roles,
     };
 
     export type Permission = NonNullable<
-    Parameters<typeof authClient.admin.hasPermission>["0"]["permission"]
+      Parameters<typeof authClient.admin.hasPermission>["0"]["permission"]
     >;
     ```
 
-2. Create the oRPC router
+2. Create the [oRPC](https://orpc.unnoq.com/) router
 
-    Create a `project.ts` file in the `app/server/routers` folder and create an empty object default export with the following code. This object will contain our router's procedures.
+    Create a `project.ts` file in the `src/server/routers` folder and create an empty object default export with the following code. This object will contain our router's procedures.
 
-    ```ts filename="app/server/routers/project.ts" showLineNumbers
+    ```ts filename="src/server/routers/project.ts"
     export default {
-    // ...
+
     };
     ```
 
-3. Add the first query to list the projects
+3. Add the first route to list the `Project` entities.
 
     We will create a query to get all the projects from the database.<br />
-    In the projects router file (`app/server/routers/project.ts`), create a `getAll` key for our query.
+    In the projects router file (`src/server/routers/project.ts`), create a `getAll` key for our query.
 
-    ```ts {2} filename="app/server/routers/project.ts" showLineNumbers
+    ```ts {3}
+    // src/server/routers/project.ts
     export default {
-    getAll: // ...
+      getAll: // ...
     };
     ```
 
-    We need this query to be protected and accessible only for users with `"read"` access to the `project` resource. So we will use the `protectedProcedure`.
+    We need this query to be protected and accessible only for users with `"read"` access to the `project` resource.
+    So we will use the `protectedProcedure`.
 
-    ```ts {1, 4-8} filename="app/server/routers/project.ts" showLineNumbers
+    ```ts {2, 5-9}
+    // src/server/routers/project.ts
     import { protectedProcedure } from "@/server/orpc";
 
     export default {
-    getAll: protectedProcedure({
+      getAll: protectedProcedure({
         permission: {
-        project: ["read"],
+          project: ["read"],
         },
-    }),
+      }),
     };
     ```
 
-    Then we need to create the `input` and the `output` of our query. For now, the input will be void and the output will only return an array of projects with `id`, `name` and `description` properties.
+    Then we need to create the `input` and the `output` of our query, so we have a clear interface.
+    For now, the input will be void and the output will only return an array of projects with `id`, `name` and `description` properties.
 
-    ```ts {11-20} filename="app/server/routers/project.ts" showLineNumbers
+    ```ts {12-21}
+    // src/server/routers/project.ts
     import { z } from "zod";
 
     import { protectedProcedure } from "@/server/orpc";
 
     export default {
-    getAll: protectedProcedure({
+      getAll: protectedProcedure({
         permission: {
         project: ["read"],
         },
-    })
+      })
         .input(z.void())
         .output(
-        z.array(
+          z.array(
             z.object({
             id: z.string().cuid(),
             name: z.string(),
             description: z.string().optional(),
             })
-        )
+          )
         ),
     };
     ```
 
-    We will add some `meta` to auto generate the REST api based on the tRPC api.
+    We will add some `meta` to auto generate the REST API based on the oRPC `input` and `output`.
 
     <Aside>
-    This step is optional, if you don't plan to support and maintain the REST api,
-    you can skip this step.
+      This step is optional, if you don't plan to support and maintain the REST api,
+      you can skip this step.
     </Aside>
 
-    ```ts {5, 13-17} filename="app/server/routers/project.ts" showLineNumbers
+    ```ts {6, 14-18}
+    // src/server/routers/project.ts
     import { z } from "zod";
 
     import { protectedProcedure } from "@/server/orpc";
@@ -295,32 +302,33 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
     const tags = ["projects"];
 
     export default {
-    getAll: protectedProcedure({
+      getAll: protectedProcedure({
         permission: {
         project: ["read"],
         },
-    })
+      })
         .route({
-        method: "GET",
-        path: "/projects",
-        tags,
+          method: "GET",
+          path: "/projects",
+          tags,
         })
         .input(z.void())
         .output(
-        z.array(
+          z.array(
             z.object({
-            id: z.string().cuid(),
-            name: z.string(),
-            description: z.string().optional(),
+              id: z.string(),
+              name: z.string(),
+              description: z.string().optional(),
             })
-        )
+          )
         ),
     };
     ```
 
     And now, let's create the handler with the projects.
 
-    ```ts {28-32} filename="app/server/routers/project.ts" showLineNumbers
+    ```ts {29-33}
+    // src/server/routers/project.ts
     import { z } from "zod";
 
     import { protectedProcedure } from "@/server/orpc";
@@ -328,41 +336,41 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
     const tags = ["projects"];
 
     export default {
-    getAll: protectedProcedure({
+      getAll: protectedProcedure({
         permission: {
         project: ["read"],
         },
-    })
+      })
         .route({
-        method: "GET",
-        path: "/projects",
-        tags,
+          method: "GET",
+          path: "/projects",
+          tags,
         })
         .input(z.void())
         .output(
-        z.array(
+          z.array(
             z.object({
-            id: z.string().cuid(),
-            name: z.string(),
-            description: z.string().nullish(),
+              id: z.string(),
+              name: z.string(),
+              description: z.string().nullish(),
             })
-        )
+          )
         )
         .handler(async ({ context }) => {
-        context.logger.info("Getting projects from database");
+          context.logger.info("Getting projects from database");
 
-        return await context.db.project.findMany();
+          return await context.db.project.findMany();
         }),
     };
     ```
 
-4. Add load more capability
+4. In this next step, we will add metadata for the **Load more** feature.
 
-    We will allow the query to be paginated with a load more strategy.
+    We will allow the query to be paginated.
+    First, let's update our input to accept a `limit` and a `cursor` parameters.
 
-    First, let's update our input to accept a `limit` and a `cursor` params.
-
-    ```ts {19-24} filename="app/server/routers/project.ts" showLineNumbers
+    ```ts {20-25}
+    // src/server/routers/project.ts
     import { z } from "zod";
 
     import { protectedProcedure } from "@/server/orpc";
@@ -370,44 +378,45 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
     const tags = ["projects"];
 
     export default {
-    getAll: protectedProcedure({
+      getAll: protectedProcedure({
         permission: {
         project: ["read"],
         },
-    })
+      })
         .route({
-        method: "GET",
-        path: "/projects",
-        tags,
+          method: "GET",
+          path: "/projects",
+          tags,
         })
         .input(
-        z
+          z
             .object({
-            cursor: z.string().cuid().optional(),
-            limit: z.number().min(1).max(100).default(20),
+              cursor: z.string().optional(),
+              limit: z.number().min(1).max(100).default(20),
             })
-            .default({})
+            .prefault({})
         )
         .output(
-        z.array(
+          z.array(
             z.object({
-            id: z.string().cuid(),
+            id: z.string(),
             name: z.string(),
             description: z.string().nullish(),
             })
-        )
+          )
         )
         .handler(async ({ context }) => {
-        context.logger.info("Getting projects from database");
+          context.logger.info("Getting projects from database");
 
-        return await context.db.project.findMany();
+          return await context.db.project.findMany();
         }),
     };
     ```
 
     Then we will need to update our prisma query.
 
-    ```ts {39-42} filename="app/server/routers/project.ts" showLineNumbers
+    ```ts {40-42}
+    // src/server/routers/project.ts
     import { z } from "zod";
 
     import { protectedProcedure } from "@/server/orpc";
@@ -415,48 +424,49 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
     const tags = ["projects"];
 
     export default {
-    getAll: protectedProcedure({
+      getAll: protectedProcedure({
         permission: {
         project: ["read"],
         },
-    })
+      })
         .route({
-        method: "GET",
-        path: "/projects",
-        tags,
+          method: "GET",
+          path: "/projects",
+          tags,
         })
         .input(
-        z
+          z
             .object({
-            cursor: z.string().cuid().optional(),
-            limit: z.number().min(1).max(100).default(20),
+              cursor: z.string().optional(),
+              limit: z.number().min(1).max(100).default(20),
             })
-            .default({})
+            .prefault({})
         )
         .output(
-        z.array(
+          z.array(
             z.object({
-            id: z.string().cuid(),
-            name: z.string(),
-            description: z.string().nullish(),
+              id: z.string(),
+              name: z.string(),
+              description: z.string().nullish(),
             })
-        )
+          )
         )
         .handler(async ({ context, input }) => {
-        context.logger.info("Getting projects from database");
+          context.logger.info("Getting projects from database");
 
-        return await context.db.project.findMany({
+          return await context.db.project.findMany({
             // Get an extra item at the end which we'll use as next cursor
             take: input.limit + 1,
             cursor: input.cursor ? { id: input.cursor } : undefined,
-        });
+          });
         }),
     };
     ```
 
-    Now, we need to update our output to send not only the projects but also the `nextCursor`.
+    Now, we need to update our `output` to also send the `nextCursor`.
 
-    ```ts {27-36, 41, 46-56} filename="app/server/routers/project.ts" showLineNumbers
+    ```ts {28-37, 42, 48-57}
+    // src/server/routers/project.ts
     import { z } from "zod";
 
     import { protectedProcedure } from "@/server/orpc";
@@ -464,62 +474,63 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
     const tags = ["projects"];
 
     export default {
-    getAll: protectedProcedure({
+      getAll: protectedProcedure({
         permission: {
         project: ["read"],
         },
-    })
+      })
         .route({
-        method: "GET",
-        path: "/projects",
-        tags,
+          method: "GET",
+          path: "/projects",
+          tags,
         })
         .input(
-        z
+          z
             .object({
-            cursor: z.string().cuid().optional(),
-            limit: z.number().min(1).max(100).default(20),
+              cursor: z.string().optional(),
+              limit: z.number().min(1).max(100).default(20),
             })
-            .default({})
+            .prefault({})
         )
         .output(
-        z.object({
+          z.object({
             items: z.array(
-            z.object({
-                id: z.string().cuid(),
+              z.object({
+                id: z.string(),
                 name: z.string(),
                 description: z.string().nullish(),
-            })
+              })
             ),
-            nextCursor: z.string().cuid().nullish(),
-        })
+            nextCursor: z.string().nullish(),
+          })
         )
         .handler(async ({ context, input }) => {
-        context.logger.info("Getting projects from database");
+          context.logger.info("Getting projects from database");
 
-        const projects = await context.db.project.findMany({
+          const projects = await context.db.project.findMany({
             // Get an extra item at the end which we'll use as next cursor
             take: input.limit + 1,
             cursor: input.cursor ? { id: input.cursor } : undefined,
-        });
+          });
 
-        let nextCursor: typeof input.cursor | undefined = undefined;
-        if (projects.length > input.limit) {
+          let nextCursor: typeof input.cursor | undefined = undefined;
+          if (projects.length > input.limit) {
             const nextItem = projects.pop();
             nextCursor = nextItem?.id;
-        }
+          }
 
-        return {
+          return {
             items: projects,
             nextCursor,
-        };
+          };
         }),
     };
     ```
 
-    We will now add the total of projects in the output data to let the UI know how many projects are available even if now the UI will not request all projects at once.
+    We will now add the total of projects in the output data to let the UI know how many projects are available even if the UI will not request all projects at once.
 
-    ```ts {36, 42-43, 52-53, 60} filename="app/server/routers/project.ts" showLineNumbers
+    ```ts {37, 43-44, 53-54, 61}
+    // src/server/routers/project.ts
     import { z } from "zod";
 
     import { protectedProcedure } from "@/server/orpc";
@@ -527,60 +538,60 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
     const tags = ["projects"];
 
     export default {
-    getAll: protectedProcedure({
+      getAll: protectedProcedure({
         permission: {
         project: ["read"],
         },
-    })
+      })
         .route({
-        method: "GET",
-        path: "/projects",
-        tags,
+          method: "GET",
+          path: "/projects",
+          tags,
         })
         .input(
-        z
+          z
             .object({
-            cursor: z.string().cuid().optional(),
-            limit: z.number().min(1).max(100).default(20),
+              cursor: z.string().optional(),
+              limit: z.number().min(1).max(100).default(20),
             })
-            .default({})
+            .prefault({})
         )
         .output(
-        z.object({
+          z.object({
             items: z.array(
-            z.object({
-                id: z.string().cuid(),
+              z.object({
+                id: z.string(),
                 name: z.string(),
                 description: z.string().nullish(),
-            })
+              })
             ),
-            nextCursor: z.string().cuid().nullish(),
+            nextCursor: z.string().nullish(),
             total: z.number(),
-        })
+          })
         )
         .handler(async ({ context, input }) => {
-        context.logger.info("Getting projects from database");
+          context.logger.info("Getting projects from database");
 
-        const [total, items] = await context.db.$transaction([
+          const [total, items] = await context.db.$transaction([
             context.db.project.count(),
             context.db.project.findMany({
-            // Get an extra item at the end which we'll use as next cursor
-            take: input.limit + 1,
-            cursor: input.cursor ? { id: input.cursor } : undefined,
+              // Get an extra item at the end which we'll use as next cursor
+              take: input.limit + 1,
+              cursor: input.cursor ? { id: input.cursor } : undefined,
             }),
-        ]);
+          ]);
 
-        let nextCursor: typeof input.cursor | undefined = undefined;
-        if (items.length > input.limit) {
+          let nextCursor: typeof input.cursor | undefined = undefined;
+          if (items.length > input.limit) {
             const nextItem = items.pop();
             nextCursor = nextItem?.id;
-        }
+          }
 
-        return {
+          return {
             items,
             nextCursor,
             total,
-        };
+          };
         }),
     };
     ```
@@ -590,7 +601,7 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
     Let's add the possibility to search a project by name. We are adding a `searchTerm` in the input and add a `where` clause.
     We need to put this `where` on both prisma requests, so we can create a constant with the help of the `Prisma.ProjectWhereInput` generated types.
 
-    ```ts {24, 44-49, 52} filename="app/server/routers/project.ts" showLineNumbers
+    ```ts {24, 44-49, 52} filename="src/server/routers/project.ts"
     import { Prisma } from "@prisma/client";
     import { z } from "zod";
 
@@ -612,22 +623,22 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
         .input(
         z
             .object({
-            cursor: z.string().cuid().optional(),
+            cursor: z.string().optional(),
             limit: z.number().min(1).max(100).default(20),
             searchTerm: z.string().optional(),
             })
-            .default({})
+            .prefault({})
         )
         .output(
         z.object({
             items: z.array(
             z.object({
-                id: z.string().cuid(),
+                id: z.string(),
                 name: z.string(),
                 description: z.string().nullish(),
             })
             ),
-            nextCursor: z.string().cuid().nullish(),
+            nextCursor: z.string().nullish(),
             total: z.number(),
         })
         )
@@ -665,11 +676,12 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
     };
     ```
 
-6. Add the router to the Router.ts file
+6. Add the router to the `router.ts` file
 
-    Finally, import this router in the `app/server/router.ts` file.
+    Finally, import this router in the `src/server/router.ts` file.
 
-    ```ts {6,16} filename="app/server/router.ts"
+    ```ts {7,17}
+    // src/server/router.ts
     import { InferRouterInputs, InferRouterOutputs } from "@orpc/server";
 
     import accountRouter from "./routers/account";
@@ -682,11 +694,11 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
     export type Inputs = InferRouterInputs<typeof router>;
     export type Outputs = InferRouterOutputs<typeof router>;
     export const router = {
-    account: accountRouter,
-    book: bookRouter,
-    genre: genreRouter,
-    project: projectRouter,
-    user: userRouter,
+      account: accountRouter,
+      book: bookRouter,
+      genre: genreRouter,
+      project: projectRouter,
+      user: userRouter,
     };
     ```
 
@@ -707,40 +719,40 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
 
     First, we will extract the zod schema for the project from the tRPC router and put it into a `schemas.ts` file in the `src/features/projects` folder.
 
-    Let's create the `app/features/project/schema.ts` file with the zod schema for one project.
+    Let's create the `src/features/project/schema.ts` file with the zod schema for one project.
 
-    ```ts filename="app/features/project/schema.ts" showLineNumbers
+    ```ts filename="src/features/project/schema.ts"
     import { z } from "zod";
 
     import { zu } from "@/lib/zod/zod-utils";
 
     export const zProject = () =>
-    z.object({
-        id: z.string().cuid(),
+      z.object({
+        id: z.string(),
         name: zu.string.nonEmpty(z.string()),
         description: z.string().nullish(),
-    });
+      });
     ```
 
     Let's create the type from this schema.
 
-    ```ts {5} filename="src/features/project/schemas.ts" showLineNumbers
+    ```ts {5} filename="src/features/project/schemas.ts"
     import { z } from "zod";
 
     import { zu } from "@/lib/zod/zod-utils";
 
     export type Project = z.infer<ReturnType<typeof zProject>>;
     export const zProject = () =>
-    z.object({
-        id: z.string().cuid(),
+      z.object({
+        id: z.string(),
         name: zu.string.nonEmpty(z.string()),
         description: z.string().nullish(),
-    });
+      });
     ```
 
-    Use this schema in the oRPC router in the `app/server/routers/project.ts` file.
+    Use this schema in the oRPC router in the `src/server/routers/project.ts` file.
 
-    ```ts {4, 19} filename="app/server/routers/project.ts" showLineNumbers
+    ```ts {4, 19} filename="src/server/routers/project.ts"
     import { Prisma } from "@prisma/client";
     import { z } from "zod";
 
@@ -750,19 +762,19 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
     const tags = ["projects"];
 
     export default {
-    getAll: protectedProcedure({
+      getAll: protectedProcedure({
         permission: {
         project: ["read"],
         },
-    })
+      })
         .route(/* ... */)
         .input(/* ... */)
         .output(
-        z.object({
+          z.object({
             items: z.array(zProject()),
-            nextCursor: z.string().cuid().nullish(),
+            nextCursor: z.string().nullish(),
             total: z.number(),
-        })
+          })
         )
         .handler(/* ... */),
     };
