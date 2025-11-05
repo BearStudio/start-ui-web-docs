@@ -1,0 +1,65 @@
+---
+title: Deploy Guide
+---
+
+import WorkInProgress from "@/components/WorkInProgress.astro";
+import { Steps } from "@astrojs/starlight/components";
+
+<WorkInProgress />
+## Deploy on clever cloud
+
+<Steps>
+1. Create a Clever Cloud app:
+
+   - Go to the [Clever Console](https://console.clever-cloud.com/) and select your personal organization or the organization where you want to create your app.
+   
+   - Click on "Create..." and select "an application".
+   ![deploy-on-clever-1](@/assets/guides/deploy-on-clever/deploy-on-clever-1.png)
+  
+
+   - Select "Create a brand new app"
+   - Select "NodeJS & Bun" as the template.
+
+   ![deploy-on-clever-1](@/assets/guides/deploy-on-clever/deploy-on-clever-2.png)
+
+   - Choose the recommended machine for your project, but you can edit it later.
+   - Give a name to your app (description is optional).
+
+2. Configure environment variables (_Replace every variables needed to adapt the project as yours (domain included)._):
+
+   - Go back to your project on the left bar and click on "Environment Variable".
+   - Click on "Expert" at the top right.
+   - Paste the template below and go back to "simple":
+
+   ![deploy-on-clever-1](@/assets/guides/deploy-on-clever/deploy-on-clever-3.png)
+
+   ```
+   AUTH_SECRET="REPLACE ME"
+   AUTH_SESSION_EXPIRATION_IN_SECONDS="2592000"
+   AUTH_SESSION_UPDATE_AGE_IN_SECONDS="86400"
+   CC_CACHE_DEPENDENCIES="false"
+   CC_CUSTOM_BUILD_TOOL="pnpm install && pnpm build"
+   CC_NODE_BUILD_TOOL="custom"
+   CC_NODE_DEV_DEPENDENCIES="install"
+   CC_PRE_BUILD_HOOK="npm install -g pnpm"
+   CC_RUN_COMMAND="pnpm start || (npm install -g pnpm && pnpm start)"
+   DATABASE_URL="REPLACE_ME"
+   EMAIL_FROM="Start UI <noreply@example.com>"
+   EMAIL_SERVER="smtp://your-smtp-server"
+   NODE_ENV="production"
+   VITE_BASE_URL="REPLACE ME"
+   VITE_ENV_COLOR="gold"
+   VITE_ENV_EMOJI="🚧"
+   VITE_ENV_NAME="PROD-STAGING-YOUR_ENV"
+   VITE_IS_DEMO="false"
+   VITE_PORT="3000"
+   ```
+
+3. Deploy your app:
+
+    - Open a terminal in your project
+    - Install the Clever Tools package globally with `npm install -g clever-tools`.
+    - Log in to Clever Cloud with `clever login` (follow the instructions in the shell).
+    - Copy the app ID at the top right of your project on the Clever Console and run `clever link {app_id}`.
+    - Deploy your app with `clever deploy`.
+</Steps>
