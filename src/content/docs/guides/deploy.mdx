@@ -8,12 +8,15 @@ import { Steps } from "@astrojs/starlight/components";
 <WorkInProgress />
 ## Deploy on clever cloud
 
+This guide explains how to deploy your start-ui-v3 project to Clever Cloud using the Clever Tools CLI.
+
 <Steps>
-1. Create a Clever Cloud app:
+1. Create a new Clever Cloud application
 
    - Go to the [Clever Console](https://console.clever-cloud.com/) and select your personal organization or the organization where you want to create your app.
    
    - Click on "Create..." and select "an application".
+   
    ![deploy-on-clever-1](@/assets/guides/deploy-on-clever/deploy-on-clever-1.png)
   
 
@@ -25,11 +28,11 @@ import { Steps } from "@astrojs/starlight/components";
    - Choose the recommended machine for your project, but you can edit it later.
    - Give a name to your app (description is optional).
 
-2. Configure environment variables (_Replace every variables needed to adapt the project as yours (domain included)._):
+2. Configure environment variables *Replace all variables as needed to match your project (including your domain)*
 
    - Go back to your project on the left bar and click on "Environment Variable".
-   - Click on "Expert" at the top right.
-   - Paste the template below and go back to "simple":
+   - Click on the Expert tab at the top right.
+   - Paste the environment variable template below, then switch back to the Simple view.
 
    ![deploy-on-clever-1](@/assets/guides/deploy-on-clever/deploy-on-clever-3.png)
 
@@ -58,8 +61,12 @@ import { Steps } from "@astrojs/starlight/components";
 3. Deploy your app:
 
     - Open a terminal in your project
-    - Install the Clever Tools package globally with `npm install -g clever-tools`.
-    - Log in to Clever Cloud with `clever login` (follow the instructions in the shell).
-    - Copy the app ID at the top right of your project on the Clever Console and run `clever link {app_id}`.
-    - Deploy your app with `clever deploy`.
+    ```bash
+      npm install -g clever-tools
+      clever login
+      clever link <app_id>
+      clever deploy
+    ```
 </Steps>
+
+🎉 Your app is now live on Clever Cloud! You can view logs or redeploy anytime using clever logs and clever deploy.
