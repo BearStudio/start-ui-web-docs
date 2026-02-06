@@ -729,7 +729,7 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
     export const zProject = () =>
       z.object({
         id: z.string(),
-        name: zu.string.nonEmpty(z.string()),
+        name: zu.fieldText.required(),
         description: z.string().nullish(),
       });
     ```
@@ -745,7 +745,7 @@ We will create a **"Project"** entity with the full CRUD (Create Read Update Del
     export const zProject = () =>
       z.object({
         id: z.string(),
-        name: zu.string.nonEmpty(z.string()),
+        name: zu.fieldText.required(),
         description: z.string().nullish(),
       });
     ```
